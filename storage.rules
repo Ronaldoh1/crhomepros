@@ -1,0 +1,24 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Project images and site assets — public read
+    match /projects/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    match /site/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    // Documents (recommendation letters, etc.)
+    match /docs/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    // Testimonials
+    match /testimonials/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+  }
+}

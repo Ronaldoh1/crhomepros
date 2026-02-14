@@ -1,0 +1,20 @@
+{
+  "name": "CR Home Pros - Complete Home Services",
+  "short_name": "CR Home Pros",
+  "description": "Your Home. Our Expertise. Complete home renovation and improvement services serving the DMV area.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#010012",
+  "theme_color": "#060828",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "lifestyle"],
+  "lang": "en-US"
+}

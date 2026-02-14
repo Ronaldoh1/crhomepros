@@ -1,0 +1,353 @@
+'use client'
+
+import { useEffect, useState, useCallback } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+import { ArrowRight, Phone, Shield, Award, Languages, CheckCircle, ChevronLeft, ChevronRight, FileCheck } from 'lucide-react'
+import { cn, formatPhoneLink } from '@/lib/utils'
+import { COMPANY } from '@/lib/constants'
+import { useTranslation } from '@/lib/i18n/provider'
+import { ScrollHint } from '@/components/ui/ScrollHint'
+
+// Slideshow data with stock images and taglines
+const slides = [
+  {
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&q=80', // Modern kitchen
+    tagline: 'One Call Fixes It All',
+    subtitle: 'From leaky faucets to full renos—precision, care, and zero hassle.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1920&q=80', // Bathroom
+    tagline: 'Your Home, Handled',
+    subtitle: 'Minor repairs to major makeovers: We handle every detail so you don\'t have to.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1920&q=80', // Construction/renovation
+    tagline: 'Built to Last, Designed to Wow',
+    subtitle: 'Skilled pros turning your house into the home you\'ve always imagined.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80', // Living room
+    tagline: 'From Fix to Finish',
+    subtitle: 'Every project, every scale—delivered with expertise and a perfect touch.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80', // Beautiful home exterior
+    tagline: 'We Transform Houses into Homes',
+    subtitle: 'Seamless service from the smallest tweak to the biggest dream.',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80', // Modern home
+    tagline: 'No Job Too Small. No Vision Too Big.',
+    subtitle: 'Your trusted team for every home improvement need.',
+  },
+]
+
+const trustBadges = [
+  { icon: Shield, label: 'Licensed & Insured', detail: 'MHIC #05-132359' },
+  { icon: Award, label: '20+ Years Experience', detail: 'Since 2004' },
+  { icon: FileCheck, label: 'Insurance Claims', detail: 'We Handle It All' },
+  { icon: Languages, label: 'Bilingual Team', detail: '¡Hablamos Español!' },
+  { icon: CheckCircle, label: '500+ Projects', detail: 'Completed' },
+]
+
+export function Hero() {
+  const t = useTranslation()
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
+
+  const SLIDE_DURATION = 5000 // 5 seconds per slide
+  const [progress, setProgress] = useState(0)
+
+  // Track scroll for parallax effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // Auto-advance slideshow
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
+
+  // Handle slide timing and progress bar
+  useEffect(() => {
+    if (isPaused) return
+
+    // Reset progress when slide changes
+    setProgress(0)
+
+    // Progress bar animation
+    const progressInterval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) return 100
+        return prev + (100 / (SLIDE_DURATION / 50)) // Update every 50ms
+      })
+    }, 50)
+
+    // Auto-advance to next slide
+    const slideTimer = setTimeout(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length)
+    }, SLIDE_DURATION)
+
+    return () => {
+      clearInterval(progressInterval)
+      clearTimeout(slideTimer)
+    }
+  }, [currentSlide, isPaused])
+
+  const goToSlide = useCallback((index: number) => {
+    setProgress(0)
+    setCurrentSlide(index)
+  }, [])
+
+  const nextSlide = useCallback(() => {
+    setProgress(0)
+    setCurrentSlide((prev) => (prev + 1) % slides.length)
+  }, [])
+
+  const prevSlide = useCallback(() => {
+    setProgress(0)
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)
+  }, [])
+
+  return (
+    <section 
+      className="relative min-h-screen flex items-center overflow-hidden"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Background Slideshow */}
+      <div className="absolute inset-0">
+        {slides.map((slide, index) => (
+          <div
+            key={index}
+            className={cn(
+              'absolute inset-0 transition-opacity duration-1000',
+              index === currentSlide ? 'opacity-100' : 'opacity-0'
+            )}
+          >
+            {/* Image */}
+            <div 
+              className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
+              style={{ backgroundImage: `url(${slide.image})` }}
+            />
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-dark-900/95 via-dark-900/80 to-dark-900/60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-dark-900/90 via-transparent to-dark-900/40" />
+          </div>
+        ))}
+        
+        {/* Additional design elements */}
+        <div className="absolute inset-0 bg-primary-900/20 mix-blend-multiply" />
+        
+        {/* Subtle pattern overlay */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]"
+          style={{
+            backgroundImage: `radial-gradient(circle at 1px 1px, white 1px, transparent 0)`,
+            backgroundSize: '40px 40px',
+          }}
+        />
+      </div>
+
+      {/* Slide Navigation Arrows */}
+      <button
+        onClick={prevSlide}
+        className="absolute left-3 lg:left-8 top-[35%] lg:top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+        aria-label="Previous slide"
+      >
+        <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+      </button>
+      <button
+        onClick={nextSlide}
+        className="absolute right-3 lg:right-8 top-[35%] lg:top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+        aria-label="Next slide"
+      >
+        <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
+      </button>
+
+      {/* Content */}
+      <div className="relative z-10 container-custom py-16 md:py-24 lg:py-32">
+        <div className="max-w-4xl">
+          {/* Logo - Only on larger screens (navbar logo covers mobile) */}
+          <div
+            className={cn(
+              'mb-6 transition-all duration-700 hidden md:block',
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            )}
+            style={{
+              transform: `translateY(${scrollY * 0.3}px) scale(${Math.max(1 - scrollY * 0.001, 0.7)})`,
+              opacity: Math.max(1 - scrollY * 0.003, 0),
+            }}
+          >
+            <div className="relative h-36 lg:h-44 w-auto inline-block">
+              <Image
+                src="/images/logo.png"
+                alt="CR Home Pros - Complete Home Services"
+                width={600}
+                height={180}
+                className="h-full w-auto object-contain drop-shadow-2xl"
+                style={{ maxWidth: 'none' }}
+                priority
+                quality={100}
+                unoptimized
+              />
+            </div>
+          </div>
+
+          {/* Animated Tagline */}
+          <div className="relative min-h-[140px] sm:min-h-[180px] lg:min-h-[200px] mb-6 md:mb-8">
+            {slides.map((slide, index) => (
+              <div
+                key={index}
+                className={cn(
+                  'absolute top-0 left-0 transition-all duration-700',
+                  index === currentSlide 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-8 pointer-events-none'
+                )}
+              >
+                <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-4 leading-tight">
+                  {slide.tagline.split(' ').map((word, i) => (
+                    <span key={i}>
+                      {i === 0 || i === slide.tagline.split(' ').length - 1 ? (
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-gold-300 to-gold-500">
+                          {word}
+                        </span>
+                      ) : (
+                        word
+                      )}{' '}
+                    </span>
+                  ))}
+                </h1>
+                <p className="text-lg md:text-xl lg:text-2xl text-white/70 max-w-2xl leading-relaxed">
+                  {slide.subtitle}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* CTAs */}
+          <div
+            className={cn(
+              'flex flex-col sm:flex-row items-start gap-4 mb-10 transition-all duration-700 delay-300',
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            )}
+          >
+            <Link
+              href="/get-started"
+              className="group flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-dark-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-gold-500/25 hover:shadow-xl hover:shadow-gold-500/40 hover:-translate-y-1 transition-all duration-300"
+            >
+              {t.hero.cta}
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+            <a
+              href={formatPhoneLink(COMPANY.phone)}
+              className="flex items-center gap-3 bg-white/10 hover:bg-white/20 backdrop-blur-sm text-white px-8 py-4 rounded-xl font-semibold text-lg border border-white/20 hover:border-white/40 transition-all duration-300"
+            >
+              <Phone className="w-5 h-5" />
+              {COMPANY.phoneFormatted}
+            </a>
+          </div>
+
+          {/* Trust Badges */}
+          <div
+            className={cn(
+              'transition-all duration-700 delay-400',
+              isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+            )}
+          >
+            {/* Mobile: horizontal scroll strip */}
+            <div className="flex lg:hidden gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
+              {trustBadges.map((badge) => (
+                <div
+                  key={badge.label}
+                  className="flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 flex-shrink-0 min-w-[180px] snap-start"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+                    <badge.icon className="w-5 h-5 text-gold-400" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-white text-sm font-medium whitespace-nowrap">{badge.label}</p>
+                    <p className="text-white/50 text-xs whitespace-nowrap">{badge.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Desktop: grid */}
+            <div className="hidden lg:grid grid-cols-4 gap-4">
+              {trustBadges.map((badge) => (
+                <div
+                  key={badge.label}
+                  className="flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+                    <badge.icon className="w-5 h-5 text-gold-400" />
+                  </div>
+                  <div>
+                    <p className="text-white text-sm font-medium">{badge.label}</p>
+                    <p className="text-white/50 text-xs">{badge.detail}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Slide Counter - shows current slide number */}
+      <div className="absolute bottom-8 right-8 z-20 hidden lg:flex items-center gap-2 text-white/60 text-sm font-medium">
+        <span className="text-white">{String(currentSlide + 1).padStart(2, '0')}</span>
+        <span>/</span>
+        <span>{String(slides.length).padStart(2, '0')}</span>
+      </div>
+
+      {/* Slide Indicators with Progress */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
+        {slides.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className="relative group"
+            aria-label={`Go to slide ${index + 1}`}
+          >
+            {/* Background track */}
+            <div className={cn(
+              'h-1.5 rounded-full transition-all duration-300 overflow-hidden',
+              index === currentSlide ? 'w-12 bg-white/30' : 'w-3 bg-white/20 hover:bg-white/40'
+            )}>
+              {/* Progress fill - only show on current slide */}
+              {index === currentSlide && (
+                <div 
+                  className="h-full bg-gold-500 rounded-full transition-all duration-75 ease-linear"
+                  style={{ width: `${progress}%` }}
+                />
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+
+      {/* Bilingual Badge - floating */}
+      <div className="hidden lg:block absolute top-32 right-8 z-20">
+        <div className="bg-gold-500 text-dark-900 px-4 py-2 rounded-full font-bold text-sm shadow-lg animate-bounce-slow">
+          ¡Hablamos Español!
+        </div>
+      </div>
+
+      {/* Scroll hint on mobile */}
+      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 lg:hidden">
+        <ScrollHint className="text-white/60" />
+      </div>
+
+      {/* Bottom gradient for smooth transition to next section */}
+      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent z-10" />
+    </section>
+  )
+}

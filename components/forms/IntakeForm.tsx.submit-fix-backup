@@ -1,0 +1,491 @@
+'use client'
+
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { ArrowRight, ArrowLeft, Loader2, CheckCircle, Upload, X, Phone, Calendar, Mail, MessageSquare } from 'lucide-react'
+import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
+import { cn, formatPhoneLink } from '@/lib/utils'
+import { SERVICES, BUDGET_RANGES, TIMELINE_OPTIONS, REFERRAL_SOURCES, COMPANY } from '@/lib/constants'
+
+const intakeSchema = z.object({
+  // Step 1: Contact
+  firstName: z.string().min(2, 'First name is required'),
+  lastName: z.string().min(2, 'Last name is required'),
+  email: z.string().email('Valid email required'),
+  phone: z.string().min(10, 'Valid phone required'),
+  preferredContact: z.enum(['phone', 'email', 'text', 'whatsapp']),
+  
+  // Step 2: Location
+  address: z.string().min(5, 'Address is required'),
+  city: z.string().min(2, 'City is required'),
+  state: z.string().min(2, 'State is required'),
+  zip: z.string().min(5, 'ZIP code is required'),
+  propertyType: z.enum(['single-family', 'townhouse', 'condo', 'multi-family', 'commercial']),
+  
+  // Step 3: Project
+  services: z.array(z.string()).min(1, 'Select at least one service'),
+  projectDescription: z.string().min(20, 'Please describe your project'),
+  
+  // Step 4: Timeline & Budget
+  timeline: z.string().min(1, 'Please select a timeline'),
+  budget: z.string().min(1, 'Please select a budget range'),
+  flexibleBudget: z.boolean().optional(),
+  
+  // Step 5: Additional
+  howDidYouHear: z.string().optional(),
+  additionalNotes: z.string().optional(),
+})
+
+type IntakeFormData = z.infer<typeof intakeSchema>
+
+const steps = [
+  { title: 'Contact Info', description: 'How can we reach you?' },
+  { title: 'Location', description: 'Where is your project?' },
+  { title: 'Project Details', description: 'What do you need done?' },
+  { title: 'Timeline & Budget', description: 'When and how much?' },
+  { title: 'Almost Done!', description: 'Just a few more details' },
+]
+
+export function IntakeForm() {
+  const [currentStep, setCurrentStep] = useState(0)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([])
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    trigger,
+    formState: { errors },
+  } = useForm<IntakeFormData>({
+    resolver: zodResolver(intakeSchema),
+    defaultValues: {
+      preferredContact: 'phone',
+      propertyType: 'single-family',
+      services: [],
+      flexibleBudget: false,
+    },
+  })
+
+  const selectedServices = watch('services') || []
+
+  const validateStep = async () => {
+    const fieldsToValidate: (keyof IntakeFormData)[][] = [
+      ['firstName', 'lastName', 'email', 'phone', 'preferredContact'],
+      ['address', 'city', 'state', 'zip', 'propertyType'],
+      ['services', 'projectDescription'],
+      ['timeline', 'budget'],
+      [],
+    ]
+    
+    const result = await trigger(fieldsToValidate[currentStep])
+    return result
+  }
+
+  const nextStep = async () => {
+    const isValid = await validateStep()
+    if (isValid && currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const prevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const onSubmit = async (data: IntakeFormData) => {
+    setIsSubmitting(true)
+    try {
+      // Convert photos to base64 for API
+      const imagePromises = uploadedPhotos.map(file => {
+        return new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+      })
+      const images = await Promise.all(imagePromises)
+
+      const response = await fetch('/api/get-started', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, images }),
+      })
+
+      if (!response.ok) throw new Error('Submission failed')
+
+      setIsSubmitting(false)
+      setIsSuccess(true)
+    } catch (err) {
+      console.error('Lead form error:', err)
+      setIsSubmitting(false)
+      alert('Something went wrong. Please try calling us directly.')
+    }
+  }
+
+  if (isSuccess) {
+    return (
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-8 md:p-12 text-center">
+        <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
+          <CheckCircle className="w-10 h-10 text-green-600" />
+        </div>
+        <h2 className="text-2xl md:text-3xl font-display font-bold text-green-800 mb-4">
+          Request Submitted!
+        </h2>
+        <p className="text-green-700 text-lg mb-6">
+          Thank you! We've received your project details and will contact you within 24 hours 
+          to schedule your free consultation.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href={formatPhoneLink(COMPANY.phone)}
+            className="btn bg-green-600 text-white hover:bg-green-700"
+          >
+            <Phone className="w-5 h-5 mr-2" />
+            Call Us Now
+          </a>
+          <a
+            href="/projects"
+            className="btn bg-white text-green-700 border border-green-200 hover:bg-green-50"
+          >
+            Browse Our Work
+          </a>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-dark-100 shadow-xl overflow-hidden">
+      {/* Progress Bar */}
+      <div className="bg-dark-50 px-6 py-4">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-sm font-medium text-dark-600">
+            Step {currentStep + 1} of {steps.length}
+          </span>
+          <span className="text-sm text-dark-500">
+            {Math.round(((currentStep + 1) / steps.length) * 100)}% complete
+          </span>
+        </div>
+        <div className="h-2 bg-dark-200 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-primary-600 rounded-full transition-all duration-500"
+            style={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Step Header */}
+      <div className="px-6 py-6 border-b border-dark-100">
+        <h2 className="text-xl md:text-2xl font-display font-bold text-dark-900">
+          {steps[currentStep].title}
+        </h2>
+        <p className="text-dark-500">{steps[currentStep].description}</p>
+      </div>
+
+      {/* Form */}
+      <form onSubmit={handleSubmit(onSubmit)} className="p-6 md:p-8">
+        {/* Step 1: Contact Info */}
+        {currentStep === 0 && (
+          <div className="space-y-6">
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">First Name *</label>
+                <input {...register('firstName')} autoComplete="given-name" className={cn('input', errors.firstName && 'border-red-500')} placeholder="John" />
+                {errors.firstName && <p className="mt-1 text-sm text-red-500">{errors.firstName.message}</p>}
+              </div>
+              <div>
+                <label className="label">Last Name *</label>
+                <input {...register('lastName')} autoComplete="family-name" className={cn('input', errors.lastName && 'border-red-500')} placeholder="Smith" />
+                {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName.message}</p>}
+              </div>
+            </div>
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Email *</label>
+                <input {...register('email')} type="email" autoComplete="email" className={cn('input', errors.email && 'border-red-500')} placeholder="john@example.com" />
+                {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
+              </div>
+              <div>
+                <label className="label">Phone *</label>
+                <input {...register('phone')} type="tel" autoComplete="tel" className={cn('input', errors.phone && 'border-red-500')} placeholder="(555) 123-4567" />
+                {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
+              </div>
+            </div>
+            <div>
+              <label className="label">Preferred Contact Method *</label>
+              <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
+                {[
+                  { value: 'phone', icon: <Phone className="w-4 h-4" />, label: 'Phone' },
+                  { value: 'email', icon: <Mail className="w-4 h-4" />, label: 'Email' },
+                  { value: 'text', icon: <MessageSquare className="w-4 h-4" />, label: 'Text' },
+                  { value: 'whatsapp', icon: <WhatsAppIcon className="w-4 h-4" />, label: 'WhatsApp' },
+                ].map((method) => (
+                  <label key={method.value} className="flex items-center gap-2 cursor-pointer bg-white border border-dark-200 rounded-lg px-3 py-2.5 hover:border-primary-400 transition-colors has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50">
+                    <input {...register('preferredContact')} type="radio" value={method.value} className="text-primary-600" />
+                    <span className={cn('flex-shrink-0', method.value === 'whatsapp' ? 'text-green-500' : 'text-dark-500')}>{method.icon}</span>
+                    <span className="text-sm font-medium">{method.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Location */}
+        {currentStep === 1 && (
+          <div className="space-y-6">
+            <div>
+              <label className="label">Street Address *</label>
+              <input {...register('address')} autoComplete="street-address" className={cn('input', errors.address && 'border-red-500')} placeholder="123 Main Street" />
+              {errors.address && <p className="mt-1 text-sm text-red-500">{errors.address.message}</p>}
+            </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              <div>
+                <label className="label">City *</label>
+                <input {...register('city')} autoComplete="address-level2" className={cn('input', errors.city && 'border-red-500')} placeholder="Bethesda" />
+                {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city.message}</p>}
+              </div>
+              <div>
+                <label className="label">State *</label>
+                <select {...register('state')} className={cn('input', errors.state && 'border-red-500')}>
+                  <option value="">Select</option>
+                  <option value="DC">Washington DC</option>
+                  <option value="MD">Maryland</option>
+                  <option value="VA">Virginia</option>
+                </select>
+                {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state.message}</p>}
+              </div>
+              <div>
+                <label className="label">ZIP Code *</label>
+                <input {...register('zip')} autoComplete="postal-code" className={cn('input', errors.zip && 'border-red-500')} placeholder="20814" />
+                {errors.zip && <p className="mt-1 text-sm text-red-500">{errors.zip.message}</p>}
+              </div>
+            </div>
+            <div>
+              <label className="label">Property Type *</label>
+              <select {...register('propertyType')} className="input">
+                <option value="single-family">Single Family Home</option>
+                <option value="townhouse">Townhouse</option>
+                <option value="condo">Condo / Apartment</option>
+                <option value="multi-family">Multi-Family</option>
+                <option value="commercial">Commercial</option>
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Project Details */}
+        {currentStep === 2 && (
+          <div className="space-y-6">
+            <div>
+              <label className="label">Services Needed * (select all that apply)</label>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
+                {SERVICES.map((service) => (
+                  <label
+                    key={service.id}
+                    className={cn(
+                      'flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-all',
+                      selectedServices.includes(service.id)
+                        ? 'border-primary-500 bg-primary-50 text-primary-700'
+                        : 'border-dark-200 hover:border-primary-200'
+                    )}
+                  >
+                    <input
+                      {...register('services')}
+                      type="checkbox"
+                      value={service.id}
+                      className="text-primary-600"
+                    />
+                    <span className="text-sm font-medium">{service.name}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.services && <p className="mt-2 text-sm text-red-500">{errors.services.message}</p>}
+            </div>
+            <div>
+              <label className="label">Tell Us About Your Project *</label>
+              <textarea
+                {...register('projectDescription')}
+                rows={5}
+                className={cn('textarea', errors.projectDescription && 'border-red-500')}
+                placeholder="Describe what you'd like done, any specific requirements, challenges, or ideas you have..."
+              />
+              {errors.projectDescription && <p className="mt-1 text-sm text-red-500">{errors.projectDescription.message}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Step 4: Timeline & Budget */}
+        {currentStep === 3 && (
+          <div className="space-y-6">
+            <div>
+              <label className="label">When Would You Like to Start? *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {TIMELINE_OPTIONS.map((option) => (
+                  <label
+                    key={option}
+                    className={cn(
+                      'flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all',
+                      watch('timeline') === option
+                        ? 'border-primary-500 bg-primary-50'
+                        : 'border-dark-200 hover:border-primary-200'
+                    )}
+                  >
+                    <input {...register('timeline')} type="radio" value={option} className="text-primary-600" />
+                    <span>{option}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.timeline && <p className="mt-2 text-sm text-red-500">{errors.timeline.message}</p>}
+            </div>
+            <div>
+              <label className="label">Estimated Budget Range *</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {BUDGET_RANGES.map((range) => (
+                  <label
+                    key={range}
+                    className={cn(
+                      'flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all',
+                      watch('budget') === range
+                        ? 'border-primary-500 bg-primary-50'
+                        : 'border-dark-200 hover:border-primary-200'
+                    )}
+                  >
+                    <input {...register('budget')} type="radio" value={range} className="text-primary-600" />
+                    <span>{range}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.budget && <p className="mt-2 text-sm text-red-500">{errors.budget.message}</p>}
+            </div>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input {...register('flexibleBudget')} type="checkbox" className="text-primary-600" />
+              <span className="text-dark-600">I'm flexible on budget for the right solution</span>
+            </label>
+          </div>
+        )}
+
+        {/* Step 5: Additional Info */}
+        {currentStep === 4 && (
+          <div className="space-y-6">
+            <div>
+              <label className="label">How Did You Hear About Us?</label>
+              <select {...register('howDidYouHear')} className="input">
+                <option value="">Select (optional)</option>
+                {REFERRAL_SOURCES.map((source) => (
+                  <option key={source} value={source}>{source}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">📸 Upload Photos of Your Project (Optional)</label>
+              <p className="text-sm text-dark-500 mb-2">Help us understand your project better — share photos of the area you want renovated.</p>
+              {uploadedPhotos.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {uploadedPhotos.map((file, i) => (
+                    <div key={i} className="relative group">
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Photo ${i + 1}`}
+                        className="w-20 h-20 object-cover rounded-lg border border-dark-200"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setUploadedPhotos(prev => prev.filter((_, idx) => idx !== i))}
+                        className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-dark-300 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-colors">
+                <Upload className="w-8 h-8 text-dark-400" />
+                <span className="text-sm font-medium text-dark-600">Tap to upload photos</span>
+                <span className="text-xs text-dark-400">JPG, PNG up to 10MB each • Max 5 photos</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || [])
+                    const total = uploadedPhotos.length + files.length
+                    if (total > 5) {
+                      alert('Maximum 5 photos allowed')
+                      return
+                    }
+                    const valid = files.filter(f => f.size <= 10 * 1024 * 1024)
+                    if (valid.length < files.length) {
+                      alert('Some files exceeded 10MB and were skipped')
+                    }
+                    setUploadedPhotos(prev => [...prev, ...valid])
+                    e.target.value = '' // reset input
+                  }}
+                />
+              </label>
+            </div>
+            <div>
+              <label className="label">Anything Else We Should Know?</label>
+              <textarea
+                {...register('additionalNotes')}
+                rows={4}
+                className="textarea"
+                placeholder="Access instructions, HOA requirements, pets, scheduling preferences, etc."
+              />
+            </div>
+            <div className="bg-gold-50 border border-gold-200 rounded-xl p-4">
+              <p className="text-gold-800 text-sm">
+                <strong>What happens next?</strong> We'll review your project details and contact you within 
+                24 hours to schedule a free on-site consultation and provide a detailed estimate.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation Buttons */}
+        <div className="flex justify-between mt-8 pt-6 border-t border-dark-100">
+          <button
+            type="button"
+            onClick={prevStep}
+            className={cn('btn-outline', currentStep === 0 && 'invisible')}
+          >
+            <ArrowLeft className="w-5 h-5 mr-2" />
+            Back
+          </button>
+
+          {currentStep < steps.length - 1 ? (
+            <button type="button" onClick={nextStep} className="btn-primary">
+              Continue
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </button>
+          ) : (
+            <button type="submit" disabled={isSubmitting} className="btn-gold btn-lg">
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Calendar className="w-5 h-5 mr-2" />
+                  Request Free Estimate
+                </>
+              )}
+            </button>
+          )}
+        </div>
+      </form>
+    </div>
+  )
+}
