@@ -5,7 +5,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { resolveImageUrl } from '@/lib/resolve-images'
 
 // REAL projects from crgenserv.com - Carlos's actual work
 const featuredProjects = [
@@ -17,8 +16,8 @@ const featuredProjects = [
     duration: '6 weeks',
     year: 2024,
     description: 'Complete kitchen transformation featuring custom cabinetry, premium countertops, modern appliances, and expert tiling work.',
-    image: resolveImageUrl('/images/2024-01/img_3700-1024x746.JPEG'),
-    beforeImage: resolveImageUrl('/images/2024-01/img_3702-780x1024.JPEG'),
+    image: '/images/2024-01/img_3700-1024x746.JPEG',
+    beforeImage: '/images/2024-01/img_3702-780x1024.JPEG',
   },
   {
     id: 'bathroom-remodel-1',
@@ -28,8 +27,8 @@ const featuredProjects = [
     duration: '4 weeks',
     year: 2024,
     description: 'Luxurious bathroom renovation with custom tile work, modern fixtures, and premium finishes throughout.',
-    image: resolveImageUrl('/images/2024-06/img_3497-1-768x1024.JPEG'),
-    beforeImage: resolveImageUrl('/images/2024-01/img_0416-768x1024.JPEG'),
+    image: '/images/2024-06/img_3497-1-768x1024.JPEG',
+    beforeImage: '/images/2024-01/img_0416-768x1024.JPEG',
   },
   {
     id: 'complete-renovation-1',
@@ -39,8 +38,8 @@ const featuredProjects = [
     duration: '12 weeks',
     year: 2024,
     description: 'Full property transformation including structural work, flooring, walls, and complete interior refinishing.',
-    image: resolveImageUrl('/images/2024-01/img_1548-2-1024x768.JPEG'),
-    beforeImage: resolveImageUrl('/images/2024-01/img_1506-768x1024.JPEG'),
+    image: '/images/2024-01/img_1548-2-1024x768.JPEG',
+    beforeImage: '/images/2024-01/img_1506-768x1024.JPEG',
   },
   {
     id: 'deck-restoration-1',
@@ -50,8 +49,8 @@ const featuredProjects = [
     duration: '3 weeks',
     year: 2024,
     description: 'Beautiful deck construction with quality lumber, expert craftsmanship, and professional staining for long-lasting beauty.',
-    image: resolveImageUrl('/images/2024-06/img_2386-1024x768.JPEG'),
-    beforeImage: resolveImageUrl('/images/2024-06/img_2379-1024x768.JPEG'),
+    image: '/images/2024-06/img_2386-1024x768.JPEG',
+    beforeImage: '/images/2024-06/img_2379-1024x768.JPEG',
   },
 ]
 
@@ -115,8 +114,8 @@ export function FeaturedProjects() {
               {showBefore ? 'View After' : 'View Before'}
             </button>
 
-            {/* Navigation Arrows */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
+            {/* Navigation Arrows - Desktop Only */}
+            <div className="hidden md:flex absolute top-1/2 -translate-y-1/2 left-4 right-4 justify-between pointer-events-none">
               <button
                 onClick={prevProject}
                 className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-dark-800 hover:bg-white transition-colors pointer-events-auto"
@@ -126,6 +125,22 @@ export function FeaturedProjects() {
               <button
                 onClick={nextProject}
                 className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-dark-800 hover:bg-white transition-colors pointer-events-auto"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Navigation Arrows - Mobile Only (Below Image) */}
+            <div className="flex md:hidden gap-4 justify-center mt-4 absolute bottom-16 left-1/2 -translate-x-1/2">
+              <button
+                onClick={prevProject}
+                className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-dark-800 hover:bg-white transition-colors shadow-lg"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={nextProject}
+                className="w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center text-dark-800 hover:bg-white transition-colors shadow-lg"
               >
                 <ChevronRight className="w-6 h-6" />
               </button>
