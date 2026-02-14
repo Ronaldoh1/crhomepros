@@ -3,11 +3,9 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Phone, Shield, Award, Languages, CheckCircle, ChevronLeft, ChevronRight, FileCheck } from 'lucide-react'
+import { ArrowRight, Phone, Shield, Award, Languages, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn, formatPhoneLink } from '@/lib/utils'
 import { COMPANY } from '@/lib/constants'
-import { useTranslation } from '@/lib/i18n/provider'
-import { ScrollHint } from '@/components/ui/ScrollHint'
 
 // Slideshow data with stock images and taglines
 const slides = [
@@ -44,15 +42,13 @@ const slides = [
 ]
 
 const trustBadges = [
-  { icon: Shield, label: 'Licensed & Insured', detail: 'MHIC #05-132359' },
+  { icon: Shield, label: 'Licensed & Insured', detail: 'MHIC #109350' },
   { icon: Award, label: '20+ Years Experience', detail: 'Since 2004' },
-  { icon: FileCheck, label: 'Insurance Claims', detail: 'We Handle It All' },
   { icon: Languages, label: 'Bilingual Team', detail: '¡Hablamos Español!' },
   { icon: CheckCircle, label: '500+ Projects', detail: 'Completed' },
 ]
 
 export function Hero() {
-  const t = useTranslation()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -156,29 +152,29 @@ export function Hero() {
         />
       </div>
 
-      {/* Slide Navigation Arrows */}
+      {/* Slide Navigation Arrows - Hidden on mobile, visible on desktop */}
       <button
         onClick={prevSlide}
-        className="absolute left-3 lg:left-8 top-[35%] lg:top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+        className="hidden md:flex absolute left-4 lg:left-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 items-center justify-center text-white transition-all hover:scale-110"
         aria-label="Previous slide"
       >
-        <ChevronLeft className="w-5 h-5 lg:w-6 lg:h-6" />
+        <ChevronLeft className="w-6 h-6" />
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-3 lg:right-8 top-[35%] lg:top-1/2 -translate-y-1/2 z-20 w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all hover:scale-110"
+        className="hidden md:flex absolute right-4 lg:right-8 top-1/2 -translate-y-1/2 z-20 w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 items-center justify-center text-white transition-all hover:scale-110"
         aria-label="Next slide"
       >
-        <ChevronRight className="w-5 h-5 lg:w-6 lg:h-6" />
+        <ChevronRight className="w-6 h-6" />
       </button>
 
       {/* Content */}
-      <div className="relative z-10 container-custom py-16 md:py-24 lg:py-32">
+      <div className="relative z-10 container-custom py-24 lg:py-32">
         <div className="max-w-4xl">
-          {/* Logo - Only on larger screens (navbar logo covers mobile) */}
+          {/* Logo - Large with parallax scroll effect */}
           <div
             className={cn(
-              'mb-6 transition-all duration-700 hidden md:block',
+              'mb-6 transition-all duration-700',
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}
             style={{
@@ -186,7 +182,7 @@ export function Hero() {
               opacity: Math.max(1 - scrollY * 0.003, 0),
             }}
           >
-            <div className="relative h-36 lg:h-44 w-auto inline-block">
+            <div className="relative h-32 sm:h-36 lg:h-44 w-auto inline-block">
               <Image
                 src="/images/logo.png"
                 alt="CR Home Pros - Complete Home Services"
@@ -202,7 +198,7 @@ export function Hero() {
           </div>
 
           {/* Animated Tagline */}
-          <div className="relative min-h-[140px] sm:min-h-[180px] lg:min-h-[200px] mb-6 md:mb-8">
+          <div className="relative min-h-[180px] lg:min-h-[200px] mb-8">
             {slides.map((slide, index) => (
               <div
                 key={index}
@@ -244,7 +240,7 @@ export function Hero() {
               href="/get-started"
               className="group flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-dark-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-gold-500/25 hover:shadow-xl hover:shadow-gold-500/40 hover:-translate-y-1 transition-all duration-300"
             >
-              {t.hero.cta}
+              Get Your Free Estimate
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a
@@ -259,44 +255,24 @@ export function Hero() {
           {/* Trust Badges */}
           <div
             className={cn(
-              'transition-all duration-700 delay-400',
+              'grid grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-700 delay-400',
               isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             )}
           >
-            {/* Mobile: horizontal scroll strip */}
-            <div className="flex lg:hidden gap-3 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
-              {trustBadges.map((badge) => (
-                <div
-                  key={badge.label}
-                  className="flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3 flex-shrink-0 min-w-[180px] snap-start"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center flex-shrink-0">
-                    <badge.icon className="w-5 h-5 text-gold-400" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-white text-sm font-medium whitespace-nowrap">{badge.label}</p>
-                    <p className="text-white/50 text-xs whitespace-nowrap">{badge.detail}</p>
-                  </div>
+            {trustBadges.map((badge) => (
+              <div
+                key={badge.label}
+                className="flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3"
+              >
+                <div className="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center flex-shrink-0">
+                  <badge.icon className="w-5 h-5 text-gold-400" />
                 </div>
-              ))}
-            </div>
-            {/* Desktop: grid */}
-            <div className="hidden lg:grid grid-cols-4 gap-4">
-              {trustBadges.map((badge) => (
-                <div
-                  key={badge.label}
-                  className="flex items-center gap-3 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl px-4 py-3"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-gold-500/20 flex items-center justify-center flex-shrink-0">
-                    <badge.icon className="w-5 h-5 text-gold-400" />
-                  </div>
-                  <div>
-                    <p className="text-white text-sm font-medium">{badge.label}</p>
-                    <p className="text-white/50 text-xs">{badge.detail}</p>
-                  </div>
+                <div>
+                  <p className="text-white text-sm font-medium">{badge.label}</p>
+                  <p className="text-white/50 text-xs">{badge.detail}</p>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -339,11 +315,6 @@ export function Hero() {
         <div className="bg-gold-500 text-dark-900 px-4 py-2 rounded-full font-bold text-sm shadow-lg animate-bounce-slow">
           ¡Hablamos Español!
         </div>
-      </div>
-
-      {/* Scroll hint on mobile */}
-      <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 lg:hidden">
-        <ScrollHint className="text-white/60" />
       </div>
 
       {/* Bottom gradient for smooth transition to next section */}
