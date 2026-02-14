@@ -59,7 +59,7 @@ export default function FinancingPage() {
         </h2>
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           {benefits.map((b) => (
-            <div key={b.title} className="bg-white/80 hover:bg-white rounded-2xl p-6 border border-dark-100 hover:shadow-lg transition-shadow">
+            <div key={b.title} className="bg-white/80 hover:bg-white/80 hover:bg-white rounded-2xl p-6 border border-dark-100 hover:shadow-lg transition-shadow">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary-100 flex items-center justify-center mb-4">
                 <b.icon className="w-6 h-6 text-primary-600" />
               </div>
@@ -78,7 +78,7 @@ export default function FinancingPage() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {options.map((opt) => (
-              <div key={opt.title} className="bg-white/80 hover:bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
+              <div key={opt.title} className="bg-white/80 hover:bg-white/80 hover:bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-14 h-14 mx-auto rounded-full bg-gold-100 flex items-center justify-center mb-4">
                   <opt.icon className="w-7 h-7 text-gold-600" />
                 </div>
@@ -102,7 +102,7 @@ export default function FinancingPage() {
             </h2>
           </div>
 
-          <div className="bg-white/80 hover:bg-white rounded-2xl border border-dark-100 p-8 shadow-lg">
+          <div className="bg-white/80 hover:bg-white/80 hover:bg-white rounded-2xl border border-dark-100 p-8 shadow-lg">
             {/* Project Cost Slider */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-3">
