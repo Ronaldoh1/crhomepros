@@ -4,7 +4,6 @@ import { Phone, Mail, MapPin, Clock, ArrowRight, Facebook, Instagram } from 'luc
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
 import { COMPANY, HOURS, SERVICE_AREAS, SOCIAL } from '@/lib/constants'
 import { formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
-import { ContactForm } from '@/components/forms/ContactForm'
 
 export const metadata: Metadata = {
   title: 'Contact Us',
@@ -44,7 +43,7 @@ export default function ContactPage() {
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
           <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
         </div>
-        
+
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
@@ -57,7 +56,7 @@ export default function ContactPage() {
               </span>
             </h1>
             <p className="text-xl text-white/70 leading-relaxed">
-              Have questions? Ready for an estimate? We'd love to hear from you. 
+              Have questions? Ready for an estimate? We'd love to hear from you.
               Reach out and let's discuss how we can help transform your home.
             </p>
           </div>
@@ -69,7 +68,7 @@ export default function ContactPage() {
         <div className="container-custom">
           <div className="grid md:grid-cols-3 gap-6">
             {contactMethods.map((method) => (
-              <a
+              
                 key={method.label}
                 href={method.href}
                 target={method.label === 'WhatsApp' ? '_blank' : undefined}
@@ -93,15 +92,44 @@ export default function ContactPage() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
-            {/* Contact Form */}
+            {/* Request Estimate CTA (replaces contact form) */}
             <div>
               <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mb-6">
-                Send Us a Message
+                Request a Free Estimate
               </h2>
-              <p className="text-dark-500 mb-8">
-                Fill out the form below and we'll get back to you within 24 hours.
+              <p className="text-dark-500 mb-6">
+                Tell us about your project and we'll provide a detailed consultation within 24 hours. Our estimate process includes an on-site visit, project planning, and transparent pricing.
               </p>
-              <ContactForm />
+              <div className="bg-primary-50 border border-primary-100 rounded-2xl p-8 mb-8">
+                <h3 className="text-lg font-semibold text-dark-900 mb-4">What to expect:</h3>
+                <ul className="space-y-3 text-dark-600">
+                  <li className="flex items-start gap-3">
+                    <span className="text-gold-500 font-bold mt-0.5">1</span>
+                    <span>Fill out a quick form about your project</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-gold-500 font-bold mt-0.5">2</span>
+                    <span>We'll contact you within 24 hours to schedule a visit</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="text-gold-500 font-bold mt-0.5">3</span>
+                    <span>Receive a detailed, no-obligation estimate</span>
+                  </li>
+                </ul>
+              </div>
+              <Link
+                href="/get-started"
+                className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl hover:from-gold-600 hover:to-gold-700 transition-all shadow-lg shadow-gold-500/25"
+              >
+                Get Your Free Estimate
+                <ArrowRight className="w-5 h-5 ml-2" />
+              </Link>
+              <p className="text-center text-sm text-dark-400 mt-4">
+                Or call us directly at{' '}
+                <a href={formatPhoneLink(COMPANY.phone)} className="text-primary-600 font-medium hover:underline">
+                  {COMPANY.phoneFormatted}
+                </a>
+              </p>
             </div>
 
             {/* Info Side */}
@@ -172,7 +200,7 @@ export default function ContactPage() {
                   See our latest projects and updates on social media.
                 </p>
                 <div className="flex gap-3">
-                  <a
+                  
                     href={SOCIAL.facebook}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -180,7 +208,7 @@ export default function ContactPage() {
                   >
                     <Facebook className="w-5 h-5" />
                   </a>
-                  <a
+                  
                     href={SOCIAL.instagram}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -188,7 +216,7 @@ export default function ContactPage() {
                   >
                     <Instagram className="w-5 h-5" />
                   </a>
-                  <a
+                  
                     href={SOCIAL.tiktok}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -218,10 +246,10 @@ export default function ContactPage() {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center text-white">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-              Ready for a Free Estimate?
+              Ready to Get Started?
             </h2>
             <p className="text-primary-200 text-lg mb-8">
-              Skip the contact form and get started with a detailed project consultation.
+              Request your free estimate today — no obligation, just honest pricing.
             </p>
             <Link href="/get-started" className="btn-gold btn-lg">
               Start Your Project
