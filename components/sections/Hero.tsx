@@ -1,5 +1,6 @@
 'use client'
 
+import { resolveImageUrl } from '@/lib/resolve-images'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -185,7 +186,7 @@ export function Hero() {
           >
             <div className="relative h-32 sm:h-36 lg:h-44 w-auto inline-block">
               <Image
-                src="/images/logo.png"
+                src={resolveImageUrl("/images/logo.png")}
                 alt="CR Home Pros - Complete Home Services"
                 width={600}
                 height={180}

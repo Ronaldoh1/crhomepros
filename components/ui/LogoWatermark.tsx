@@ -1,3 +1,4 @@
+import { resolveImageUrl } from '@/lib/resolve-images'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
@@ -92,7 +93,7 @@ export function LogoWatermark({
       {/* Logo */}
       <div className="relative">
         <Image
-          src="/images/logo.png"
+          src={resolveImageUrl("/images/logo.png")}
           alt="CR Home Pros"
           width={dimensions.width}
           height={dimensions.height}

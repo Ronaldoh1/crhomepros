@@ -17,7 +17,7 @@ const featuredProjects = [
     duration: '6 weeks',
     year: 2024,
     description: 'Complete kitchen transformation featuring custom cabinetry, premium countertops, modern appliances, and expert tiling work.',
-    image: '/images/2025-05/bathroom-tile-01.png',
+    image: resolveImageUrl('/images/2025-05/bathroom-tile-01.png'),
     beforeImage: '/images/2024-01/img_3702-780x1024.JPEG',
   },
   {
@@ -28,7 +28,7 @@ const featuredProjects = [
     duration: '4 weeks',
     year: 2024,
     description: 'Luxurious bathroom renovation with custom tile work, modern fixtures, and premium finishes throughout.',
-    image: '/images/2025-05/roofing-md-01.png',
+    image: resolveImageUrl('/images/2025-05/roofing-md-01.png'),
     beforeImage: '/images/2024-01/img_0416-768x1024.JPEG',
   },
   {
@@ -39,7 +39,7 @@ const featuredProjects = [
     duration: '12 weeks',
     year: 2024,
     description: 'Full property transformation including structural work, flooring, walls, and complete interior refinishing.',
-    image: '/images/2025-05/deck-pg-county-01.png',
+    image: resolveImageUrl('/images/2025-05/deck-pg-county-01.png'),
     beforeImage: '/images/2024-01/img_1506-768x1024.JPEG',
   },
   {
@@ -50,7 +50,7 @@ const featuredProjects = [
     duration: '3 weeks',
     year: 2024,
     description: 'Beautiful deck construction with quality lumber, expert craftsmanship, and professional staining for long-lasting beauty.',
-    image: '/images/2025-fence-bowie/fence-after-01.png',
+    image: resolveImageUrl('/images/2025-fence-bowie/fence-after-01.png'),
     beforeImage: '/images/2024-06/img_2379-1024x768.JPEG',
   },
 ]

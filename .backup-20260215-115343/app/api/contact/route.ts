@@ -14,30 +14,21 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`\n💬 New Contact: ${name}`)
-
     // Log to Google Drive
     if (isDriveConfigured()) {
       try {
         await logContactInDrive({ name, email, phone, message, service })
-        console.log('✅ Contact logged to Google Drive')
-      } catch (driveError: any) {
-        console.error('❌ Google Drive error (non-fatal):', driveError?.message || driveError)
+      } catch (driveError) {
+        console.error('Google Drive error (non-fatal):', driveError)
       }
     }
 
     // Send email notification
-    try {
-      console.log('📧 Sending contact notification...')
-      await sendContactFormNotification({ name, email, phone, message, service })
-      console.log('📧 Contact notification sent ✅')
-    } catch (emailError: any) {
-      console.error('❌ Email error:', emailError?.message || emailError)
-    }
+    await sendContactFormNotification({ name, email, phone, message, service })
 
     return NextResponse.json({ success: true, message: 'Message sent!' })
-  } catch (error: any) {
-    console.error('❌ Error processing contact:', error?.message || error)
+  } catch (error) {
+    console.error('Error processing contact:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to send message' },
       { status: 500 }

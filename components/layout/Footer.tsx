@@ -1,3 +1,4 @@
+import { resolveImageUrl } from '@/lib/resolve-images'
 import Link from 'next/link'
 import Image from 'next/image'
 import {
@@ -33,7 +34,7 @@ export function Footer() {
           <div className="lg:col-span-1">
             <div className="mb-6">
               <Image
-                src="/images/logo.png"
+                src={resolveImageUrl("/images/logo.png")}
                 alt="CR Home Pros"
                 width={220}
                 height={70}

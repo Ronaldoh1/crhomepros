@@ -1,5 +1,6 @@
 'use client'
 
+import { resolveImageUrl } from '@/lib/resolve-images'
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
@@ -15,7 +16,7 @@ export function MeetCarlos() {
           <div className="relative order-2 lg:order-1">
             <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-dark-100 shadow-2xl">
               <Image
-                src="/images/team-carlos-01.png"
+                src={resolveImageUrl("/images/team-carlos-01.png")}
                 alt="Carlos Hernandez - Founder of CR Home Pros"
                 fill
                 className="object-cover"
@@ -88,7 +89,7 @@ export function MeetCarlos() {
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg">
               <Image
-                src="/images/team-carlos-02.png"
+                src={resolveImageUrl("/images/team-carlos-02.png")}
                 alt="Carlos and team member"
                 fill
                 className="object-cover"
@@ -100,7 +101,7 @@ export function MeetCarlos() {
             </div>
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg">
               <Image
-                src="/images/team-carlos-03.png"
+                src={resolveImageUrl("/images/team-carlos-03.png")}
                 alt="Carlos and crew member painting"
                 fill
                 className="object-cover"

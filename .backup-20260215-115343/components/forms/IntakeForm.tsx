@@ -61,7 +61,6 @@ export function IntakeForm() {
     trigger,
     formState: { errors },
   } = useForm<IntakeFormData>({
-    mode: 'onChange',
     resolver: zodResolver(intakeSchema),
     defaultValues: {
       preferredContact: 'phone',

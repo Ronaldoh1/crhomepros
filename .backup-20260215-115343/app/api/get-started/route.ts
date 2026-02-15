@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createLeadInDrive, isDriveConfigured } from '@/lib/google-drive'
-import { sendNewLeadNotification, sendLeadConfirmation, isEmailConfigured } from '@/lib/email'
+import { sendNewLeadNotification, sendLeadConfirmation } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       address, city, state, zip, services,
       projectDescription, timeline, budget,
       additionalNotes, howDidYouHear,
-      images,
+      images, // base64 encoded images from form
     } = body
 
     // Validate required fields
@@ -22,12 +22,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    console.log(`\n🏠 New Lead: ${firstName} ${lastName} — ${services.join(', ')}`)
-
     // Generate communication tag
     const contactTag = preferredContact ? `[${preferredContact.toUpperCase()}]` : '[PHONE]'
 
-    // Convert base64 images to Buffers
+    // Convert base64 images to Buffers for email attachments + Drive upload
     const imageBuffers: Buffer[] = []
     const emailAttachments: { filename: string; content: Buffer }[] = []
 
@@ -43,19 +41,21 @@ export async function POST(request: NextRequest) {
             content: buffer,
           })
         } catch (e) {
-          console.warn(`⚠️ Failed to decode image ${i}:`, e)
+          console.warn(`Failed to decode image ${i}:`, e)
         }
       }
-      console.log(`📸 ${imageBuffers.length} photo(s) processed`)
     }
 
-    // Save lead to Google Drive
+    // Save lead to Google Drive (if configured)
     let driveFolderUrl: string | undefined
-    const folderName = `${firstName} ${lastName} - ${services[0] || 'General'} - ${new Date().toISOString().split('T')[0]}`
+    let folderName: string | undefined
 
     if (isDriveConfigured()) {
       try {
-        console.log('📁 Creating Google Drive folder...')
+        const date = new Date().toISOString().split('T')[0]
+        const primaryService = services[0] || 'General'
+        folderName = `${firstName} ${lastName} - ${primaryService} - ${date}`
+        
         const driveResult = await createLeadInDrive(
           {
             firstName, lastName, email, phone,
@@ -69,41 +69,36 @@ export async function POST(request: NextRequest) {
           imageBuffers.length > 0 ? imageBuffers : undefined
         )
         driveFolderUrl = driveResult.folderUrl
-        console.log('✅ Google Drive folder created:', driveFolderUrl)
-      } catch (driveError: any) {
-        console.error('❌ Google Drive error (non-fatal):', driveError?.message || driveError)
+      } catch (driveError) {
+        console.error('Google Drive error (non-fatal):', driveError)
       }
-    } else {
-      console.log('⏭️ Google Drive not configured — skipping folder creation')
     }
 
-    // Send notification email to Carlos
+    // Send notification email with image attachments + Drive link
     try {
       console.log('📧 Sending lead notification email...')
       const emailSent = await sendNewLeadNotification({
         firstName, lastName, email, phone,
-        address, city: city || '', state: state || '',
-        services, projectDescription: projectDescription || '',
-        timeline: timeline || '', budget: budget || '',
+        address, city, state, services,
+        projectDescription, timeline, budget,
         preferredContact: preferredContact || 'phone',
         contactTag,
         additionalNotes: additionalNotes || '',
         driveFolderUrl,
-        driveFolderName: folderName,
         attachments: emailAttachments.length > 0 ? emailAttachments : undefined,
       })
-      console.log('📧 Lead notification result:', emailSent ? '✅ SUCCESS' : '❌ FAILED')
-    } catch (emailError: any) {
-      console.error('❌ Email send error:', emailError?.message || emailError)
+      console.log('📧 Lead notification email result:', emailSent ? '✅ SUCCESS' : '❌ FAILED')
+    } catch (emailError) {
+      console.error('❌ Failed to send lead notification email:', emailError)
     }
 
     // Send confirmation to customer
     try {
       console.log('📧 Sending confirmation email to customer...')
       const confirmSent = await sendLeadConfirmation(email, firstName)
-      console.log('📧 Confirmation result:', confirmSent ? '✅ SUCCESS' : '❌ FAILED')
-    } catch (emailError: any) {
-      console.error('❌ Confirmation email error:', emailError?.message || emailError)
+      console.log('📧 Confirmation email result:', confirmSent ? '✅ SUCCESS' : '❌ FAILED')
+    } catch (emailError) {
+      console.error('❌ Failed to send confirmation email:', emailError)
     }
 
     return NextResponse.json({
@@ -111,8 +106,8 @@ export async function POST(request: NextRequest) {
       driveFolderUrl,
       message: 'Lead submitted successfully',
     })
-  } catch (error: any) {
-    console.error('❌ Error submitting lead:', error?.message || error)
+  } catch (error) {
+    console.error('Error submitting lead:', error)
     return NextResponse.json(
       { success: false, error: 'Failed to submit lead' },
       { status: 500 }
