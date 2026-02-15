@@ -5,7 +5,7 @@ import { sendReferralNotification } from '@/lib/email'
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { referrerName, referrerEmail, referrerPhone, referralName, referralPhone, projectType, projectDetails } = body
+    const { referrerName, referrerEmail, referrerPhone, referralName, referralPhone, referralEmail, projectType, projectDetails, paymentMethod } = body
 
     if (!referrerName || !referrerEmail || !referralName || !referralPhone) {
       return NextResponse.json({ success: false, error: 'Missing required fields' }, { status: 400 })
@@ -15,7 +15,17 @@ export async function POST(request: NextRequest) {
 
     if (isDriveConfigured()) {
       try {
-        await createReferralInDrive({ referrerName, referrerEmail, referrerPhone, referralName, referralPhone, projectType, projectDetails })
+        await createReferralInDrive({
+          referrerName,
+          referrerEmail,
+          referrerPhone,
+          referralName,
+          referralPhone,
+          referralEmail: referralEmail || '',
+          projectType: projectType || '',
+          projectDetails: projectDetails || '',
+          paymentMethod: paymentMethod || 'Not specified',
+        })
         console.log('✅ Referral logged to Google Drive')
       } catch (driveError: any) {
         console.error('❌ Drive error (non-fatal):', driveError?.message)
