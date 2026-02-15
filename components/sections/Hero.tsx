@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Phone, Shield, Award, Languages, CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ScrollIndicator } from '@/components/ScrollIndicator'
 import { cn, formatPhoneLink } from '@/lib/utils'
 import { COMPANY } from '@/lib/constants'
 
@@ -188,8 +189,12 @@ export function Hero() {
                 alt="CR Home Pros - Complete Home Services"
                 width={600}
                 height={180}
-                className="h-full w-auto object-contain drop-shadow-2xl"
-                style={{ maxWidth: 'none' }}
+                className="h-full w-auto object-contain"
+                style={{ 
+          maxWidth: 'none',
+          filter: 'drop-shadow(0 8px 24px rgba(0, 0, 0, 0.4)) drop-shadow(0 0 40px rgba(196, 160, 82, 0.2))',
+          mixBlendMode: 'normal'
+        }}
                 priority
                 quality={100}
                 unoptimized

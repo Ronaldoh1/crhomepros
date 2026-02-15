@@ -5,8 +5,6 @@ export const BLOG_CATEGORIES = [
   "Bathroom",
   "Basement",
   "Outdoor",
-  "Sustainability",
-  "Seasonal",
 ] as const;
 
 export type BlogCategory = (typeof BLOG_CATEGORIES)[number];
@@ -32,7 +30,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "2025-10-15",
     readTime: "6 min",
     image:
-      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
+      "https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&q=80",
     excerpt:
       "When homeowners invite us into their homes, they're trusting us with more than just a project. Here's why respect, communication, and pride guide everything we do.",
     content: `
@@ -76,7 +74,7 @@ At the end of the day, our work is about more than construction. It is about rel
     date: "2025-11-22",
     readTime: "5 min",
     image:
-      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=800&q=80",
+      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
     excerpt:
       "The people you work with make all the difference. Here's what I look for when building a team and why it matters for homeowners.",
     content: `
@@ -116,7 +114,7 @@ At CR Home Pros, our team is our foundation. Every person plays a role in making
     date: "2025-12-08",
     readTime: "7 min",
     image:
-      "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=800&q=80",
+      "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800&q=80",
     excerpt:
       "After 15 years in this business, here are the most important lessons I've learned about doing quality work and building lasting relationships.",
     content: `
@@ -172,7 +170,7 @@ Fifteen years in, I feel more confident in what we do at CR Home Pros, but I als
     date: "2026-02-05",
     readTime: "8 min",
     image:
-      "https://images.unsplash.com/photo-1581094271901-8022df4466f9?w=800&q=80",
+      "https://images.unsplash.com/photo-1621905252507-b35492cc74b4?w=800&q=80",
     excerpt:
       "Your heating and cooling system is trying to tell you something. Ignore these warning signs, and you could face emergency replacements at the worst possible time and the highest possible cost.",
     content: `
@@ -306,7 +304,7 @@ The worst HVAC decision you can make is no decision at all. Those warning signs 
     date: "2026-01-28",
     readTime: "7 min",
     image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=80",
+      "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
     excerpt:
       "That small leak or water stain might seem harmless now, but waiting to fix it could cost you thousands. Here is why water damage demands immediate attention.",
     content: `
@@ -467,7 +465,7 @@ At CR Home Pros, we welcome these questions because we know that informed homeow
     date: "2025-09-20",
     readTime: "8 min",
     image:
-      "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&q=80",
+      "https://images.unsplash.com/photo-1565538810643-b5bdb714032a?w=800&q=80",
     excerpt:
       "Planning a kitchen remodel in Maryland, DC, or Virginia? Here's what drives costs and how to budget realistically.",
     content: `
@@ -534,7 +532,7 @@ At CR Home Pros, we work with homeowners to balance their vision with their budg
     date: "2025-11-05",
     readTime: "6 min",
     image:
-      "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=800&q=80",
+      "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=800&q=80",
     excerpt:
       "Water damage in bathrooms often hides until it becomes a bigger problem. Here's what to watch for and how to address it.",
     content: `
@@ -862,6 +860,18 @@ Communication is not just about us talking. It is about listening. If a homeowne
 
 Sometimes a simple explanation resolves the concern. Other times, we need to adjust our approach. Either way, listening and responding respectfully keeps the relationship strong.
 
+## Use the Right Communication Method
+
+Everyone has a preferred way to communicate. Some people like text updates, others prefer phone calls, and some want face-to-face conversations. We ask upfront how homeowners prefer to stay in touch and adapt to that.
+
+Matching communication style to what works for the homeowner makes the process smoother for everyone.
+
+## Avoid Assumptions
+
+Assumptions are where communication breaks down. We do not assume the homeowner knows what we are doing or why. We explain it. We also do not assume we understand what the homeowner wants without asking.
+
+If there is any uncertainty, we ask questions. That takes more time upfront but prevents mistakes later.
+
 ## Be Honest About Timelines and Challenges
 
 If a delay happens, we are upfront about it. If a material is back-ordered or if weather affects the schedule, we let the homeowner know as soon as possible.
@@ -873,389 +883,6 @@ Honesty builds trust. Even when the news is not ideal, people appreciate knowing
 Good communication does not guarantee a project will be perfect, but it makes problems easier to solve and keeps everyone on the same page. At CR Home Pros, we prioritize communication because we know it is just as important as the quality of the work itself.
 
 If you are planning a project, ask your contractor how they communicate. Their answer will tell you a lot about how the project will go.
-`,
-  },
-  {
-    slug: "small-roof-leak-big-problem",
-    title: "That Small Roof Leak Will Become a Big Problem — Here's Why",
-    category: "Tips & Advice",
-    author: "Carlos Hernandez",
-    date: "2026-01-05",
-    readTime: "6 min",
-    image:
-      "https://images.unsplash.com/photo-1632759145351-1d592919f522?w=800&q=80",
-    excerpt:
-      "A small drip from the ceiling might seem harmless, but every day you wait multiplies the damage and the cost. Here's what happens when you delay roof repairs.",
-    content: `
-I cannot tell you how many times I have walked into a home where the owner says, "It's just a small drip, I've been meaning to call." By the time they call, that small drip has turned into rotted decking, damaged insulation, mold in the attic, and stained ceilings. What could have been a $500 patch job becomes a $10,000 to $20,000 repair.
-
-## What Happens When You Ignore a Roof Leak
-
-Water is relentless. It finds its way into every crack, gap, and seam. Here is the timeline of what happens when you put off that roof repair:
-
-**Week 1-2**: Water enters through the breach and saturates the roof decking. The sheathing starts to absorb moisture. At this stage, a roofer can often patch or replace a few shingles and seal the area for a few hundred dollars.
-
-**Month 1**: The decking softens. Insulation below is wet and losing its effectiveness. Your energy bills start creeping up, though you may not connect the two. Mold spores begin colonizing the wet materials.
-
-**Month 2-3**: The leak path widens as freeze-thaw cycles or continued rain expand the opening. Water now reaches ceiling joists and drywall. You start seeing stains on interior ceilings. Mold is now established and spreading.
-
-**Month 4+**: Structural wood is compromised. The ceiling may sag. Electrical wiring in the attic could be affected. Full roof decking replacement is now necessary, plus interior repairs, insulation, and mold remediation.
-
-## The DMV Climate Makes It Worse
-
-Our region's weather is tough on roofs. The combination of hot, humid summers and freeze-thaw cycles in winter means any vulnerability gets exploited fast. A small crack in a shingle that might last years in a dry climate can become a significant leak in one DMV winter.
-
-## What a Roof Inspection Costs vs What Neglect Costs
-
-A professional roof inspection costs between $150 and $400. Minor repairs typically run $300 to $1,000. Compare that to what neglect costs:
-
-- Decking replacement: $2,000 to $5,000
-- Insulation replacement: $1,500 to $3,000
-- Mold remediation: $2,000 to $10,000
-- Interior ceiling and wall repair: $1,000 to $5,000
-- Full roof replacement (if damage is extensive): $8,000 to $25,000
-
-The math is simple: spending a few hundred now saves tens of thousands later.
-
-## Signs Your Roof Needs Attention Now
-
-Do not wait until water is dripping into your living room. Watch for these early warning signs:
-
-- Missing, cracked, or curling shingles
-- Granules accumulating in gutters
-- Daylight visible through the attic roof boards
-- Dark spots or streaks on the ceiling
-- Higher than expected energy bills
-- Sagging areas on the roof line
-- Damaged or missing flashing around chimneys, vents, or skylights
-
-## What To Do This Week
-
-If your roof is more than 15 years old, schedule an inspection. If you have seen any of the warning signs above, do not wait for the next storm. Get a professional to assess the condition and give you honest options.
-
-At CR Home Pros, we do roof inspections and repairs throughout the DMV. We will tell you exactly what we find, what needs attention now, and what can wait. No pressure, just honest advice from people who have seen what waiting can cost.
-
-The cheapest roof repair is the one you do before the damage spreads.
-`,
-  },
-  {
-    slug: "clogged-gutters-foundation-damage",
-    title: "Clogged Gutters Are Quietly Destroying Your Foundation",
-    category: "Outdoor",
-    author: "Carlos Hernandez",
-    date: "2025-12-28",
-    readTime: "5 min",
-    image:
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?w=800&q=80",
-    excerpt:
-      "Gutters are easy to forget, but when they fail, the damage goes far beyond the roof. Your foundation, basement, and landscaping are all at risk.",
-    content: `
-Nobody gets excited about cleaning gutters. It is one of those chores that gets pushed to the bottom of the list because the consequences are not immediately visible. But clogged gutters are one of the most common causes of foundation damage, basement flooding, and landscaping erosion that I see in DMV homes.
-
-## How Clogged Gutters Cause Serious Damage
-
-Gutters have one job: move water away from your home. When they are clogged with leaves, dirt, and debris, water overflows and pools around your foundation. Here is what happens next:
-
-**Foundation Damage**: Water pooling at the base of your home saturates the soil. Over time, this causes the soil to expand and contract, putting pressure on foundation walls. Cracks develop. In severe cases, walls bow inward. Foundation repair costs $5,000 to $30,000 depending on severity.
-
-**Basement Flooding**: Water that cannot drain away from the foundation finds its way in through cracks, window wells, or the floor-wall joint. Even minor seepage creates conditions for mold. A flooded basement can cost $5,000 to $15,000 to remediate and repair.
-
-**Fascia and Soffit Rot**: When gutters overflow, water runs behind the gutter and soaks the fascia board and soffit. These rot over time, requiring replacement. This often reveals additional damage to the roof edge.
-
-**Ice Dams in Winter**: Clogged gutters prevent proper drainage during freeze-thaw cycles. Ice builds up, backs under shingles, and causes roof leaks. Ice dam damage can cost $3,000 to $10,000 to repair.
-
-**Landscaping Erosion**: Overflowing water washes away mulch, erodes soil, and damages plants. It can also create pathways that direct water toward your home instead of away from it.
-
-## How Often Should Gutters Be Cleaned?
-
-In the DMV area, clean gutters at least twice a year: once in late spring after tree pollen and seed pods fall, and once in late fall after leaves drop. Homes surrounded by trees may need cleaning three to four times a year.
-
-## Prevention vs Repair Costs
-
-Gutter cleaning costs $100 to $300 per visit. Gutter guards cost $1,000 to $3,000 installed. Compare that to the repair costs listed above. The investment in prevention is minimal compared to the damage neglect causes.
-
-## What To Do Today
-
-Walk around your home during the next rainstorm. If water is overflowing from gutters or pooling near your foundation, you have a problem that needs attention now, not next season.
-
-At CR Home Pros, we handle gutter cleaning, repair, and guard installation. We also address the damage that clogged gutters can cause, from fascia replacement to foundation waterproofing. If you are not sure about the condition of your gutters, give us a call.
-`,
-  },
-  {
-    slug: "green-renovations-sustainability",
-    title: "Green Renovations: Building a Better Home and a Better Future",
-    category: "Sustainability",
-    author: "Carlos Hernandez",
-    date: "2025-02-10",
-    readTime: "8 min",
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
-    excerpt:
-      "Sustainable renovations are not just good for the planet — they save you money, improve indoor air quality, and increase your home's value. Here is how we approach green building at CR Home Pros.",
-    content: `
-Every renovation is an opportunity to make a home healthier, more efficient, and more sustainable. At CR Home Pros, we believe that quality craftsmanship and environmental responsibility go hand in hand. You should not have to choose between a beautiful home and a responsible one.
-
-Green renovations are not a trend. They are the future of home improvement, and they are more accessible than most homeowners realize. Many eco-friendly upgrades cost the same or only slightly more than conventional options, and they pay for themselves through lower energy bills, better durability, and increased property value.
-
-## What Makes a Renovation "Green"?
-
-A green renovation considers the environmental impact of materials, energy use, water consumption, and indoor air quality. It does not mean everything has to be expensive or exotic. Often the greenest choice is the simplest one — better insulation, tighter windows, and materials that last longer so they do not need to be replaced as often.
-
-Here are the areas where we focus our sustainable approach:
-
-## Low-VOC and Zero-VOC Paints
-
-Volatile Organic Compounds are chemicals that off-gas from conventional paints, causing headaches, respiratory irritation, and long-term health effects. We use low-VOC and zero-VOC paints on every project unless a client specifically requests otherwise. These paints perform just as well as conventional options, dry with virtually no odor, and create a healthier indoor environment from day one.
-
-The difference is especially important in bedrooms, nurseries, and basements where ventilation may be limited. If you have ever walked into a freshly painted room and felt dizzy or noticed a strong chemical smell, that is VOC exposure. Our approach eliminates that problem entirely.
-
-## Energy-Efficient Upgrades
-
-Heating and cooling account for nearly half of a typical home's energy consumption. When we work on kitchens, bathrooms, basements, or whole-home renovations, we always look for opportunities to improve energy efficiency:
-
-Energy Star certified appliances use 10 to 50 percent less energy than standard models. When we install new kitchen appliances as part of a renovation, we recommend Energy Star options that deliver better performance with lower utility bills.
-
-LED lighting throughout every project. LED bulbs use 75 percent less energy than incandescent bulbs and last 25 times longer. When we install recessed lighting in a basement finish or update kitchen lighting, LEDs are our standard. The upfront cost difference is negligible, and the savings are significant.
-
-Proper insulation and sealing. Whether finishing a basement or remodeling a kitchen, we ensure proper insulation and air sealing around windows, doors, and any penetrations. A well-insulated home is more comfortable, quieter, and dramatically cheaper to heat and cool.
-
-High-efficiency windows. When a project involves window replacement, we recommend double-pane or triple-pane windows with low-E coatings. These windows reduce heat transfer, block UV rays that fade furniture, and can cut heating and cooling costs by 25 to 30 percent.
-
-## Sustainable Materials
-
-The materials we use matter — not just for aesthetics and durability, but for the environment:
-
-Bamboo and cork flooring are rapidly renewable alternatives to hardwood. Bamboo grows to maturity in three to five years compared to 20 to 60 years for most hardwoods. Cork is harvested from the bark of cork oak trees without cutting them down.
-
-Reclaimed and recycled materials. We source reclaimed wood, recycled glass countertops, and recycled metal fixtures when available and appropriate. These materials carry unique character and reduce demand for new raw materials.
-
-Locally sourced materials. When possible, we choose materials manufactured within a few hundred miles of the DMV area. This reduces transportation emissions and supports regional businesses.
-
-Durable materials that last. The most sustainable choice is often the one that does not need to be replaced. We prioritize materials known for longevity — porcelain tile over vinyl, quartz over laminate, solid wood over particle board. A renovation that lasts 30 years is inherently greener than one that needs updating in 10.
-
-## Water Conservation
-
-Bathroom and kitchen renovations present excellent opportunities to reduce water consumption:
-
-Low-flow fixtures. Modern low-flow faucets, showerheads, and toilets deliver excellent performance while using significantly less water. A WaterSense certified toilet uses 1.28 gallons per flush compared to older models that use 3.5 to 7 gallons.
-
-Efficient appliance selection. When installing dishwashers and washing machines, we recommend models that use less water per cycle without sacrificing cleaning performance.
-
-## Waste Reduction on the Job Site
-
-Renovation projects generate waste, and we take steps to minimize our impact:
-
-We sort and recycle construction waste including metal, cardboard, clean wood, and concrete. We donate usable materials, including cabinets, fixtures, and appliances, to local organizations like Habitat for Humanity ReStore when clients are upgrading.
-
-We plan material quantities carefully to reduce excess, and we reuse packaging materials when possible. These practices are not dramatic, but over hundreds of projects they add up to a meaningful reduction in landfill waste.
-
-## The Financial Case for Going Green
-
-Green renovations are an investment that pays returns:
-
-Lower utility bills. Energy-efficient upgrades typically save homeowners 20 to 30 percent on heating, cooling, and electricity costs. Over the life of a renovation, these savings can total thousands of dollars.
-
-Increased home value. Studies consistently show that homes with energy-efficient features, modern insulation, and sustainable materials sell for more. Appraisers and buyers increasingly value green certifications and upgrades.
-
-Tax credits and rebates. Federal and state programs offer tax credits for energy-efficient improvements including insulation, windows, HVAC systems, and solar installations. Maryland and Virginia both have additional state-level incentives. The Inflation Reduction Act expanded these credits significantly.
-
-Longer lifespan. Durable, sustainable materials require less maintenance and replacement over time, reducing the total cost of ownership.
-
-## Our Green Promise
-
-We do not charge extra for basic sustainable practices. Low-VOC paints, LED lighting, proper insulation, and responsible waste handling are standard on every CR Home Pros project. For clients who want to go further — reclaimed materials, high-efficiency systems, solar preparation, or specific green certifications — we are happy to discuss options and provide guidance.
-
-Sustainability is not an add-on. It is part of doing quality work. A home that is built right — with attention to materials, efficiency, and longevity — is naturally a greener home.
-
-## Getting Started
-
-If you are planning a renovation and want to incorporate sustainable practices, we would love to talk. Whether it is a kitchen remodel, bathroom renovation, basement finishing, or whole-home project, there are green options at every budget level. Call us or fill out our contact form, and let us build something that is good for your family and good for the future.
-`,
-  },
-  {
-    slug: "federal-tax-credits-home-energy-2025-2026",
-    title: "Federal Tax Credits for Home Energy Upgrades: What DMV Homeowners Need to Know in 2025-2026",
-    category: "Sustainability",
-    author: "Carlos Hernandez",
-    date: "2025-12-10",
-    readTime: "8 min",
-    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=800&q=80",
-    excerpt: "You could save thousands on your next renovation through federal energy efficiency tax credits. Here's exactly what qualifies and how to claim it.",
-    content: `
-If you are planning a home renovation in the DC, Maryland, or Virginia area, there are federal tax credits that can save you real money — and many homeowners do not know they exist or how to take advantage of them.
-
-The Inflation Reduction Act extended and expanded tax credits for energy-efficient home improvements through 2032. These are not deductions. They are dollar-for-dollar credits that reduce what you owe the IRS.
-
-## What Qualifies
-
-**Heat pumps** are the biggest single credit available — up to $2,000 per year. This covers both air-source heat pumps for heating and cooling, and heat pump water heaters. If your HVAC system is more than 15 years old, upgrading to a heat pump can cut your energy bills by 30 to 50 percent while earning that credit.
-
-**Insulation and air sealing** qualifies for up to $1,200. This includes attic insulation, wall insulation, crawl space insulation, weatherstripping, caulking, and spray foam. For older homes in the DMV area — especially those built before 1990 — insulation upgrades often pay for themselves within three to five years through lower heating and cooling costs.
-
-**Energy-efficient windows and doors** can earn up to $600 in credits. If your windows are single-pane, foggy between the glass, or drafty, replacing them with ENERGY STAR certified windows qualifies.
-
-**Solar panels** remain at a 30 percent credit with no cap. A $20,000 solar installation earns a $6,000 tax credit. We design renovations to be solar-ready — proper roof reinforcement, pre-wired conduit, and optimal positioning — so you can add panels now or later.
-
-**Electrical panel upgrades** qualify for up to $600 when done as part of an energy efficiency improvement. Many older DMV homes have 100-amp panels that cannot handle modern loads. Upgrading to 200 amps is often necessary for heat pumps or EV chargers anyway.
-
-## How to Claim
-
-You claim these credits on IRS Form 5695, filed with your annual tax return. Keep all receipts, manufacturer certification statements, and contractor invoices. We provide documentation that identifies qualifying equipment and materials for every project where credits apply.
-
-## What We Do Differently
-
-When we scope a renovation, we identify every eligible upgrade and present options. If you are already doing a kitchen remodel and your insulation is exposed, adding blown-in insulation at that point costs a fraction of doing it separately. Same with upgrading to a heat pump water heater during a bathroom renovation.
-
-We do not push products. We present the math and let you decide.
-
-## Getting Started
-
-If you have a renovation planned in 2025 or 2026, contact us for a free consultation. We will walk through your project and identify which energy efficiency upgrades make sense for your home, your budget, and your tax situation. Call (301) 602-2553 or fill out our estimate form online.
-`,
-  },
-  {
-    slug: "spring-home-maintenance-checklist-dmv",
-    title: "Spring Home Maintenance Checklist: 12 Things Every DMV Homeowner Should Do Before Summer",
-    category: "Seasonal",
-    author: "Carlos Hernandez",
-    date: "2026-02-01",
-    readTime: "7 min",
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=800&q=80",
-    excerpt: "Winter in the DC-Maryland-Virginia area is tough on houses. Here are 12 things to inspect and fix every spring before they become expensive summer emergencies.",
-    content: `
-The DMV area gets everything — freeze-thaw cycles, heavy rain, humidity, occasional ice storms, and summer heat that pushes cooling systems to their limits. Every spring, I see homeowners discover damage that could have been caught early and fixed cheaply, but instead turned into a major project because it sat all winter.
-
-Here is what we check on every spring walkthrough and what you can check yourself.
-
-## Exterior
-
-**1. Roof inspection.** Look for missing, cracked, or curled shingles. Winter wind and ice are hard on roofing. A $200 repair in April becomes a $5,000 emergency in July when the summer thunderstorms arrive. Use binoculars from the ground if you are not comfortable on a ladder.
-
-**2. Gutters and downspouts.** Clean them out and check that they drain away from your foundation. Clogged gutters are the number one cause of basement water problems in Maryland and Virginia. Make sure downspout extensions carry water at least four feet from the house.
-
-**3. Foundation check.** Walk the perimeter and look for new cracks, especially horizontal cracks or stair-step cracks in block foundations. Small vertical cracks are normal settling. Horizontal cracks can indicate lateral pressure and need professional evaluation.
-
-**4. Deck and fence.** Push on railings and posts. If anything wobbles, fix it now. Check for soft spots in wood decking. Seal or stain exposed wood before the UV and humidity of summer break it down further.
-
-**5. Exterior paint and caulking.** Look for peeling, bubbling, or cracking. Check caulking around windows and doors. These are your first line of defense against water intrusion and insect entry.
-
-## Interior
-
-**6. HVAC tune-up.** Schedule air conditioning maintenance before the first hot week when every HVAC company is booked solid. Change filters, clean coils, and test the system.
-
-**7. Water heater flush.** Sediment builds up at the bottom and reduces efficiency. Flushing it once a year extends the life of the unit by years. This takes 20 minutes and you can do it yourself.
-
-**8. Check under sinks and around toilets.** Look for moisture, staining, soft flooring, or musty smells. Slow leaks under sinks cause thousands in damage before anyone notices.
-
-**9. Test sump pump.** Pour a bucket of water into the sump pit and make sure it activates and drains. A failed sump pump during a spring thunderstorm can flood your entire basement.
-
-**10. Smoke and CO detectors.** Replace batteries, test them, and replace any unit older than 10 years.
-
-## Landscape
-
-**11. Grade check.** Make sure the ground slopes away from your foundation on all sides. Mulch and soil settle over winter. Add material where needed to maintain proper drainage.
-
-**12. Trim trees and shrubs.** Cut back anything touching the house, especially branches over the roof. Overhanging branches drop debris into gutters, provide pathways for insects, and can cause damage in storms.
-
-## One More Thing
-
-If you find something on this list that concerns you, do not wait. The cost of fixing a small problem early is always a fraction of the cost of fixing it after it spreads. Call us at (301) 602-2553 for a free assessment. We are happy to walk through your home and give you an honest evaluation.
-`,
-  },
-  {
-    slug: "small-problems-become-expensive-dont-wait",
-    title: "When a $300 Fix Becomes a $15,000 Problem: Why Waiting Costs You More",
-    category: "Tips & Advice",
-    author: "Carlos Hernandez",
-    date: "2026-01-20",
-    readTime: "6 min",
-    image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800&q=80",
-    excerpt: "Every week I see homeowners who waited too long on a small repair. Here are the most common situations where a few hundred dollars turns into five figures.",
-    content: `
-I have been in this industry for over 20 years. The most expensive projects I work on are almost never planned renovations. They are emergencies that started as small, fixable problems that got ignored.
-
-I am not saying this to scare anyone. I am saying it because I genuinely wish more homeowners would call us when the problem is small. A $300 repair today saves you $15,000 and three weeks of disruption later.
-
-## The Slow Leak
-
-A dripping faucet or a tiny stain on the ceiling might not seem urgent. But water does not stop. It spreads through drywall, soaks into floor joists, and creates conditions for mold. I have opened up walls on what homeowners thought was a simple drywall patch and found structural damage, black mold, and rotted framing.
-
-**Catch it early:** A ceiling stain is never just cosmetic. Call a professional to find the source. The repair might be $200 to $500. Wait six months and you could be looking at $5,000 to $15,000 in mold remediation, drywall replacement, and structural repair.
-
-## The Cracked Grout
-
-Cracked or missing grout in a shower or tub surround lets water behind the tile. Behind the tile is usually greenboard or cement board, and behind that is framing. Water gets in, the substrate swells, more tiles loosen, and before long the entire shower needs to be ripped out.
-
-**Catch it early:** Re-grouting a shower costs $150 to $400. A full shower rebuild costs $3,000 to $8,000.
-
-## The Soft Spot on the Deck
-
-A soft board on a deck means water has penetrated the wood. If the board is soft, the joist underneath might be too. One soft board is a $100 fix. A collapsed section of deck is a $5,000 to $10,000 rebuild — plus the liability if someone gets hurt.
-
-## The Gutter That Overflows
-
-When gutters overflow, water pours down the foundation wall. Over time this causes basement leaking, foundation cracks, and soil erosion. Cleaning gutters costs $150 to $300. Foundation waterproofing costs $5,000 to $15,000.
-
-## What We Recommend
-
-If something looks wrong, call a contractor you trust. A good contractor will tell you honestly whether it needs immediate attention or if it can wait. We offer free assessments for exactly this reason. It costs you nothing for us to look, and it might save you thousands.
-
-Do not let a small problem become a big one. Call (301) 602-2553 or use our online estimate form.
-`,
-  },
-  {
-    slug: "how-to-budget-renovation-dmv-2026",
-    title: "How to Budget for a Home Renovation in the DMV: Real Numbers, No Surprises",
-    category: "Tips & Advice",
-    author: "Carlos Hernandez",
-    date: "2026-01-05",
-    readTime: "9 min",
-    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=800&q=80",
-    excerpt: "Wondering what a kitchen, bathroom, or basement renovation actually costs in the DC-Maryland-Virginia area? Here are real ranges based on 500+ completed projects.",
-    content: `
-One of the most common questions I hear is "how much will this cost?" And I understand the frustration when the answer is "it depends." So let me give you real numbers based on hundreds of projects we have completed across DC, Maryland, and Virginia.
-
-These are 2025-2026 numbers that reflect current material costs and labor rates in the DMV market.
-
-## Kitchen Remodeling
-
-A minor kitchen refresh — new hardware, backsplash, paint, and maybe new countertops — runs $3,000 to $7,000. This is the best value upgrade for your home's resale value.
-
-A mid-range kitchen remodel with new cabinets, countertops, backsplash, and flooring typically runs $15,000 to $30,000. This is where most of our kitchen clients land.
-
-A full gut renovation with premium finishes, layout changes, new plumbing, electrical, and appliances can run $30,000 to $85,000.
-
-## Bathroom Renovation
-
-A bathroom refresh with new fixtures, paint, and accessories runs $2,000 to $5,000.
-
-A full bathroom remodel with new tile, vanity, shower or tub, and fixtures typically costs $12,000 to $25,000.
-
-A luxury master bathroom transformation with custom tile, heated floors, frameless shower, and premium fixtures can run $35,000 to $60,000.
-
-## Basement Finishing
-
-A basic basement finish with drywall, paint, flooring, and lighting runs $10,000 to $20,000.
-
-Adding a bathroom, wet bar, or home theater brings the range to $20,000 to $40,000.
-
-Premium basement builds with custom design, multiple rooms, and high-end finishes run $40,000 to $70,000.
-
-## How to Avoid Budget Surprises
-
-**Get detailed quotes.** A good quote itemizes labor, materials, permits, and disposal separately. If you get a one-line estimate, keep looking.
-
-**Budget 10 to 15 percent for contingency.** Older DMV homes often have surprises behind walls — outdated wiring, plumbing that needs updating, or structural issues. A contingency fund prevents project interruptions.
-
-**Prioritize wisely.** Spend on things that are hard or expensive to change later — plumbing layout, electrical capacity, insulation, waterproofing. You can always upgrade fixtures and finishes later.
-
-**Ask about tax credits.** Energy-efficient upgrades like heat pumps, insulation, and efficient windows can earn federal tax credits of $600 to $2,000. We help identify these on every project.
-
-## Our Pricing Approach
-
-We provide free in-home consultations with detailed, itemized estimates. No deposit required until you approve the scope of work. No hidden fees. Payment schedules tied to project milestones.
-
-Check our interactive pricing estimator on the website for ballpark ranges by service type and project size. Then call us at (301) 602-2553 to schedule your free consultation.
 `,
   },
 ];
