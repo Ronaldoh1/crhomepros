@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Phone, ChevronDown, Globe, AlertTriangle, MessageCircle } from 'lucide-react'
 import { cn, formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
+import { resolveImageUrl } from '@/lib/resolve-images'
 import { COMPANY, NAV_LINKS } from '@/lib/constants'
 
 export function Navbar() {
@@ -79,7 +80,7 @@ export function Navbar() {
                 }}
               >
                 <Image
-                  src="/images/logo.png"
+                  src={resolveImageUrl("/images/logo.png")}
                   alt="CR Home Pros - Complete Home Services"
                   width={300}
                   height={80}
@@ -196,7 +197,7 @@ export function Navbar() {
             <div className="flex items-center justify-between p-5 border-b border-dark-100">
               <div className="relative h-14 w-auto">
                 <Image
-                  src="/images/logo.png"
+                  src={resolveImageUrl("/images/logo.png")}
                   alt="CR Home Pros"
                   width={180}
                   height={56}
