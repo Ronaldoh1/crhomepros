@@ -6,8 +6,10 @@ import { ChevronDown, Phone } from 'lucide-react'
 import { cn, formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
 import { FAQ, COMPANY } from '@/lib/constants'
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
+import { useTranslation } from '@/lib/i18n/provider'
 
 export function FAQSection() {
+  const t = useTranslation()
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
   return (
@@ -17,13 +19,13 @@ export function FAQSection() {
           {/* Header */}
           <div className="text-center mb-12">
             <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
-              FAQ
+              {t.faq.badge}
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-4">
-              Frequently Asked Questions
+              {t.faq.title}
             </h2>
             <p className="text-lg text-dark-500">
-              Quick answers to the questions we hear most from DMV homeowners.
+              {t.faq.description}
             </p>
           </div>
 
@@ -60,7 +62,7 @@ export function FAQSection() {
 
           {/* Still have questions? */}
           <div className="mt-10 text-center bg-dark-50 rounded-2xl p-8">
-            <p className="text-dark-700 font-medium mb-4">Still have questions? We're happy to help.</p>
+            <p className="text-dark-700 font-medium mb-4">{t.faq.stillHaveQuestions}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <a
                 href={formatPhoneLink(COMPANY.phone)}
@@ -76,7 +78,7 @@ export function FAQSection() {
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-medium hover:bg-[#20bd5a] transition-colors"
               >
                 <WhatsAppIcon className="w-4 h-4" />
-                WhatsApp Us
+                {t.faq.whatsappUs}
               </a>
             </div>
           </div>

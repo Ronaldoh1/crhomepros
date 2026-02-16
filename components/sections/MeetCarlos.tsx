@@ -36,33 +36,25 @@ export function MeetCarlos() {
             </h2>
 
             <div className="space-y-4 text-lg text-dark-600 leading-relaxed mb-8">
-              <p>
-                Hi, I am Carlos. For over 20 years, my team and I have been
-                helping DMV homeowners bring their renovation ideas to life.
-              </p>
-              <p>
-                We treat every home like our own and believe quality work starts
-                with clear communication and genuine care. Whether it is a
-                complete kitchen transformation or a quick repair, we are here
-                to make the process smooth and the results exceptional.
-              </p>
+              <p>{t.meetCarlos.intro}</p>
+              <p>{t.meetCarlos.body}</p>
             </div>
 
             {/* Trust Indicators */}
             <div className="flex flex-wrap gap-4 mb-8">
               <div className="px-4 py-2 bg-primary-50 rounded-lg border border-primary-100">
                 <p className="text-sm font-semibold text-primary-800">
-                  20+ Years Serving the DMV
+                  {t.meetCarlos.badge1}
                 </p>
               </div>
               <div className="px-4 py-2 bg-primary-50 rounded-lg border border-primary-100">
                 <p className="text-sm font-semibold text-primary-800">
-                  500+ Projects Completed
+                  {t.meetCarlos.badge2}
                 </p>
               </div>
               <div className="px-4 py-2 bg-primary-50 rounded-lg border border-primary-100">
                 <p className="text-sm font-semibold text-primary-800">
-                  MHIC Licensed & Insured
+                  {t.meetCarlos.badge3}
                 </p>
               </div>
             </div>
@@ -71,7 +63,7 @@ export function MeetCarlos() {
               href="/about"
               className="inline-flex items-center gap-2 text-primary-700 hover:text-primary-800 font-medium group"
             >
-              Learn more about our story
+              {t.meetCarlos.learnMore}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -80,11 +72,10 @@ export function MeetCarlos() {
         {/* The Team */}
         <div className="mt-16 pt-12 border-t border-dark-100">
           <h3 className="text-2xl font-display font-bold text-dark-900 mb-2 text-center">
-            The CR Home Pros Team
+            {t.meetCarlos.teamTitle}
           </h3>
           <p className="text-dark-500 text-center mb-8 max-w-2xl mx-auto">
-            A tight-knit crew of skilled craftsmen who take pride in every project. 
-            Each member brings years of hands-on experience in their specialty.
+            {t.meetCarlos.teamDesc}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg">
@@ -95,8 +86,8 @@ export function MeetCarlos() {
                 className="object-cover"
               />
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-dark-900/80 to-transparent p-3">
-                <p className="text-white text-sm font-semibold">Carlos & Team</p>
-                <p className="text-white/60 text-xs">The crew</p>
+                <p className="text-white text-sm font-semibold">{t.meetCarlos.teamLabel1}</p>
+                <p className="text-white/60 text-xs">{t.meetCarlos.teamSub1}</p>
               </div>
             </div>
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg">
@@ -107,16 +98,16 @@ export function MeetCarlos() {
                 className="object-cover"
               />
               <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-dark-900/80 to-transparent p-3">
-                <p className="text-white text-sm font-semibold">On the Job</p>
-                <p className="text-white/60 text-xs">Painting crew</p>
+                <p className="text-white text-sm font-semibold">{t.meetCarlos.teamLabel2}</p>
+                <p className="text-white/60 text-xs">{t.meetCarlos.teamSub2}</p>
               </div>
             </div>
             <div className="relative aspect-[3/4] rounded-xl overflow-hidden shadow-lg bg-primary-100 flex items-center justify-center">
               <div className="text-center p-6">
                 <p className="text-4xl mb-3">👷‍♂️</p>
-                <p className="text-primary-800 font-bold text-lg">6 Skilled Craftsmen</p>
-                <p className="text-primary-600 text-sm mt-1">Painters, carpenters, roofers, tile &amp; more</p>
-                <p className="text-primary-500 text-xs mt-3 italic">Team photos coming soon — new CR Home Pros tees on the way!</p>
+                <p className="text-primary-800 font-bold text-lg">{t.meetCarlos.teamCount}</p>
+                <p className="text-primary-600 text-sm mt-1">{t.meetCarlos.teamSpecialties}</p>
+                <p className="text-primary-500 text-xs mt-3 italic">{t.meetCarlos.teamPhotoNote}</p>
               </div>
             </div>
           </div>

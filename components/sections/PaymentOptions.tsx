@@ -2,36 +2,40 @@
 
 import Link from 'next/link'
 import { CreditCard, Smartphone, DollarSign, Clock, Shield, FileText, Percent, ArrowRight } from 'lucide-react'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
 const iconMap: Record<string, any> = {
   CreditCard, Smartphone, DollarSign, Clock, Shield, FileText, Percent,
 }
 
-const paymentMethods = [
-  { name: 'Credit & Debit Cards', nameEs: 'Tarjetas', icon: 'CreditCard', detail: 'Visa, Mastercard, Amex, Discover' },
-  { name: 'Zelle', nameEs: 'Zelle', icon: 'Smartphone', detail: 'Instant bank transfers' },
-  { name: 'Venmo', nameEs: 'Venmo', icon: 'Smartphone', detail: 'Quick mobile payments' },
-  { name: 'Cash App', nameEs: 'Cash App', icon: 'DollarSign', detail: 'Mobile transfers' },
-  { name: 'Check', nameEs: 'Cheque', icon: 'FileText', detail: 'Personal or business' },
-  { name: 'Klarna', nameEs: 'Klarna', icon: 'Clock', detail: 'Split into 4 payments' },
-  { name: 'Insurance Claims', nameEs: 'Seguros', icon: 'Shield', detail: 'We work with your insurer', highlight: true },
-  { name: 'Financing', nameEs: 'Financiamiento', icon: 'Percent', detail: 'Flexible payment plans', highlight: true },
-]
-
 export function PaymentOptions() {
+  const t = useTranslation()
+  const { locale } = useLocale()
+
+  const paymentMethods = [
+    { name: t.payment.methods.creditCards, icon: 'CreditCard', detail: t.payment.methods.creditCardsDetail },
+    { name: t.payment.methods.zelle, icon: 'Smartphone', detail: t.payment.methods.zelleDetail },
+    { name: t.payment.methods.venmo, icon: 'Smartphone', detail: t.payment.methods.venmoDetail },
+    { name: t.payment.methods.cashApp, icon: 'DollarSign', detail: t.payment.methods.cashAppDetail },
+    { name: t.payment.methods.check, icon: 'FileText', detail: t.payment.methods.checkDetail },
+    { name: t.payment.methods.klarna, icon: 'Clock', detail: t.payment.methods.klarnaDetail },
+    { name: t.payment.methods.insurance, icon: 'Shield', detail: t.payment.methods.insuranceDetail, highlight: true },
+    { name: t.payment.methods.financing, icon: 'Percent', detail: t.payment.methods.financingDetail, highlight: true },
+  ]
+
   return (
     <section className="py-16 bg-dark-50">
       <div className="container-custom">
         <div className="text-center mb-10">
           <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 tracking-wider uppercase mb-3">
             <CreditCard className="w-4 h-4" />
-            Flexible Payment
+            {t.payment.badge}
           </span>
           <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mb-3">
-            Payment Options That Work for You
+            {t.payment.title}
           </h2>
           <p className="text-dark-500 max-w-xl mx-auto">
-            We accept multiple payment methods and work directly with insurance companies. Financing available for larger projects.
+            {t.payment.description}
           </p>
         </div>
 
@@ -61,11 +65,11 @@ export function PaymentOptions() {
 
         <div className="text-center mt-8 flex flex-wrap items-center justify-center gap-4">
           <Link href="/financing" className="text-primary-600 font-semibold hover:text-primary-700 inline-flex items-center gap-1">
-            Learn about financing <ArrowRight className="w-4 h-4" />
+            {t.payment.learnFinancing} <ArrowRight className="w-4 h-4" />
           </Link>
           <span className="text-dark-300">•</span>
           <Link href="/services" className="text-primary-600 font-semibold hover:text-primary-700 inline-flex items-center gap-1">
-            Insurance claims info <ArrowRight className="w-4 h-4" />
+            {t.payment.insuranceClaims} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

@@ -26,12 +26,27 @@ const es: Dictionary = {
     subtitle: 'Desde cocinas y baños hasta techos y concreto — ofrecemos trabajo de calidad con precios honestos. Sirviendo DC, Maryland y Virginia.',
     cta: 'Solicita Tu Estimado Gratis',
     ctaSecondary: 'Ver Nuestro Trabajo',
+    bilingualBadge: '¡Hablamos Español!',
     trustBadges: {
       years: '20+ Años de Experiencia',
       licensed: 'Licenciado y Asegurado',
       licensedDetail: 'MHIC #05-132359',
       estimates: 'Estimados Gratis',
       spanish: '¡Hablamos Español!',
+    },
+    slides: {
+      s1tagline: 'Una Llamada Lo Resuelve Todo',
+      s1subtitle: 'Desde grifos con fugas hasta remodelaciones completas — precisión, cuidado y cero complicaciones.',
+      s2tagline: 'Tu Hogar, En Buenas Manos',
+      s2subtitle: 'Reparaciones menores o grandes transformaciones: nosotros nos encargamos de cada detalle.',
+      s3tagline: 'Hecho para Durar, Diseñado para Impresionar',
+      s3subtitle: 'Profesionales expertos convirtiendo tu casa en el hogar que siempre soñaste.',
+      s4tagline: 'De Principio a Fin',
+      s4subtitle: 'Cada proyecto, a cualquier escala — entregado con experiencia y un toque perfecto.',
+      s5tagline: 'Transformamos Casas en Hogares',
+      s5subtitle: 'Servicio impecable desde el ajuste más pequeño hasta el sueño más grande.',
+      s6tagline: 'Ningún Trabajo Es Muy Pequeño. Ninguna Visión Es Muy Grande.',
+      s6subtitle: 'Tu equipo de confianza para cada necesidad de mejora del hogar.',
     },
   },
 
@@ -303,12 +318,18 @@ const es: Dictionary = {
     button: 'Estimado Gratis',
     orCall: 'O llámanos al',
     orWhatsApp: 'O escríbenos por WhatsApp',
+    callNow: 'Llamar Ahora',
+    noObligation: 'Sin compromiso — Solo consejos honestos',
+    letsDiscuss: 'Hablemos de tu proyecto',
+    proudlyServing: 'Sirviendo con Orgullo',
+    andSurrounding: 'y áreas cercanas',
   },
 
   // Cómo Trabajamos
   howWeWork: {
     title: 'Cómo Trabajamos',
     subtitle: 'Proceso Simple y Transparente',
+    bottomNote: 'Cada proyecto es único, pero nuestro compromiso con la calidad y la comunicación nunca cambia.',
     steps: {
       consult: 'Consulta Gratis',
       consultDesc: 'Visitamos tu hogar, escuchamos tu visión y evaluamos el alcance del trabajo.',
@@ -318,6 +339,105 @@ const es: Dictionary = {
       buildDesc: 'Nuestro equipo experto completa tu proyecto a tiempo y dentro del presupuesto.',
       inspect: 'Revisión Final',
       inspectDesc: 'Revisamos cada detalle juntos hasta que estés 100% satisfecho.',
+    },
+  },
+
+  // Conoce a Carlos
+  meetCarlos: {
+    intro: 'Hola, soy Carlos. Por más de 20 años, mi equipo y yo hemos ayudado a propietarios del DMV a hacer realidad sus ideas de remodelación.',
+    body: 'Tratamos cada hogar como si fuera el nuestro y creemos que el trabajo de calidad comienza con comunicación clara y cuidado genuino. Ya sea una transformación completa de cocina o una reparación rápida, estamos aquí para hacer el proceso fluido y los resultados excepcionales.',
+    badge1: '20+ Años Sirviendo el DMV',
+    badge2: '500+ Proyectos Completados',
+    badge3: 'MHIC Licenciado y Asegurado',
+    learnMore: 'Conoce más sobre nuestra historia',
+    teamTitle: 'El Equipo de CR Home Pros',
+    teamDesc: 'Un equipo unido de artesanos expertos que se enorgullecen de cada proyecto. Cada miembro aporta años de experiencia práctica en su especialidad.',
+    teamLabel1: 'Carlos y Equipo',
+    teamSub1: 'La cuadrilla',
+    teamLabel2: 'En Acción',
+    teamSub2: 'Equipo de pintura',
+    teamCount: '6 Artesanos Expertos',
+    teamSpecialties: 'Pintores, carpinteros, techeros, azulejistas y más',
+    teamPhotoNote: 'Fotos del equipo próximamente — ¡nuevas camisetas de CR Home Pros en camino!',
+  },
+
+  // Por Qué Elegirnos
+  whyChoose: {
+    heading: 'Años Construyendo',
+    headingAccent: 'Confianza',
+    description: 'Cuando eliges CR Home Pros, eliges un equipo que trata tu hogar como el suyo. No somos solo contratistas — somos artesanos comprometidos con la excelencia, la comunicación y las relaciones duraderas con nuestros clientes.',
+    quote: 'Mi equipo y yo estamos dedicados a dar vida al potencial de tu hogar, una mejora a la vez. No solo estamos remodelando espacios — estamos ayudándote a construir el hogar de tus sueños.',
+    quoteAuthor: 'Carlos Hernandez',
+    quoteRole: 'Fundador',
+  },
+
+  // Testimonios
+  testimonials: {
+    badge: 'Testimonios',
+    title: 'Lo Que Dicen Nuestros Clientes',
+    description: 'No solo confíes en nuestra palabra — escucha a los propietarios que experimentaron la diferencia de CR Home Pros.',
+    readAll: 'Ver Todas las Reseñas',
+  },
+
+  // Proyectos Destacados
+  featuredProjects: {
+    badge: 'Nuestro Portafolio',
+    title: 'Proyectos Destacados',
+    description: 'Mira la calidad de nuestro trabajo. Cada proyecto completado con precisión y orgullo.',
+    viewBefore: 'Ver Antes',
+    viewAfter: 'Ver Después',
+    viewFull: 'Ver Proyecto Completo',
+    viewAll: 'Ver Todos los Proyectos',
+  },
+
+  // Proyecto Destacado
+  projectHighlight: {
+    badge: 'Proyecto Reciente',
+    title: 'Mira la Transformación',
+    viewAll: 'Ver Todos los Proyectos',
+    before: 'Antes',
+    after: 'Después',
+    during: 'Durante',
+    startProject: 'Comienza Tu Proyecto',
+    getEstimate: 'Solicita un Estimado',
+    projectDuration: 'Duración del Proyecto',
+    area: 'Área',
+    budgetRange: 'Rango de Presupuesto',
+  },
+
+  // FAQ
+  faq: {
+    badge: 'Preguntas Frecuentes',
+    title: 'Preguntas Frecuentes',
+    description: 'Respuestas rápidas a las preguntas que más escuchamos de los propietarios del DMV.',
+    stillHaveQuestions: '¿Aún tienes preguntas? Estamos felices de ayudar.',
+    whatsappUs: 'Escríbenos por WhatsApp',
+  },
+
+  // Opciones de Pago
+  payment: {
+    badge: 'Pagos Flexibles',
+    title: 'Opciones de Pago a Tu Medida',
+    description: 'Aceptamos múltiples métodos de pago y trabajamos directamente con compañías de seguros. Financiamiento disponible para proyectos grandes.',
+    learnFinancing: 'Conoce el financiamiento',
+    insuranceClaims: 'Info de reclamaciones de seguro',
+    methods: {
+      creditCards: 'Tarjetas de Crédito/Débito',
+      creditCardsDetail: 'Visa, Mastercard, Amex, Discover',
+      zelle: 'Zelle',
+      zelleDetail: 'Transferencias bancarias instantáneas',
+      venmo: 'Venmo',
+      venmoDetail: 'Pagos móviles rápidos',
+      cashApp: 'Cash App',
+      cashAppDetail: 'Transferencias móviles',
+      check: 'Cheque',
+      checkDetail: 'Personal o empresarial',
+      klarna: 'Klarna',
+      klarnaDetail: 'Divide en 4 pagos',
+      insurance: 'Reclamaciones de Seguro',
+      insuranceDetail: 'Trabajamos con tu aseguradora',
+      financing: 'Financiamiento',
+      financingDetail: 'Planes de pago flexibles',
     },
   },
 

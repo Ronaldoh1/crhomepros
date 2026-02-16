@@ -52,7 +52,7 @@ export function CallToAction() {
                 {t.cta.button}
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
-              <p className="text-xs text-white/50 mt-2 text-center">No obligation — Just honest advice</p>
+              <p className="text-xs text-white/50 mt-2 text-center">{t.cta.noObligation}</p>
             </div>
             
             <div className="w-full sm:w-auto">
@@ -61,9 +61,9 @@ export function CallToAction() {
                 className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg border border-white/20 hover:border-white/30 transition-all duration-300 w-full sm:w-auto justify-center"
               >
                 <Phone className="w-5 h-5" />
-                Call Now
+                {t.cta.callNow}
               </a>
-              <p className="text-xs text-white/50 mt-2 text-center">Let&apos;s discuss your project</p>
+              <p className="text-xs text-white/50 mt-2 text-center">{t.cta.letsDiscuss}</p>
             </div>
           </div>
 
@@ -75,14 +75,14 @@ export function CallToAction() {
             className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors"
           >
             <WhatsAppIcon className="w-5 h-5 text-[#25D366]" />
-            <span>Or message us on WhatsApp</span>
+            <span>{t.cta.orWhatsApp}</span>
           </a>
 
           {/* Service Areas */}
           <div className="mt-12 pt-8 border-t border-white/10">
-            <p className="text-sm text-white/50 mb-3">Proudly Serving</p>
+            <p className="text-sm text-white/50 mb-3">{t.cta.proudlyServing}</p>
             <p className="text-white/70">
-              {SERVICE_AREAS.slice(0, 6).join(' • ')} & surrounding areas
+              {SERVICE_AREAS.slice(0, 6).join(' • ')} {t.cta.andSurrounding}
             </p>
           </div>
         </div>

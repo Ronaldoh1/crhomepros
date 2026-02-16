@@ -8,49 +8,20 @@ import { ArrowRight, Phone, Shield, Award, Languages, CheckCircle, ChevronLeft, 
 import { ScrollIndicator } from '@/components/ScrollIndicator'
 import { cn, formatPhoneLink } from '@/lib/utils'
 import { COMPANY } from '@/lib/constants'
+import { useTranslation } from '@/lib/i18n/provider'
 
-// Slideshow data with stock images and taglines
-const slides = [
-  {
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&q=80', // Modern kitchen
-    tagline: 'One Call Fixes It All',
-    subtitle: 'From leaky faucets to full renos—precision, care, and zero hassle.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1920&q=80', // Bathroom
-    tagline: 'Your Home, Handled',
-    subtitle: 'Minor repairs to major makeovers: We handle every detail so you don\'t have to.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1920&q=80', // Construction/renovation
-    tagline: 'Built to Last, Designed to Wow',
-    subtitle: 'Skilled pros turning your house into the home you\'ve always imagined.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80', // Living room
-    tagline: 'From Fix to Finish',
-    subtitle: 'Every project, every scale—delivered with expertise and a perfect touch.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80', // Beautiful home exterior
-    tagline: 'We Transform Houses into Homes',
-    subtitle: 'Seamless service from the smallest tweak to the biggest dream.',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80', // Modern home
-    tagline: 'No Job Too Small. No Vision Too Big.',
-    subtitle: 'Your trusted team for every home improvement need.',
-  },
-]
-
-const trustBadges = [
-  { icon: Shield, label: 'Licensed & Insured', detail: 'MHIC #109350' },
-  { icon: Award, label: '20+ Years Experience', detail: 'Since 2004' },
-  { icon: Languages, label: 'Bilingual Team', detail: '¡Hablamos Español!' },
-  { icon: CheckCircle, label: '500+ Projects', detail: 'Completed' },
+// Slideshow images
+const slideImages = [
+  'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&q=80', // Modern kitchen
+  'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1920&q=80', // Bathroom
+  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1920&q=80', // Construction/renovation
+  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80', // Living room
+  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80', // Beautiful home exterior
+  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80', // Modern home
 ]
 
 export function Hero() {
+  const t = useTranslation()
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -58,6 +29,22 @@ export function Hero() {
 
   const SLIDE_DURATION = 5000 // 5 seconds per slide
   const [progress, setProgress] = useState(0)
+
+  const slides = [
+    { image: slideImages[0], tagline: t.hero.slides.s1tagline, subtitle: t.hero.slides.s1subtitle },
+    { image: slideImages[1], tagline: t.hero.slides.s2tagline, subtitle: t.hero.slides.s2subtitle },
+    { image: slideImages[2], tagline: t.hero.slides.s3tagline, subtitle: t.hero.slides.s3subtitle },
+    { image: slideImages[3], tagline: t.hero.slides.s4tagline, subtitle: t.hero.slides.s4subtitle },
+    { image: slideImages[4], tagline: t.hero.slides.s5tagline, subtitle: t.hero.slides.s5subtitle },
+    { image: slideImages[5], tagline: t.hero.slides.s6tagline, subtitle: t.hero.slides.s6subtitle },
+  ]
+
+  const trustBadges = [
+    { icon: Shield, label: t.hero.trustBadges.licensed, detail: t.hero.trustBadges.licensedDetail },
+    { icon: Award, label: t.hero.trustBadges.years, detail: 'Since 2004' },
+    { icon: Languages, label: t.hero.trustBadges.spanish, detail: t.hero.trustBadges.spanish },
+    { icon: CheckCircle, label: t.hero.trustBadges.estimates, detail: t.hero.trustBadges.estimates },
+  ]
 
   // Track scroll for parallax effect
   useEffect(() => {
@@ -246,7 +233,7 @@ export function Hero() {
               href="/get-started"
               className="group flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-dark-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-gold-500/25 hover:shadow-xl hover:shadow-gold-500/40 hover:-translate-y-1 transition-all duration-300"
             >
-              Get Your Free Estimate
+              {t.hero.cta}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </Link>
             <a

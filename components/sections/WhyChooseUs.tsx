@@ -24,25 +24,21 @@ export function WhyChooseUs() {
               {t.services.whyChoose}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-dark-900 mb-6">
-              {COMPANY.yearsInBusiness}+ Years of Building{' '}
-              <span className="text-primary-700">Trust</span>
+              {COMPANY.yearsInBusiness}+ {t.whyChoose.heading}{' '}
+              <span className="text-primary-700">{t.whyChoose.headingAccent}</span>
             </h2>
             <p className="text-lg text-dark-500 leading-relaxed mb-8">
-              When you choose CR Home Pros, you're choosing a team that treats your home like our own. 
-              We're not just contractors—we're craftsmen committed to excellence, communication, and 
-              lasting relationships with our clients.
+              {t.whyChoose.description}
             </p>
 
             {/* Quote */}
             <blockquote className="relative pl-6 border-l-4 border-gold-500 italic text-dark-600">
               <p className="text-lg mb-4">
-                "My team and I are dedicated to bringing your home's potential to life, one improvement 
-                at a time. We're not just renovating spaces—we're helping you build the dream home 
-                you've always wanted."
+                &quot;{t.whyChoose.quote}&quot;
               </p>
               <footer className="not-italic">
-                <strong className="text-dark-900">Carlos Hernandez</strong>
-                <span className="text-dark-400"> — Founder</span>
+                <strong className="text-dark-900">{t.whyChoose.quoteAuthor}</strong>
+                <span className="text-dark-400"> — {t.whyChoose.quoteRole}</span>
               </footer>
             </blockquote>
           </div>

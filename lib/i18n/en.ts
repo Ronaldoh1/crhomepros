@@ -24,12 +24,27 @@ const en = {
     subtitle: 'From kitchens and bathrooms to roofing and concrete — we deliver quality craftsmanship with honest pricing. Serving DC, Maryland & Virginia.',
     cta: 'Get Your Free Estimate',
     ctaSecondary: 'View Our Work',
+    bilingualBadge: '¡Hablamos Español!',
     trustBadges: {
       years: '20+ Years Experience',
       licensed: 'Licensed & Insured',
       licensedDetail: 'MHIC #05-132359',
       estimates: 'Free Estimates',
       spanish: '¡Hablamos Español!',
+    },
+    slides: {
+      s1tagline: 'One Call Fixes It All',
+      s1subtitle: 'From leaky faucets to full renos—precision, care, and zero hassle.',
+      s2tagline: 'Your Home, Handled',
+      s2subtitle: 'Minor repairs to major makeovers: We handle every detail so you don\'t have to.',
+      s3tagline: 'Built to Last, Designed to Wow',
+      s3subtitle: 'Skilled pros turning your house into the home you\'ve always imagined.',
+      s4tagline: 'From Fix to Finish',
+      s4subtitle: 'Every project, every scale—delivered with expertise and a perfect touch.',
+      s5tagline: 'We Transform Houses into Homes',
+      s5subtitle: 'Seamless service from the smallest tweak to the biggest dream.',
+      s6tagline: 'No Job Too Small. No Vision Too Big.',
+      s6subtitle: 'Your trusted team for every home improvement need.',
     },
   },
 
@@ -301,12 +316,18 @@ const en = {
     button: 'Get Free Estimate',
     orCall: 'Or call us at',
     orWhatsApp: 'Or message us on WhatsApp',
+    callNow: 'Call Now',
+    noObligation: 'No obligation — Just honest advice',
+    letsDiscuss: 'Let\'s discuss your project',
+    proudlyServing: 'Proudly Serving',
+    andSurrounding: '& surrounding areas',
   },
 
   // How We Work
   howWeWork: {
     title: 'How We Work',
     subtitle: 'Simple, Transparent Process',
+    bottomNote: 'Every project is unique, but our commitment to quality and communication never changes.',
     steps: {
       consult: 'Free Consultation',
       consultDesc: 'We visit your home, listen to your vision, and assess the scope of work.',
@@ -316,6 +337,105 @@ const en = {
       buildDesc: 'Our skilled team completes your project on time and on budget.',
       inspect: 'Final Walkthrough',
       inspectDesc: 'We walk through every detail together until you\'re 100% satisfied.',
+    },
+  },
+
+  // Meet Carlos / About section on homepage
+  meetCarlos: {
+    intro: 'Hi, I am Carlos. For over 20 years, my team and I have been helping DMV homeowners bring their renovation ideas to life.',
+    body: 'We treat every home like our own and believe quality work starts with clear communication and genuine care. Whether it is a complete kitchen transformation or a quick repair, we are here to make the process smooth and the results exceptional.',
+    badge1: '20+ Years Serving the DMV',
+    badge2: '500+ Projects Completed',
+    badge3: 'MHIC Licensed & Insured',
+    learnMore: 'Learn more about our story',
+    teamTitle: 'The CR Home Pros Team',
+    teamDesc: 'A tight-knit crew of skilled craftsmen who take pride in every project. Each member brings years of hands-on experience in their specialty.',
+    teamLabel1: 'Carlos & Team',
+    teamSub1: 'The crew',
+    teamLabel2: 'On the Job',
+    teamSub2: 'Painting crew',
+    teamCount: '6 Skilled Craftsmen',
+    teamSpecialties: 'Painters, carpenters, roofers, tile & more',
+    teamPhotoNote: 'Team photos coming soon — new CR Home Pros tees on the way!',
+  },
+
+  // Why Choose Us section
+  whyChoose: {
+    heading: 'Years of Building',
+    headingAccent: 'Trust',
+    description: 'When you choose CR Home Pros, you\'re choosing a team that treats your home like our own. We\'re not just contractors—we\'re craftsmen committed to excellence, communication, and lasting relationships with our clients.',
+    quote: 'My team and I are dedicated to bringing your home\'s potential to life, one improvement at a time. We\'re not just renovating spaces—we\'re helping you build the dream home you\'ve always wanted.',
+    quoteAuthor: 'Carlos Hernandez',
+    quoteRole: 'Founder',
+  },
+
+  // Testimonials
+  testimonials: {
+    badge: 'Testimonials',
+    title: 'What Our Clients Say',
+    description: 'Don\'t just take our word for it—hear from homeowners who\'ve experienced the CR Home Pros difference.',
+    readAll: 'Read All Reviews',
+  },
+
+  // Featured Projects
+  featuredProjects: {
+    badge: 'Our Portfolio',
+    title: 'Featured Projects',
+    description: 'See the quality of our craftsmanship. Every project completed with precision and pride.',
+    viewBefore: 'View Before',
+    viewAfter: 'View After',
+    viewFull: 'View Full Project',
+    viewAll: 'View All Projects',
+  },
+
+  // Project Highlight
+  projectHighlight: {
+    badge: 'Recent Project Spotlight',
+    title: 'See the Transformation',
+    viewAll: 'View All Projects',
+    before: 'Before',
+    after: 'After',
+    during: 'During',
+    startProject: 'Start Your Project',
+    getEstimate: 'Get an Estimate',
+    projectDuration: 'Project Duration',
+    area: 'Area',
+    budgetRange: 'Budget Range',
+  },
+
+  // FAQ Section
+  faq: {
+    badge: 'FAQ',
+    title: 'Frequently Asked Questions',
+    description: 'Quick answers to the questions we hear most from DMV homeowners.',
+    stillHaveQuestions: 'Still have questions? We\'re happy to help.',
+    whatsappUs: 'WhatsApp Us',
+  },
+
+  // Payment Options
+  payment: {
+    badge: 'Flexible Payment',
+    title: 'Payment Options That Work for You',
+    description: 'We accept multiple payment methods and work directly with insurance companies. Financing available for larger projects.',
+    learnFinancing: 'Learn about financing',
+    insuranceClaims: 'Insurance claims info',
+    methods: {
+      creditCards: 'Credit & Debit Cards',
+      creditCardsDetail: 'Visa, Mastercard, Amex, Discover',
+      zelle: 'Zelle',
+      zelleDetail: 'Instant bank transfers',
+      venmo: 'Venmo',
+      venmoDetail: 'Quick mobile payments',
+      cashApp: 'Cash App',
+      cashAppDetail: 'Mobile transfers',
+      check: 'Check',
+      checkDetail: 'Personal or business',
+      klarna: 'Klarna',
+      klarnaDetail: 'Split into 4 payments',
+      insurance: 'Insurance Claims',
+      insuranceDetail: 'We work with your insurer',
+      financing: 'Financing',
+      financingDetail: 'Flexible payment plans',
     },
   },
 

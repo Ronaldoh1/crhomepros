@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { Star, ChevronLeft, ChevronRight, Quote, ArrowRight } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { TESTIMONIALS } from '@/lib/constants'
+import { useTranslation } from '@/lib/i18n/provider'
 
 export function Testimonials() {
+  const t = useTranslation()
   const [activeIndex, setActiveIndex] = useState(0)
 
   const nextTestimonial = () => {
@@ -25,13 +27,13 @@ export function Testimonials() {
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
           <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
-            Testimonials
+            {t.testimonials.badge}
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-dark-900 mb-6">
-            What Our Clients Say
+            {t.testimonials.title}
           </h2>
           <p className="text-lg text-dark-500">
-            Don't just take our word for it—hear from homeowners who've experienced the CR Home Pros difference.
+            {t.testimonials.description}
           </p>
         </div>
 
@@ -121,7 +123,7 @@ export function Testimonials() {
             href="/reviews"
             className="inline-flex items-center gap-2 text-primary-700 font-semibold hover:text-primary-800 group"
           >
-            Read All Reviews
+            {t.testimonials.readAll}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>

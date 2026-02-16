@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { ArrowRight, MapPin, Calendar, Hammer } from 'lucide-react'
 import { BeforeAfterSlider } from '@/components/ui/BeforeAfterSlider'
 import { resolveImageUrl } from '@/lib/resolve-images'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
 const highlightProject = {
   id: 'basement-painting-md',
@@ -29,16 +30,19 @@ const highlightProject = {
     resolveImageUrl('/images/2025-05/basement-md-after-03.png'),
     resolveImageUrl('/images/2025-05/basement-md-after-04.png'),
   ],
-  stats: [
-    { label: 'Project Duration', value: '3 weeks' },
-    { label: 'Area', value: '~800 sq ft' },
-    { label: 'Budget Range', value: '$20K–$40K' },
-  ],
 }
 
 export function ProjectHighlight() {
+  const t = useTranslation()
+  const { locale } = useLocale()
   const [activeAfter, setActiveAfter] = useState(0)
   const p = highlightProject
+
+  const stats = [
+    { label: t.projectHighlight.projectDuration, value: '3 weeks' },
+    { label: t.projectHighlight.area, value: '~800 sq ft' },
+    { label: t.projectHighlight.budgetRange, value: '$20K–$40K' },
+  ]
 
   return (
     <section className="section-padding bg-white relative overflow-hidden">
@@ -52,17 +56,17 @@ export function ProjectHighlight() {
           <div>
             <span className="inline-flex items-center gap-2 text-sm font-semibold text-primary-600 tracking-wider uppercase mb-4">
               <Hammer className="w-4 h-4" />
-              Recent Project Spotlight
+              {t.projectHighlight.badge}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-dark-900">
-              See the Transformation
+              {t.projectHighlight.title}
             </h2>
           </div>
           <Link
             href="/projects"
             className="inline-flex items-center gap-2 text-primary-600 font-semibold hover:text-primary-700 group"
           >
-            View All Projects
+            {t.projectHighlight.viewAll}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
@@ -73,8 +77,8 @@ export function ProjectHighlight() {
             <BeforeAfterSlider
               beforeImage={p.beforeImages[0]}
               afterImage={p.afterImages[activeAfter]}
-              beforeLabel="Before"
-              afterLabel="After"
+              beforeLabel={t.projectHighlight.before}
+              afterLabel={t.projectHighlight.after}
               className="shadow-xl"
             />
 
@@ -101,7 +105,7 @@ export function ProjectHighlight() {
               >
                 <Image src={p.duringImage} alt="During construction" fill className="object-cover" />
                 <div className="absolute inset-0 bg-dark-900/40 flex items-center justify-center">
-                  <span className="text-white text-2xs font-bold uppercase">During</span>
+                  <span className="text-white text-2xs font-bold uppercase">{t.projectHighlight.during}</span>
                 </div>
               </button>
             </div>
@@ -115,7 +119,7 @@ export function ProjectHighlight() {
             </span>
 
             <h3 className="text-2xl md:text-3xl font-display font-bold text-dark-900">
-              {p.title}
+              {locale === 'es' ? p.titleEs : p.title}
             </h3>
 
             <div className="flex items-center gap-4 text-dark-500">
@@ -130,12 +134,12 @@ export function ProjectHighlight() {
             </div>
 
             <p className="text-dark-600 text-lg leading-relaxed">
-              {p.description}
+              {locale === 'es' ? p.descriptionEs : p.description}
             </p>
 
             {/* Quick Stats */}
             <div className="grid grid-cols-3 gap-4 py-6 border-y border-dark-100">
-              {p.stats.map((stat) => (
+              {stats.map((stat) => (
                 <div key={stat.label}>
                   <div className="text-lg font-bold text-dark-900">{stat.value}</div>
                   <div className="text-sm text-dark-400">{stat.label}</div>
@@ -149,14 +153,14 @@ export function ProjectHighlight() {
                 href="/get-started"
                 className="btn-primary text-center"
               >
-                Start Your Project
+                {t.projectHighlight.startProject}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
               <Link
                 href="/estimate-cost"
                 className="btn-outline text-center"
               >
-                Get an Estimate
+                {t.projectHighlight.getEstimate}
               </Link>
             </div>
           </div>

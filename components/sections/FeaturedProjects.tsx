@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { ArrowRight, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { resolveImageUrl } from '@/lib/resolve-images'
+import { useTranslation } from '@/lib/i18n/provider'
 
 // REAL projects from crgenserv.com - Carlos's actual work
 const featuredProjects = [
@@ -56,6 +57,7 @@ const featuredProjects = [
 ]
 
 export function FeaturedProjects() {
+  const t = useTranslation()
   const [activeIndex, setActiveIndex] = useState(0)
   const [showBefore, setShowBefore] = useState(false)
 
@@ -84,14 +86,14 @@ export function FeaturedProjects() {
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12">
           <div>
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
-              Our Portfolio
+              {t.featuredProjects.badge}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white">
-              Featured Projects
+              {t.featuredProjects.title}
             </h2>
           </div>
           <p className="text-dark-300 max-w-md text-lg">
-            See the quality of our craftsmanship. Every project completed with precision and pride.
+            {t.featuredProjects.description}
           </p>
         </div>
 
@@ -112,7 +114,7 @@ export function FeaturedProjects() {
               onClick={() => setShowBefore(!showBefore)}
               className="absolute bottom-4 left-4 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-lg font-medium text-sm text-dark-800 hover:bg-white transition-colors"
             >
-              {showBefore ? 'View After' : 'View Before'}
+              {showBefore ? t.featuredProjects.viewAfter : t.featuredProjects.viewBefore}
             </button>
 
             {/* Navigation Arrows - Desktop Only */}
@@ -182,7 +184,7 @@ export function FeaturedProjects() {
               href={`/projects/${activeProject.id}`}
               className="inline-flex items-center gap-2 text-gold-400 font-semibold hover:text-gold-300 group"
             >
-              View Full Project
+              {t.featuredProjects.viewFull}
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
 
@@ -220,7 +222,7 @@ export function FeaturedProjects() {
             href="/projects"
             className="btn-outline-white"
           >
-            View All Projects
+            {t.featuredProjects.viewAll}
             <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
         </div>
