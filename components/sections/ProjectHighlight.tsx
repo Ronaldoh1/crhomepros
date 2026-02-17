@@ -8,17 +8,7 @@ import { BeforeAfterSlider } from '@/components/ui/BeforeAfterSlider'
 import { resolveImageUrl } from '@/lib/resolve-images'
 import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
-const highlightProject = {
-  id: 'basement-painting-md',
-  title: 'Complete Basement Transformation',
-  titleEs: 'Transformación Completa de Sótano',
-  location: 'Laurel, MD',
-  date: 'October 2024',
-  category: 'Basement Finishing',
-  description:
-    'From raw, unfinished space to a beautiful finished living area. Drywall installed throughout, recessed lighting, tile flooring, and a clean blue-gray palette with a bold accent wall. Includes a dedicated laundry nook with fresh trim and built-in storage.',
-  descriptionEs:
-    'De un espacio sin terminar a una hermosa área habitable. Drywall instalado, iluminación empotrada, piso de azulejo y una paleta azul-gris con pared de acento. Incluye área de lavandería con molduras y almacenamiento integrado.',
+const highlightImages = {
   beforeImages: [
     resolveImageUrl('/images/2025-05/basement-md-before-01.png'),
     resolveImageUrl('/images/2025-05/basement-md-before-02.png'),
@@ -35,13 +25,13 @@ const highlightProject = {
 export function ProjectHighlight() {
   const t = useTranslation()
   const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
   const [activeAfter, setActiveAfter] = useState(0)
-  const p = highlightProject
 
   const stats = [
-    { label: t.projectHighlight.projectDuration, value: '3 weeks' },
-    { label: t.projectHighlight.area, value: '~800 sq ft' },
-    { label: t.projectHighlight.budgetRange, value: '$20K–$40K' },
+    { label: t.projectHighlight.projectDuration, value: t.projectHighlight.highlightDuration },
+    { label: t.projectHighlight.area, value: t.projectHighlight.highlightArea },
+    { label: t.projectHighlight.budgetRange, value: t.projectHighlight.highlightBudget },
   ]
 
   return (
@@ -63,7 +53,7 @@ export function ProjectHighlight() {
             </h2>
           </div>
           <Link
-            href="/projects"
+            href={lp('/projects')}
             className="inline-flex items-center gap-2 text-primary-600 font-semibold hover:text-primary-700 group"
           >
             {t.projectHighlight.viewAll}
@@ -75,8 +65,8 @@ export function ProjectHighlight() {
           {/* Left: Before/After Slider */}
           <div className="space-y-6">
             <BeforeAfterSlider
-              beforeImage={p.beforeImages[0]}
-              afterImage={p.afterImages[activeAfter]}
+              beforeImage={highlightImages.beforeImages[0]}
+              afterImage={highlightImages.afterImages[activeAfter]}
               beforeLabel={t.projectHighlight.before}
               afterLabel={t.projectHighlight.after}
               className="shadow-xl"
@@ -84,7 +74,7 @@ export function ProjectHighlight() {
 
             {/* After thumbnails */}
             <div className="flex gap-3">
-              {p.afterImages.map((img, i) => (
+              {highlightImages.afterImages.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveAfter(i)}
@@ -94,16 +84,16 @@ export function ProjectHighlight() {
                       : 'opacity-60 hover:opacity-90'
                   }`}
                 >
-                  <Image src={img} alt={`After view ${i + 1}`} fill className="object-cover" />
+                  <Image src={img} alt={`${t.projectHighlight.after} ${i + 1}`} fill className="object-cover" />
                 </button>
               ))}
               {/* During thumbnail */}
               <button
                 onClick={() => {}}
                 className="relative w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden opacity-60 hover:opacity-90 transition-all"
-                title="During construction"
+                title={t.projectHighlight.during}
               >
-                <Image src={p.duringImage} alt="During construction" fill className="object-cover" />
+                <Image src={highlightImages.duringImage} alt={t.projectHighlight.during} fill className="object-cover" />
                 <div className="absolute inset-0 bg-dark-900/40 flex items-center justify-center">
                   <span className="text-white text-2xs font-bold uppercase">{t.projectHighlight.during}</span>
                 </div>
@@ -115,26 +105,26 @@ export function ProjectHighlight() {
           <div className="space-y-6 lg:sticky lg:top-32">
             {/* Badge */}
             <span className="inline-block px-3 py-1.5 bg-primary-100 text-primary-700 rounded-full text-sm font-semibold">
-              {p.category}
+              {t.projectHighlight.highlightCategory}
             </span>
 
             <h3 className="text-2xl md:text-3xl font-display font-bold text-dark-900">
-              {locale === 'es' ? p.titleEs : p.title}
+              {t.projectHighlight.highlightTitle}
             </h3>
 
             <div className="flex items-center gap-4 text-dark-500">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
-                <span>{p.location}</span>
+                <span>{t.projectHighlight.highlightLocation}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4" />
-                <span>{p.date}</span>
+                <span>{t.projectHighlight.highlightDate}</span>
               </div>
             </div>
 
             <p className="text-dark-600 text-lg leading-relaxed">
-              {locale === 'es' ? p.descriptionEs : p.description}
+              {t.projectHighlight.highlightDesc}
             </p>
 
             {/* Quick Stats */}
@@ -150,14 +140,14 @@ export function ProjectHighlight() {
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4">
               <Link
-                href="/get-started"
+                href={lp('/get-started')}
                 className="btn-primary text-center"
               >
                 {t.projectHighlight.startProject}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
               <Link
-                href="/estimate-cost"
+                href={lp('/estimate-cost')}
                 className="btn-outline text-center"
               >
                 {t.projectHighlight.getEstimate}

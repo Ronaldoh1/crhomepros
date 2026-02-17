@@ -4,13 +4,23 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { ChevronDown, Phone } from 'lucide-react'
 import { cn, formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
-import { FAQ, COMPANY } from '@/lib/constants'
+import { COMPANY } from '@/lib/constants'
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
 import { useTranslation } from '@/lib/i18n/provider'
+
+const FAQ_COUNT = 15
 
 export function FAQSection() {
   const t = useTranslation()
   const [openIndex, setOpenIndex] = useState<number | null>(0)
+
+  // Build FAQ items from dictionary
+  const faqItems: { question: string; answer: string }[] = []
+  for (let i = 0; i < FAQ_COUNT; i++) {
+    const q = (t.faq as Record<string, string>)[`q${i}`]
+    const a = (t.faq as Record<string, string>)[`a${i}`]
+    if (q && a) faqItems.push({ question: q, answer: a })
+  }
 
   return (
     <section className="section-padding bg-white">
@@ -31,7 +41,7 @@ export function FAQSection() {
 
           {/* FAQ Items */}
           <div className="space-y-3">
-            {FAQ.map((item, index) => (
+            {faqItems.map((item, index) => (
               <div
                 key={index}
                 className="border border-dark-100 rounded-xl overflow-hidden hover:border-primary-200 transition-colors"
@@ -69,10 +79,10 @@ export function FAQSection() {
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-primary-700 text-white font-medium hover:bg-primary-800 transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                Call {COMPANY.phoneFormatted}
+                {t.common.call} {COMPANY.phoneFormatted}
               </a>
               <a
-                href={formatWhatsAppLink(COMPANY.phone, "Hi! I have a question about your services.")}
+                href={formatWhatsAppLink(COMPANY.phone, t.common.whatsappGreeting)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-medium hover:bg-[#20bd5a] transition-colors"

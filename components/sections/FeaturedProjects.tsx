@@ -6,51 +6,27 @@ import Image from 'next/image'
 import { ArrowRight, MapPin, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { resolveImageUrl } from '@/lib/resolve-images'
-import { useTranslation } from '@/lib/i18n/provider'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
 // REAL projects from crgenserv.com - Carlos's actual work
-const featuredProjects = [
+const projectImages = [
   {
     id: 'kitchen-full-renovation',
-    title: 'Full Kitchen Renovation',
-    location: 'DMV Area',
-    type: 'Kitchen',
-    duration: '6 weeks',
-    year: 2024,
-    description: 'Complete kitchen transformation featuring custom cabinetry, premium countertops, modern appliances, and expert tiling work.',
     image: resolveImageUrl('/images/2025-05/bathroom-tile-01.png'),
     beforeImage: '/images/2024-01/img_3702-780x1024.JPEG',
   },
   {
     id: 'bathroom-remodel-1',
-    title: 'Modern Bathroom Remodel',
-    location: 'DMV Area',
-    type: 'Bathroom',
-    duration: '4 weeks',
-    year: 2024,
-    description: 'Luxurious bathroom renovation with custom tile work, modern fixtures, and premium finishes throughout.',
     image: resolveImageUrl('/images/2025-05/roofing-md-01.png'),
     beforeImage: '/images/2024-01/img_0416-768x1024.JPEG',
   },
   {
     id: 'complete-renovation-1',
-    title: 'Complete Home Renovation',
-    location: 'DMV Area',
-    type: 'Renovation',
-    duration: '12 weeks',
-    year: 2024,
-    description: 'Full property transformation including structural work, flooring, walls, and complete interior refinishing.',
     image: resolveImageUrl('/images/2025-05/deck-pg-county-01.png'),
     beforeImage: '/images/2024-01/img_1506-768x1024.JPEG',
   },
   {
     id: 'deck-restoration-1',
-    title: 'Custom Deck Build',
-    location: 'DMV Area',
-    type: 'Deck',
-    duration: '3 weeks',
-    year: 2024,
-    description: 'Beautiful deck construction with quality lumber, expert craftsmanship, and professional staining for long-lasting beauty.',
     image: resolveImageUrl('/images/2025-fence-bowie/fence-after-01.png'),
     beforeImage: '/images/2024-06/img_2379-1024x768.JPEG',
   },
@@ -58,8 +34,21 @@ const featuredProjects = [
 
 export function FeaturedProjects() {
   const t = useTranslation()
+  const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
+
   const [activeIndex, setActiveIndex] = useState(0)
   const [showBefore, setShowBefore] = useState(false)
+
+  // Build translated project data
+  const featuredProjects = projectImages.map((proj, i) => ({
+    ...proj,
+    title: (t.featuredProjects as any)[`p${i}Title`] || '',
+    type: (t.featuredProjects as any)[`p${i}Type`] || '',
+    duration: (t.featuredProjects as any)[`p${i}Duration`] || '',
+    description: (t.featuredProjects as any)[`p${i}Desc`] || '',
+    location: 'DMV Area',
+  }))
 
   const activeProject = featuredProjects[activeIndex]
 
@@ -181,7 +170,7 @@ export function FeaturedProjects() {
 
             {/* CTA */}
             <Link
-              href={`/projects/${activeProject.id}`}
+              href={lp(`/projects/${activeProject.id}`)}
               className="inline-flex items-center gap-2 text-gold-400 font-semibold hover:text-gold-300 group"
             >
               {t.featuredProjects.viewFull}
@@ -219,7 +208,7 @@ export function FeaturedProjects() {
         {/* View All */}
         <div className="text-center mt-12">
           <Link
-            href="/projects"
+            href={lp('/projects')}
             className="btn-outline-white"
           >
             {t.featuredProjects.viewAll}

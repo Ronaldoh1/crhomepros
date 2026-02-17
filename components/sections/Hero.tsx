@@ -8,7 +8,7 @@ import { ArrowRight, Phone, Shield, Award, Languages, CheckCircle, ChevronLeft, 
 import { ScrollIndicator } from '@/components/ScrollIndicator'
 import { cn, formatPhoneLink } from '@/lib/utils'
 import { COMPANY } from '@/lib/constants'
-import { useTranslation } from '@/lib/i18n/provider'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
 // Slideshow images
 const slideImages = [
@@ -22,6 +22,9 @@ const slideImages = [
 
 export function Hero() {
   const t = useTranslation()
+  const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
+
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
@@ -41,7 +44,7 @@ export function Hero() {
 
   const trustBadges = [
     { icon: Shield, label: t.hero.trustBadges.licensed, detail: t.hero.trustBadges.licensedDetail },
-    { icon: Award, label: t.hero.trustBadges.years, detail: 'Since 2004' },
+    { icon: Award, label: t.hero.trustBadges.years, detail: t.hero.since },
     { icon: Languages, label: t.hero.trustBadges.spanish, detail: t.hero.trustBadges.spanish },
     { icon: CheckCircle, label: t.hero.trustBadges.estimates, detail: t.hero.trustBadges.estimates },
   ]
@@ -230,7 +233,7 @@ export function Hero() {
             )}
           >
             <Link
-              href="/get-started"
+              href={lp('/get-started')}
               className="group flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-dark-900 px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-gold-500/25 hover:shadow-xl hover:shadow-gold-500/40 hover:-translate-y-1 transition-all duration-300"
             >
               {t.hero.cta}
@@ -306,7 +309,7 @@ export function Hero() {
       {/* Bilingual Badge - floating */}
       <div className="hidden lg:block absolute top-32 right-8 z-20">
         <div className="bg-gold-500 text-dark-900 px-4 py-2 rounded-full font-bold text-sm shadow-lg animate-bounce-slow">
-          ¡Hablamos Español!
+          {t.hero.bilingualBadge}
         </div>
       </div>
 

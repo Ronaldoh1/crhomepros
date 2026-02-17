@@ -4,10 +4,13 @@ import { resolveImageUrl } from '@/lib/resolve-images'
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { useTranslation } from '@/lib/i18n/provider'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
 export function MeetCarlos() {
   const t = useTranslation()
+  const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
+
   return (
     <section className="section-padding bg-white">
       <div className="container-custom">
@@ -60,7 +63,7 @@ export function MeetCarlos() {
             </div>
 
             <Link
-              href="/about"
+              href={lp('/about')}
               className="inline-flex items-center gap-2 text-primary-700 hover:text-primary-800 font-medium group"
             >
               {t.meetCarlos.learnMore}

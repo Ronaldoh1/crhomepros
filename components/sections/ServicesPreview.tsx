@@ -1,25 +1,36 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, ChefHat, Bath, Home, Warehouse, Hammer, Grid3X3, Paintbrush, Wrench } from 'lucide-react'
+import { ArrowRight, ChefHat, Bath, Home, Warehouse, Hammer, Grid3X3, Paintbrush, Wrench, TreeDeciduous, Fence, Building, FileText } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { useTranslation } from '@/lib/i18n/provider'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 import { SERVICES } from '@/lib/constants'
 
 // Map icon names to components
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  ChefHat,
-  Bath,
-  Home,
-  Warehouse,
-  Hammer,
-  Grid3X3,
-  Paintbrush,
-  Wrench,
+  ChefHat, Bath, Home, Warehouse, Hammer, Grid3X3, Paintbrush, Wrench, TreeDeciduous, Fence, Building, FileText,
+}
+
+// Map service constant IDs to dictionary keys
+const serviceIdToKey: Record<string, string> = {
+  'kitchen-remodeling': 'kitchen',
+  'bathroom-renovation': 'bathroom',
+  'basement-finishing': 'basement',
+  'roofing': 'roofing',
+  'concrete-driveways': 'concrete',
+  'flooring': 'flooring',
+  'painting': 'painting',
+  'deck-outdoor': 'deck',
+  'fencing': 'fencing',
+  'complete-renovations': 'completeRenovations',
+  'insurance-claims': 'insuranceClaims',
 }
 
 export function ServicesPreview() {
   const t = useTranslation()
+  const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
+
   // Show first 8 services
   const displayServices = SERVICES.slice(0, 8)
 
@@ -43,11 +54,13 @@ export function ServicesPreview() {
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
           {displayServices.map((service, index) => {
             const IconComponent = iconMap[service.icon] || Home
+            const dictKey = serviceIdToKey[service.id]
+            const translated = dictKey ? (t.services as any)[dictKey] : null
             
             return (
               <Link
                 key={service.id}
-                href={`/services/${service.id}`}
+                href={lp(`/services/${service.id}`)}
                 className={cn(
                   'group relative p-6 md:p-8 rounded-2xl border border-dark-100 bg-white',
                   'hover:border-primary-200 hover:shadow-xl hover:-translate-y-1',
@@ -61,10 +74,10 @@ export function ServicesPreview() {
 
                 {/* Content */}
                 <h3 className="font-display font-semibold text-dark-900 mb-2 group-hover:text-primary-800 transition-colors">
-                  {service.name}
+                  {translated?.name || service.name}
                 </h3>
                 <p className="text-sm text-dark-500 line-clamp-2">
-                  {service.shortDescription}
+                  {translated?.short || service.shortDescription}
                 </p>
 
                 {/* Hover arrow */}
@@ -79,7 +92,7 @@ export function ServicesPreview() {
         {/* View All CTA */}
         <div className="text-center">
           <Link
-            href="/services"
+            href={lp('/services')}
             className="inline-flex items-center gap-2 text-primary-700 font-semibold hover:text-primary-800 group"
           >
             {t.services.viewAll}

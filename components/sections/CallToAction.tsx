@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useTranslation } from '@/lib/i18n/provider'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 import { Phone, ArrowRight } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
 import { COMPANY, SERVICE_AREAS } from '@/lib/constants'
@@ -9,6 +9,9 @@ import { formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
 
 export function CallToAction() {
   const t = useTranslation()
+  const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
+
   return (
     <section className="relative py-24 md:py-32 overflow-hidden">
       {/* Background */}
@@ -46,7 +49,7 @@ export function CallToAction() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
             <div className="w-full sm:w-auto">
               <Link
-                href="/get-started"
+                href={lp('/get-started')}
                 className="group flex items-center gap-2 bg-gold-500 hover:bg-gold-400 text-dark-900 px-8 py-4 rounded-xl font-semibold text-lg shadow-lg shadow-gold-500/20 hover:shadow-xl hover:shadow-gold-500/30 hover:-translate-y-0.5 transition-all duration-300 w-full sm:w-auto justify-center"
               >
                 {t.cta.button}
@@ -67,9 +70,9 @@ export function CallToAction() {
             </div>
           </div>
 
-          {/* WhatsApp */}
+          {/* WhatsApp - translated message */}
           <a
-            href={formatWhatsAppLink(COMPANY.phone, "Hi! I'm interested in your services.")}
+            href={formatWhatsAppLink(COMPANY.phone, t.common.whatsappGreeting)}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-white/70 hover:text-white transition-colors"

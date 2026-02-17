@@ -2,18 +2,18 @@
 
 import { Award, Shield, Languages, CheckCircle } from 'lucide-react'
 import { useTranslation } from '@/lib/i18n/provider'
-import { WHY_CHOOSE_US, COMPANY } from '@/lib/constants'
-
-// Map icon names to components
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Award,
-  Shield,
-  Languages,
-  CheckCircle,
-}
+import { COMPANY } from '@/lib/constants'
 
 export function WhyChooseUs() {
   const t = useTranslation()
+
+  const items = [
+    { icon: Award, title: t.whyChoose.item0Title, description: t.whyChoose.item0Desc },
+    { icon: Shield, title: t.whyChoose.item1Title, description: t.whyChoose.item1Desc },
+    { icon: Languages, title: t.whyChoose.item2Title, description: t.whyChoose.item2Desc },
+    { icon: CheckCircle, title: t.whyChoose.item3Title, description: t.whyChoose.item3Desc },
+  ]
+
   return (
     <section className="section-padding bg-dark-50">
       <div className="container-custom">
@@ -45,8 +45,8 @@ export function WhyChooseUs() {
 
           {/* Right - Features Grid */}
           <div className="grid sm:grid-cols-2 gap-6">
-            {WHY_CHOOSE_US.map((item, index) => {
-              const IconComponent = iconMap[item.icon] || CheckCircle
+            {items.map((item) => {
+              const IconComponent = item.icon
               
               return (
                 <div

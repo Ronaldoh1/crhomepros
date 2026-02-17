@@ -11,6 +11,7 @@ const iconMap: Record<string, any> = {
 export function PaymentOptions() {
   const t = useTranslation()
   const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
 
   const paymentMethods = [
     { name: t.payment.methods.creditCards, icon: 'CreditCard', detail: t.payment.methods.creditCardsDetail },
@@ -64,11 +65,11 @@ export function PaymentOptions() {
         </div>
 
         <div className="text-center mt-8 flex flex-wrap items-center justify-center gap-4">
-          <Link href="/financing" className="text-primary-600 font-semibold hover:text-primary-700 inline-flex items-center gap-1">
+          <Link href={lp('/financing')} className="text-primary-600 font-semibold hover:text-primary-700 inline-flex items-center gap-1">
             {t.payment.learnFinancing} <ArrowRight className="w-4 h-4" />
           </Link>
           <span className="text-dark-300">•</span>
-          <Link href="/services" className="text-primary-600 font-semibold hover:text-primary-700 inline-flex items-center gap-1">
+          <Link href={lp('/services')} className="text-primary-600 font-semibold hover:text-primary-700 inline-flex items-center gap-1">
             {t.payment.insuranceClaims} <ArrowRight className="w-4 h-4" />
           </Link>
         </div>

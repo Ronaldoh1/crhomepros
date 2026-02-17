@@ -5,10 +5,12 @@ import Link from 'next/link'
 import { Star, ChevronLeft, ChevronRight, Quote, ArrowRight } from 'lucide-react'
 import { cn, getInitials } from '@/lib/utils'
 import { TESTIMONIALS } from '@/lib/constants'
-import { useTranslation } from '@/lib/i18n/provider'
+import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
 export function Testimonials() {
   const t = useTranslation()
+  const { locale } = useLocale()
+  const lp = (path: string) => `/${locale}${path}`
   const [activeIndex, setActiveIndex] = useState(0)
 
   const nextTestimonial = () => {
@@ -59,11 +61,11 @@ export function Testimonials() {
               ))}
             </div>
 
-            {/* Quote */}
+            {/* Quote - Keep original English since these are real customer testimonials */}
             <p className="text-lg md:text-xl text-white leading-relaxed mb-8 relative z-10">
-              "{activeTestimonial.text.length > 300 
+              &quot;{activeTestimonial.text.length > 300 
                 ? activeTestimonial.text.slice(0, 300) + '...' 
-                : activeTestimonial.text}"
+                : activeTestimonial.text}&quot;
             </p>
 
             {/* Author */}
@@ -120,7 +122,7 @@ export function Testimonials() {
         {/* View All */}
         <div className="text-center mt-10">
           <Link
-            href="/reviews"
+            href={lp('/reviews')}
             className="inline-flex items-center gap-2 text-primary-700 font-semibold hover:text-primary-800 group"
           >
             {t.testimonials.readAll}
