@@ -8,6 +8,7 @@ import { Send, Loader2, CheckCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SERVICES, COMPANY } from '@/lib/constants'
 import { formatWhatsAppLink } from '@/lib/utils'
+import { trackFormSubmission } from '@/lib/analytics'
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -45,6 +46,9 @@ export function ContactForm() {
       })
 
       if (!response.ok) throw new Error('Failed to send message')
+
+      // Track successful submission in GA4
+      trackFormSubmission('contact')
 
       setIsSubmitting(false)
       setIsSuccess(true)
