@@ -115,7 +115,7 @@ export default function ContractsPage() {
         }})
       })
       const blob = await res.blob()
-      window.open(URL.createObjectURL(blob), '_blank')
+      window.open(URL.createObjectURL(blob)
     } catch (err) { console.error('PDF failed:', err) }
     setGenerating(false)
   }
@@ -130,7 +130,7 @@ export default function ContractsPage() {
     setSending(true)
     try {
       await handleSave('sent')
-      window.open(`mailto:${ct.clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`, '_blank')
+      window.location.href = `mailto:${ct.clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
       setSent(true); setShowEmailModal(false)
       setTimeout(() => setSent(false), 3000)
     } catch (err) { console.error('Send failed:', err) }
@@ -139,6 +139,7 @@ export default function ContractsPage() {
 
   const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
   const ic = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
+  const dic = ic + " [color-scheme:dark]"
   const lc = "text-sm font-medium text-slate-300 mb-1.5 block"
 
   return (
@@ -168,7 +169,7 @@ export default function ContractsPage() {
             <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Contract Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <div><label className={lc}>Contract #</label><input value={ct.number} onChange={e => updateField('number', e.target.value)} className={ic} /></div>
-              <div><label className={lc}>Date</label><input type="date" value={ct.date} onChange={e => updateField('date', e.target.value)} className={ic} /></div>
+              <div><label className={lc}>Date</label><input type="date" value={ct.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
               <div><label className={lc}>Total Amount</label><input type="number" value={ct.totalAmount || ''} onChange={e => updateField('totalAmount', Number(e.target.value))} className={ic} step="0.01" placeholder="17097.00" /></div>
             </div>
           </div>
