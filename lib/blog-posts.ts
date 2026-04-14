@@ -919,7 +919,7 @@ If you are planning a project, ask your contractor how they communicate. Their a
     author: "Carlos Hernandez",
     date: "2026-03-28",
     readTime: "7 min",
-    image: "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1200&q=80",
+    image: "https://images.unsplash.com/photo-1646592474094-342fbc28736c?w=1200&q=80",
     excerpt: "A finished basement can add thousands in value to your home. But without proper waterproofing, it can cost you even more. Here is what every DMV homeowner should know before the next storm.",
     titleEs: "Impermeabilización de Sótanos: Por Qué Actuar Antes de la Lluvia",
     excerptEs: "Un sótano terminado puede agregar miles al valor de tu hogar. Pero sin impermeabilización puede costarte más.",
