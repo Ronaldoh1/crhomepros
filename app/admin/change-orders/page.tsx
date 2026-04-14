@@ -90,7 +90,7 @@ export default function ChangeOrdersPage() {
         }})
       })
       const blob = await res.blob()
-      window.open(URL.createObjectURL(blob)
+      window.open(URL.createObjectURL(blob), '_blank')
     } catch (err) { console.error('PDF failed:', err) }
     setGenerating(false)
   }
