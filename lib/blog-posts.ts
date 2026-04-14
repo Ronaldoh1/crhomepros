@@ -885,6 +885,26 @@ Good communication does not guarantee a project will be perfect, but it makes pr
 If you are planning a project, ask your contractor how they communicate. Their answer will tell you a lot about how the project will go.
 `,
   },
+  {
+    slug: "basement-waterproofing-protect-your-home",
+    title: "Basement Waterproofing: Why the Smartest Homeowners Act Before the Rain",
+    category: "Basement",
+    author: "Carlos Hernandez",
+    date: "2026-03-28",
+    readTime: "7 min",
+    image: "/images/2026-waterproofing-nwdc/after-finished-living-area.jpg",
+    excerpt: "A finished basement can add thousands in value to your home. But without proper waterproofing, it can cost you even more. Here is what every DMV homeowner should know before the next storm.",
+    content: `
+Most homeowners do not think about their basement until there is a problem. A heavy rain, a strange smell, a damp patch on the wall. By then, the damage is already underway.
+\n\nWe recently completed a full basement waterproofing and finishing project in Northwest Washington, DC. The homeowner made a smart decision: instead of waiting for a disaster, they called us before the spring rains arrived. That one choice probably saved them tens of thousands of dollars.
+\n\n## What Is Basement Waterproofing?\n\nBasement waterproofing is a system — not a single product. It typically involves interior French drains with drainage pipe, vapor barriers on foundation walls, foundation membrane at the base, and a sump pump as the final line of defense.
+\n\n## The Real Cost of Waiting\n\nMold remediation alone can cost $2,000 to $6,000. If it gets into the HVAC system, $10,000 or more. Foundation crack repair after water erosion runs $3,000 to $15,000. A proactive waterproofing project typically costs a fraction of what reactive emergency repairs cost.
+\n\n## What We Did in Northwest DC\n\nPhase 1: Excavated along interior foundation walls, installed French drain system, applied waterproof membrane, vapor barrier on all walls.\n\nPhase 2: New wall framing over the vapor barrier, recessed LED lighting roughed in.\n\nPhase 3: Drywall, paint, luxury vinyl plank flooring (waterproof itself), tray ceiling detail with recessed lighting. The homeowner now has a spacious living area.
+\n\n## Warning Signs\n\n- Musty smell even without visible moisture\n- White mineral deposits on concrete walls\n- Cracks in foundation floor or walls\n- Past water stains on walls\n- Humidity above 60 percent\n- Condensation on pipes during summer
+\n\n## The Investment vs. The Return\n\nIn the DC metro market, a finished basement typically returns 70 to 75 percent of the investment at resale. But the real value is avoiding emergency repairs, mold, lost belongings, and stress.
+\n\nSpring is coming. Your basement does not have to be a liability. It can be your best room in the house. Give us a call for a free assessment.
+`,
+  },
 ];
 
 // Helper function to get posts by category

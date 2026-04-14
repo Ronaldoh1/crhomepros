@@ -112,7 +112,17 @@ function ensureStorage(): FirebaseStorage | null {
 
 const googleProvider = new GoogleAuthProvider()
 
-const ADMIN_EMAIL = process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'crhomepros@gmail.com'
+const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || 'crhomepros@gmail.com,crgeneralservicesinc@gmail.com')
+  .split(',')
+  .map(e => e.trim().toLowerCase())
+
+// Legacy single export for backward compat
+const ADMIN_EMAIL = ADMIN_EMAILS[0]
+
+function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false
+  return ADMIN_EMAILS.includes(email.toLowerCase())
+}
 
 // Helper: throw if Firebase not ready
 function requireAuth(): Auth {
@@ -138,7 +148,7 @@ function requireStorage(): FirebaseStorage {
 export async function loginWithEmail(email: string, password: string) {
   const auth = requireAuth()
   const cred = await signInWithEmailAndPassword(auth, email, password)
-  if (cred.user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+  if (!isAdminEmail(cred.user.email)) {
     await signOut(auth)
     throw new Error('Unauthorized. This account is not an admin.')
   }
@@ -148,7 +158,7 @@ export async function loginWithEmail(email: string, password: string) {
 export async function loginWithGoogle() {
   const auth = requireAuth()
   const result = await signInWithPopup(auth, googleProvider)
-  if (result.user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
+  if (!isAdminEmail(result.user.email)) {
     await signOut(auth)
     throw new Error('Unauthorized. This Google account is not an admin.')
   }
@@ -172,7 +182,7 @@ export function onAuthChange(callback: (user: User | null) => void) {
 }
 
 export function isAdmin(user: User | null): boolean {
-  return user?.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase()
+  return isAdminEmail(user?.email)
 }
 
 export const isFirebaseConfigured = () => !!firebaseConfig.apiKey
@@ -300,7 +310,7 @@ export async function uploadSignedDocument(
 }
 
 // Export
-export { ADMIN_EMAIL, ensureAuth, ensureDb, ensureStorage }
+export { ADMIN_EMAIL, ADMIN_EMAILS, ensureAuth, ensureDb, ensureStorage }
 
 // ── Reviews Management ──────────────────────
 
