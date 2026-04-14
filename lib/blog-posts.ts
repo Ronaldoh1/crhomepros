@@ -18,6 +18,9 @@ export interface BlogPost {
   readTime: string;
   image: string;
   excerpt: string;
+  titleEs?: string;
+  excerptEs?: string;
+  contentEs?: string;
   content: string;
 }
 
@@ -33,6 +36,8 @@ export const BLOG_POSTS: BlogPost[] = [
       "/images/blog/team-working.png",
     excerpt:
       "When homeowners invite us into their homes, they're trusting us with more than just a project. Here's why respect, communication, and pride guide everything we do.",
+    titleEs: "Por Qué el Respeto y el Orgullo en Nuestro Trabajo Importan en Cada Proyecto",
+    excerptEs: "Cuando los propietarios nos invitan a sus hogares, nos confían más que un proyecto.",
     content: `
 When homeowners invite a contractor into their home, they are doing more than hiring someone to fix or build something. They are trusting a group of people with their personal space, their routine, and often their sense of comfort. I have always believed that this matters just as much as the quality of the work itself.
 
@@ -77,6 +82,8 @@ At the end of the day, our work is about more than construction. It is about rel
       "/images/blog/consultation.png",
     excerpt:
       "The people you work with make all the difference. Here's what I look for when building a team and why it matters for homeowners.",
+    titleEs: "Construyendo un Equipo que Realmente se Preocupa por el Trabajo",
+    excerptEs: "Encontrar trabajadores confiables es uno de los mayores desafíos en la construcción.",
     content: `
 People often ask me what makes a good contractor. The answer is not just about skills with tools or years of experience. It is about the people who show up to the job site every day and how they approach their work.
 
@@ -117,6 +124,8 @@ At CR Home Pros, our team is our foundation. Every person plays a role in making
       "/images/blog/home-exterior.png",
     excerpt:
       "After 15 years in this business, here are the most important lessons I've learned about doing quality work and building lasting relationships.",
+    titleEs: "Lecciones Aprendidas en 15 Años de Contratación",
+    excerptEs: "Después de 15 años de renovaciones y trabajos personalizados, estas son las lecciones más importantes.",
     content: `
 Fifteen years in the home improvement business teaches you a lot. Some lessons come from successes, others from mistakes. All of them have shaped how I run CR Home Pros today.
 
@@ -173,6 +182,8 @@ Fifteen years in, I feel more confident in what we do at CR Home Pros, but I als
       "/images/blog/hvac-unit.png",
     excerpt:
       "Your heating and cooling system is trying to tell you something. Ignore these warning signs, and you could face emergency replacements at the worst possible time and the highest possible cost.",
+    titleEs: "5 Señales de que Tu Sistema HVAC Está Fallando",
+    excerptEs: "Tu sistema de calefacción y aire acondicionado te da señales de advertencia antes de fallar.",
     content: `
 Last summer, I got a call from a homeowner in Silver Spring at 3 PM on a 95-degree day. Their AC had just died. Completely. They had noticed it struggling for months but kept putting off the service call. Now they needed an emergency replacement, their house was unbearable, and they were looking at premium pricing because every HVAC company was slammed.
 
@@ -307,6 +318,8 @@ The worst HVAC decision you can make is no decision at all. Those warning signs 
       "/images/blog/mold-damage.png",
     excerpt:
       "That small leak or water stain might seem harmless now, but waiting to fix it could cost you thousands. Here is why water damage demands immediate attention.",
+    titleEs: "Daño por Agua: El Costo Oculto de Esperar Solo Un Mes Más",
+    excerptEs: "Esa pequeña mancha de humedad en tu sótano podría costarte miles si la ignoras.",
     content: `
 I have seen it countless times: a homeowner notices a small water stain on the ceiling, a damp spot on the wall, or a minor leak under the sink. They think, "I will get to that next month." Then next month becomes three months, and by the time they call, what could have been a $500 repair has turned into a $15,000 nightmare.
 
@@ -404,6 +417,8 @@ If you are in the DMV area and you have any concerns about water damage, call us
       "/images/blog/living-room.png",
     excerpt:
       "Not sure what to ask when vetting contractors? Here are the questions that will help you make a confident decision.",
+    titleEs: "Lo Que Los Propietarios Deben Preguntar Antes de Contratar",
+    excerptEs: "No todos los contratistas son iguales. Estas preguntas te ayudarán a elegir bien.",
     content: `
 Hiring a contractor feels like a big decision because it is. You are inviting someone into your home and trusting them with a significant investment. Knowing what questions to ask can make the process less stressful and help you find the right fit.
 
@@ -468,6 +483,8 @@ At CR Home Pros, we welcome these questions because we know that informed homeow
       "/images/blog/painting.png",
     excerpt:
       "Planning a kitchen remodel in Maryland, DC, or Virginia? Here's what drives costs and how to budget realistically.",
+    titleEs: "Costos de Renovación de Cocina en el DMV: Qué Esperar en 2025",
+    excerptEs: "Una guía completa de lo que realmente cuesta renovar una cocina en DC, Maryland y Virginia.",
     content: `
 Kitchen remodels are one of the most common projects we take on at CR Home Pros, and they are also one of the most complex. Costs can vary widely depending on the scope of work, materials, and the condition of the existing space. Here is what homeowners in the DMV should know when planning a kitchen renovation.
 
@@ -535,6 +552,8 @@ At CR Home Pros, we work with homeowners to balance their vision with their budg
       "/images/blog/mold-damage.png",
     excerpt:
       "Water damage in bathrooms often hides until it becomes a bigger problem. Here's what to watch for and how to address it.",
+    titleEs: "Daño por Agua en el Baño: Qué Buscar Antes de Que Sea Tarde",
+    excerptEs: "Los baños son la fuente #1 de daños por agua en el hogar. Aprende a detectar los problemas.",
     content: `
 Bathrooms are wet environments by design, but that also makes them vulnerable to water damage. Left unchecked, small leaks or poor waterproofing can lead to expensive repairs. Here is what homeowners should watch for and how to address issues before they escalate.
 
@@ -605,6 +624,8 @@ At CR Home Pros, we handle bathroom repairs and renovations throughout the DMV. 
       "/images/blog/basement.png",
     excerpt:
       "Finishing a basement in an older home comes with unique challenges. Here's what to consider before starting your project.",
+    titleEs: "Terminación de Sótanos en Casas Antiguas del DMV",
+    excerptEs: "Las casas antiguas del DMV tienen desafíos únicos para la terminación de sótanos.",
     content: `
 Finishing a basement adds valuable living space, but older homes in Maryland, DC, and Virginia require special consideration. Issues that do not exist in newer construction can affect cost, timeline, and the final result. Here is what homeowners should know before starting a basement finishing project.
 
@@ -683,6 +704,8 @@ At CR Home Pros, we have experience finishing basements throughout the DMV. If y
       "/images/blog/deck.png",
     excerpt:
       "The DMV's weather can be tough on decks. Here's how to keep yours in good shape year-round.",
+    titleEs: "Consejos de Mantenimiento de Terrazas para el Clima del DMV",
+    excerptEs: "El clima del DMV es duro con las terrazas de madera. Sigue estos consejos.",
     content: `
 Decks in the DMV face a range of weather conditions throughout the year. Hot, humid summers, cold winters, and plenty of rain take a toll on wood and composite materials. Regular maintenance extends the life of your deck and keeps it looking good.
 
@@ -753,6 +776,8 @@ At CR Home Pros, we build and maintain decks throughout Maryland, DC, and Virgin
       "/images/blog/concrete-work.png",
     excerpt:
       "Most concrete failures start below the surface. Here's why proper preparation is critical for a driveway that lasts.",
+    titleEs: "Por Qué la Preparación Importa Más que el Vertido para Entradas de Concreto",
+    excerptEs: "Una entrada duradera depende más de la preparación que del concreto mismo.",
     content: `
 Homeowners often focus on the concrete pour itself, but the real work happens before any concrete is mixed. Proper preparation determines whether a driveway lasts decades or starts cracking within a few years.
 
@@ -831,6 +856,8 @@ At CR Home Pros, we do not cut corners on preparation. If you are planning a new
       "/images/blog/consultation.png",
     excerpt:
       "Most conflicts and delays in home improvement projects come from poor communication. Here's how we avoid that.",
+    titleEs: "Por Qué la Comunicación Clara Previene la Mayoría de los Problemas",
+    excerptEs: "La causa #1 de disputas entre propietarios y contratistas no es el trabajo — es la comunicación.",
     content: `
 After years of running CR Home Pros, I have learned that most problems on job sites do not come from bad materials or lack of skill. They come from poor communication. When expectations are not clear, misunderstandings happen, and those misunderstandings lead to frustration on both sides.
 
@@ -894,6 +921,8 @@ If you are planning a project, ask your contractor how they communicate. Their a
     readTime: "7 min",
     image: "/images/2026-waterproofing-nwdc/after-finished-living-area.jpg",
     excerpt: "A finished basement can add thousands in value to your home. But without proper waterproofing, it can cost you even more. Here is what every DMV homeowner should know before the next storm.",
+    titleEs: "Impermeabilización de Sótanos: Por Qué Actuar Antes de la Lluvia",
+    excerptEs: "Un sótano terminado puede agregar miles al valor de tu hogar. Pero sin impermeabilización puede costarte más.",
     content: `
 Most homeowners do not think about their basement until there is a problem. A heavy rain, a strange smell, a damp patch on the wall. By then, the damage is already underway.
 \n\nWe recently completed a full basement waterproofing and finishing project in Northwest Washington, DC. The homeowner made a smart decision: instead of waiting for a disaster, they called us before the spring rains arrived. That one choice probably saved them tens of thousands of dollars.
@@ -921,4 +950,27 @@ export function getPostBySlug(slug: string): BlogPost | undefined {
 // Helper function to get recent posts
 export function getRecentPosts(limit: number = 3): BlogPost[] {
   return BLOG_POSTS.slice(0, limit);
+}
+
+export function getLocalizedPost(post: BlogPost, locale: string) {
+  const isEs = locale === 'es';
+  return {
+    ...post,
+    title: (isEs && post.titleEs) || post.title,
+    excerpt: (isEs && post.excerptEs) || post.excerpt,
+    content: (isEs && post.contentEs) || post.content,
+  };
+}
+
+export function getLocalizedCategory(cat: string, locale: string): string {
+  const map: Record<string, string> = {
+    "Team & Culture": "Equipo y Cultura",
+    "Tips & Advice": "Consejos",
+    "Kitchen": "Cocina",
+    "Bathroom": "Baño",
+    "Basement": "Sótano",
+    "Outdoor": "Exterior",
+  };
+  if (locale === 'es' && map[cat]) return map[cat];
+  return cat;
 }

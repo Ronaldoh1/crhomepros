@@ -3,215 +3,100 @@ import { notFound } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Calendar, Clock, User, ArrowLeft, ArrowRight } from 'lucide-react'
-import { BLOG_POSTS, getPostBySlug } from '@/lib/blog-posts'
+import { BLOG_POSTS, getPostBySlug, getLocalizedPost, getLocalizedCategory } from '@/lib/blog-posts'
 import { resolveImageUrl } from '@/lib/resolve-images'
 
 interface BlogPostPageProps {
-  params: {
-    slug: string
-  }
+  params: { slug: string; locale: string }
 }
 
 export async function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({
-    slug: post.slug,
-  }))
+  return BLOG_POSTS.map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const post = getPostBySlug(params.slug)
-  
-  if (!post) {
-    return {
-      title: 'Post Not Found'
-    }
-  }
-
-  return {
-    title: `${post.title} | CR Home Pros Blog`,
-    description: post.excerpt,
-  }
+  if (!post) return { title: 'Post Not Found' }
+  const localized = getLocalizedPost(post, params.locale || 'en')
+  return { title: localized.title + ' | CR Home Pros', description: localized.excerpt }
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
-  const post = getPostBySlug(params.slug)
+  const rawPost = getPostBySlug(params.slug)
+  if (!rawPost) notFound()
 
-  if (!post) {
-    notFound()
-  }
+  const locale = params.locale || 'en'
+  const isEs = locale === 'es'
+  const post = getLocalizedPost(rawPost, locale)
+  const dateFmt = isEs ? 'es-ES' : 'en-US'
 
-  // Find next and previous posts
-  const currentIndex = BLOG_POSTS.findIndex(p => p.slug === params.slug)
-  const previousPost = currentIndex > 0 ? BLOG_POSTS[currentIndex - 1] : null
-  const nextPost = currentIndex < BLOG_POSTS.length - 1 ? BLOG_POSTS[currentIndex + 1] : null
-
-  // Format content with proper spacing
-  const formattedContent = post.content
-    .split('\n\n')
-    .map(paragraph => paragraph.trim())
-    .filter(paragraph => paragraph.length > 0)
+  const currentIndex = BLOG_POSTS.findIndex((p) => p.slug === params.slug)
+  const prevPost = currentIndex > 0 ? getLocalizedPost(BLOG_POSTS[currentIndex - 1], locale) : null
+  const nextPost = currentIndex < BLOG_POSTS.length - 1 ? getLocalizedPost(BLOG_POSTS[currentIndex + 1], locale) : null
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative pt-32 pb-16 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950">
-        <div className="container-custom">
-          <Link 
-            href="/blog"
-            className="inline-flex items-center gap-2 text-gold-400 hover:text-gold-300 transition-colors mb-8"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            Back to Blog
-          </Link>
-
-          <div className="max-w-4xl">
-            <div className="flex items-center gap-4 mb-6">
-              <span className="px-3 py-1 bg-gold-500/20 border border-gold-500/30 rounded-full text-sm font-medium text-gold-400">
-                {post.category}
-              </span>
+      <section className="relative pt-32 pb-16 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
+        </div>
+        <div className="container-custom relative z-10">
+          <div className="max-w-3xl">
+            <Link href={"/" + locale + "/blog"} className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors">
+              <ArrowLeft className="w-4 h-4" /> {isEs ? 'Volver al Blog' : 'Back to Blog'}
+            </Link>
+            <div className="flex items-center gap-4 text-white/90 mb-4">
+              <span className="px-3 py-1 bg-white/10 rounded-full text-sm font-medium">{getLocalizedCategory(post.category, locale)}</span>
             </div>
-
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">
-              {post.title}
-            </h1>
-
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-white mb-6">{post.title}</h1>
             <div className="flex flex-wrap items-center gap-6 text-white/90">
-              <span className="flex items-center gap-2">
-                <User className="w-4 h-4" />
-                {post.author}
-              </span>
-              <span className="flex items-center gap-2">
-                <Calendar className="w-4 h-4" />
-                {new Date(post.date).toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric', 
-                  year: 'numeric' 
-                })}
-              </span>
-              <span className="flex items-center gap-2">
-                <Clock className="w-4 h-4" />
-                {post.readTime} read
-              </span>
+              <span className="flex items-center gap-2"><User className="w-4 h-4" />{post.author}</span>
+              <span className="flex items-center gap-2"><Calendar className="w-4 h-4" />{new Date(post.date).toLocaleDateString(dateFmt, { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+              <span className="flex items-center gap-2"><Clock className="w-4 h-4" />{post.readTime} {isEs ? 'lectura' : 'read'}</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Image */}
-      <section className="relative -mt-8">
-        <div className="container-custom">
-          <div className="relative aspect-[21/9] rounded-2xl overflow-hidden shadow-2xl">
-            <Image
-              src={resolveImageUrl(post.image)}
-              alt={post.title}
-              fill
-              className="object-cover"
-              priority
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* Article Content */}
       <article className="section-padding bg-white">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto">
-            <div className="prose prose-lg prose-primary max-w-none">
-              {formattedContent.map((paragraph, index) => {
-                // Check if it's a heading
-                if (paragraph.startsWith('## ')) {
-                  return (
-                    <h2 key={index} className="text-2xl font-display font-bold text-dark-900 mt-12 mb-4">
-                      {paragraph.replace('## ', '')}
-                    </h2>
-                  )
-                }
-                
-                // Check if it's a bold section (starts with **)
-                if (paragraph.startsWith('**') && paragraph.includes('**:')) {
-                  const [boldPart, ...rest] = paragraph.split('**:')
-                  const boldText = boldPart.replace('**', '')
-                  return (
-                    <p key={index} className="text-dark-700 leading-relaxed mb-6">
-                      <strong className="text-dark-900 font-semibold">{boldText}:</strong>
-                      {rest.join('**:')}
-                    </p>
-                  )
-                }
-                
-                // Regular paragraph
-                return (
-                  <p key={index} className="text-dark-700 leading-relaxed mb-6">
-                    {paragraph}
-                  </p>
-                )
-              })}
+            <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-12 -mt-12 shadow-xl">
+              <Image src={resolveImageUrl(post.image)} alt={post.title} fill className="object-cover" priority />
             </div>
-
-            {/* Author Bio */}
-            <div className="mt-16 p-8 bg-dark-50 rounded-2xl border border-dark-100">
-              <div className="flex items-start gap-4">
-                <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-600 to-primary-800 flex items-center justify-center text-white font-bold text-xl">
-                  CH
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-display font-bold text-dark-900 mb-2">
-                    {post.author}
-                  </h3>
-                  <p className="text-dark-600 leading-relaxed">
-                    Owner and lead contractor at CR Home Pros. With over 15 years of experience in home improvement 
-                    and renovation projects throughout the DMV area, Carlos is dedicated to delivering quality 
-                    workmanship and exceptional customer service.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Post Navigation */}
-            <div className="mt-16 pt-8 border-t border-dark-200">
-              <div className="grid md:grid-cols-2 gap-6">
-                {previousPost && (
-                  <Link 
-                    href={`/blog/${previousPost.slug}`}
-                    className="group p-6 bg-dark-50 rounded-xl border border-dark-100 hover:border-primary-300 hover:shadow-md transition-all"
-                  >
-                    <span className="text-sm text-dark-500 mb-2 block">Previous Post</span>
-                    <h4 className="font-display font-semibold text-dark-900 group-hover:text-primary-700 transition-colors">
-                      {previousPost.title}
-                    </h4>
-                  </Link>
-                )}
-                {nextPost && (
-                  <Link 
-                    href={`/blog/${nextPost.slug}`}
-                    className="group p-6 bg-dark-50 rounded-xl border border-dark-100 hover:border-primary-300 hover:shadow-md transition-all md:text-right"
-                  >
-                    <span className="text-sm text-dark-500 mb-2 block">Next Post</span>
-                    <h4 className="font-display font-semibold text-dark-900 group-hover:text-primary-700 transition-colors">
-                      {nextPost.title}
-                    </h4>
-                  </Link>
-                )}
-              </div>
+            <div className="prose prose-lg max-w-none prose-headings:font-display prose-headings:text-dark-900 prose-p:text-dark-600 prose-a:text-primary-700 prose-strong:text-dark-900 prose-img:rounded-xl whitespace-pre-line">
+              {post.content}
             </div>
           </div>
         </div>
       </article>
 
-      {/* CTA Section */}
-      <section className="section-padding bg-primary-800">
+      <section className="bg-dark-50 py-12">
         <div className="container-custom">
-          <div className="max-w-3xl mx-auto text-center text-white">
-            <h2 className="text-3xl font-display font-bold mb-4">
-              Ready to Start Your Project?
-            </h2>
-            <p className="text-primary-200 mb-8 text-lg">
-              Let's discuss your home improvement goals and create a plan that works for you.
-            </p>
-            <Link href="/get-started" className="btn-gold inline-flex items-center gap-2">
-              Get Started
-              <ArrowRight className="w-5 h-5" />
-            </Link>
+          <div className="max-w-3xl mx-auto grid grid-cols-2 gap-6">
+            {prevPost ? (
+              <Link href={"/" + locale + "/blog/" + prevPost.slug} className="group p-6 bg-white rounded-xl hover:shadow-md transition-shadow">
+                <span className="text-sm text-dark-500 mb-2 block">{isEs ? 'Anterior' : 'Previous Post'}</span>
+                <span className="font-display font-semibold text-dark-900 group-hover:text-primary-800 transition-colors line-clamp-2">{prevPost.title}</span>
+              </Link>
+            ) : <div />}
+            {nextPost ? (
+              <Link href={"/" + locale + "/blog/" + nextPost.slug} className="group p-6 bg-white rounded-xl hover:shadow-md transition-shadow text-right">
+                <span className="text-sm text-dark-500 mb-2 block">{isEs ? 'Siguiente' : 'Next Post'}</span>
+                <span className="font-display font-semibold text-dark-900 group-hover:text-primary-800 transition-colors line-clamp-2">{nextPost.title}</span>
+              </Link>
+            ) : <div />}
+          </div>
+        </div>
+      </section>
+
+      <section className="section-padding bg-primary-800">
+        <div className="container-custom text-center text-white max-w-2xl mx-auto">
+          <h2 className="text-3xl font-display font-bold mb-4">{isEs ? '¿Listo Para Tu Proyecto?' : 'Ready to Start Your Project?'}</h2>
+          <p className="text-primary-200 mb-8">{isEs ? 'Contáctenos para una consulta gratuita.' : 'Contact us for a free consultation and detailed estimate.'}</p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href={"/" + locale + "/get-started"} className="btn-gold">{isEs ? 'Estimado Gratis' : 'Get Free Estimate'} <ArrowRight className="w-5 h-5 ml-2" /></Link>
+            <Link href={"/" + locale + "/contact"} className="px-6 py-3 border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">{isEs ? 'Contactar' : 'Contact Us'}</Link>
           </div>
         </div>
       </section>
