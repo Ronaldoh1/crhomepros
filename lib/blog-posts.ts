@@ -925,13 +925,65 @@ If you are planning a project, ask your contractor how they communicate. Their a
     excerptEs: "Un sótano terminado puede agregar miles al valor de tu hogar. Pero sin impermeabilización puede costarte más.",
     content: `
 Most homeowners do not think about their basement until there is a problem. A heavy rain, a strange smell, a damp patch on the wall. By then, the damage is already underway.
-\n\nWe recently completed a full basement waterproofing and finishing project in Northwest Washington, DC. The homeowner made a smart decision: instead of waiting for a disaster, they called us before the spring rains arrived. That one choice probably saved them tens of thousands of dollars.
-\n\n## What Is Basement Waterproofing?\n\nBasement waterproofing is a system — not a single product. It typically involves interior French drains with drainage pipe, vapor barriers on foundation walls, foundation membrane at the base, and a sump pump as the final line of defense.
-\n\n## The Real Cost of Waiting\n\nMold remediation alone can cost $2,000 to $6,000. If it gets into the HVAC system, $10,000 or more. Foundation crack repair after water erosion runs $3,000 to $15,000. A proactive waterproofing project typically costs a fraction of what reactive emergency repairs cost.
-\n\n## What We Did in Northwest DC\n\nPhase 1: Excavated along interior foundation walls, installed French drain system, applied waterproof membrane, vapor barrier on all walls.\n\nPhase 2: New wall framing over the vapor barrier, recessed LED lighting roughed in.\n\nPhase 3: Drywall, paint, luxury vinyl plank flooring (waterproof itself), tray ceiling detail with recessed lighting. The homeowner now has a spacious living area.
-\n\n## Warning Signs\n\n- Musty smell even without visible moisture\n- White mineral deposits on concrete walls\n- Cracks in foundation floor or walls\n- Past water stains on walls\n- Humidity above 60 percent\n- Condensation on pipes during summer
-\n\n## The Investment vs. The Return\n\nIn the DC metro market, a finished basement typically returns 70 to 75 percent of the investment at resale. But the real value is avoiding emergency repairs, mold, lost belongings, and stress.
-\n\nSpring is coming. Your basement does not have to be a liability. It can be your best room in the house. Give us a call for a free assessment.
+
+We recently completed a full basement waterproofing and finishing project in Northwest Washington, DC. The homeowner made a smart decision: instead of waiting for a disaster, they called us before the spring rains arrived. That one choice probably saved them tens of thousands of dollars.
+
+What Is Basement Waterproofing?
+
+Basement waterproofing is a system, not a single product. It typically involves several layers working together to keep water out of your home: interior French drains with drainage pipe, vapor barriers on foundation walls, foundation membrane at the base where walls meet the floor, and a sump pump as the final line of defense.
+
+The Real Cost of Waiting
+
+Mold remediation alone can cost $2,000 to $6,000. If it gets into the HVAC system, you are looking at $10,000 or more. Foundation crack repair after water erosion runs $3,000 to $15,000. A proactive waterproofing project typically costs a fraction of what reactive emergency repairs cost. And you get a usable living space out of it.
+
+What We Did in Northwest DC
+
+Phase 1 - Drainage and Protection: We excavated along the interior foundation walls, installed a French drain system with proper drainage pipe, and applied waterproof membrane to the foundation base. The vapor barrier went up on all walls to block moisture migration.
+
+Phase 2 - Framing and Infrastructure: New wall framing went up over the vapor barrier, creating the structure for insulation, electrical, and drywall. Recessed LED lighting was planned and roughed in during this phase.
+
+Phase 3 - Finishing: Drywall, mud, tape, paint. Luxury vinyl plank flooring throughout, which is waterproof itself adding another layer of protection. A tray ceiling detail with recessed lighting transformed the space from basement to living room. The homeowner now has a spacious area for family, entertainment, and guests.
+
+Warning Signs Your Basement Needs Attention
+
+Watch for musty smell even if you cannot see moisture, white mineral deposits on concrete walls, cracks in the foundation floor or walls, past water stains or tide marks on walls, humidity above 60 percent in the basement, and condensation on pipes or windows during summer. If any of these are present, you are already on borrowed time.
+
+The Investment vs. The Return
+
+In the DC metro market, a finished basement typically returns 70 to 75 percent of the investment at resale. But the real value is in what you avoid: emergency repairs, mold remediation, lost belongings, and the stress of dealing with a flooded home during a storm.
+
+Spring is coming. Your basement does not have to be a liability. It can be your best room in the house. Give us a call for a free assessment.
+`,
+    contentEs: `
+La mayoria de los propietarios no piensan en su sotano hasta que hay un problema. Una lluvia fuerte, un olor extrano, una mancha de humedad en la pared. Para entonces, el dano ya esta en marcha.
+
+Recientemente completamos un proyecto completo de impermeabilizacion y terminacion de sotano en el Noroeste de Washington, DC. El propietario tomo una decision inteligente: en vez de esperar un desastre, nos llamo antes de que llegaran las lluvias de primavera. Esa decision probablemente le ahorro decenas de miles de dolares.
+
+Que es la impermeabilizacion de sotanos?
+
+Es un sistema, no un solo producto. Incluye varias capas trabajando juntas: drenaje frances interior con tuberia perforada, barrera de vapor en todas las paredes de cimentacion, membrana impermeabilizante en la base donde las paredes se encuentran con el piso, y una bomba de sumidero como ultima linea de defensa.
+
+El costo real de esperar
+
+La remediacion de moho puede costar entre $2,000 y $6,000. Si llega al sistema HVAC, estamos hablando de $10,000 o mas. La reparacion de grietas en los cimientos despues de la erosion por agua va de $3,000 a $15,000. Un proyecto proactivo cuesta una fraccion de lo que cuestan las reparaciones de emergencia. Y obtienes un espacio habitable como resultado.
+
+Lo que hicimos en el Noroeste de DC
+
+Fase 1 - Drenaje y Proteccion: Excavamos a lo largo de las paredes interiores de la cimentacion, instalamos un sistema de drenaje frances con tuberia adecuada y aplicamos membrana impermeabilizante a la base. La barrera de vapor se instalo en todas las paredes.
+
+Fase 2 - Estructura e Infraestructura: Se instalo nueva estructura sobre la barrera de vapor, creando el soporte para aislamiento, electricidad y paneles de yeso. Se planeo e instalo la iluminacion empotrada LED.
+
+Fase 3 - Terminacion: Paneles de yeso, masilla, cinta, pintura. Piso vinilico de lujo en todo el espacio, que es impermeabilizante en si mismo. Un detalle de cielo raso con iluminacion empotrada transformo el espacio de sotano a sala de estar. El propietario ahora tiene un area espaciosa para la familia y entretenimiento.
+
+Senales de advertencia
+
+Busque olor a humedad aunque no vea agua, depositos blancos en las paredes de concreto, grietas en el piso o las paredes, manchas de agua anteriores, humedad superior al 60 por ciento, y condensacion en tuberias durante el verano. Si alguna de estas senales esta presente, ya esta en tiempo prestado.
+
+La inversion vs. el retorno
+
+En el mercado del area de DC, un sotano terminado tipicamente retorna del 70 al 75 por ciento de la inversion al revender. Pero el verdadero valor esta en lo que evitas: reparaciones de emergencia, remediacion de moho, pertenencias perdidas y el estres.
+
+La primavera esta llegando. Tu sotano no tiene que ser un riesgo. Puede ser la mejor habitacion de tu casa. Llamanos para una evaluacion gratuita.
 `,
   },
 ];
