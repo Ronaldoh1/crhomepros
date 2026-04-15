@@ -146,7 +146,7 @@ export default function ServicesPage() {
               <p className="text-emerald-700 text-sm mb-2">
                 Low-VOC paints, Energy Star appliances, LED lighting, sustainable materials, and responsible waste handling are standard.
               </p>
-              <Link href="/blog/green-renovations-sustainability" className="text-emerald-600 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1">
+              <Link href="/en/green" className="text-emerald-600 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1">
                 Read our sustainability approach →
               </Link>
             </div>

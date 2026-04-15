@@ -38,7 +38,7 @@ export default function EstimateCostPage() {
           <a href="/pricing" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full hover:bg-primary-100 transition-colors">
             📋 Full Pricing Guide
           </a>
-          <a href="/blog/green-renovations-sustainability" className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors">
+          <a href="/en/green" className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors">
             🌿 Eco-Friendly Options
           </a>
         </div>

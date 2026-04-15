@@ -24,7 +24,7 @@ export function EcoBadge({ size = 'md', showLink = true, className = '' }: EcoBa
 
   if (showLink) {
     return (
-      <Link href="/blog/green-renovations-sustainability" className="hover:opacity-80 transition-opacity">
+      <Link href="/en/green" className="hover:opacity-80 transition-opacity">
         {badge}
       </Link>
     )
@@ -49,7 +49,7 @@ export function EcoBanner() {
             Ask about low-VOC paints, Energy Star appliances, LED lighting, and reclaimed materials.
           </p>
           <Link
-            href="/blog/green-renovations-sustainability"
+            href="/en/green"
             className="text-emerald-600 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1"
           >
             Learn about our green approach →
