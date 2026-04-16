@@ -75,7 +75,7 @@ export default function PromoBanner() {
   // Referral banner links to /referrals, others to /get-started with banner param
   const href = banner.id === 'referral-program'
     ? '/' + locale + '/referrals'
-    : '/' + locale + '/get-started?banner=' + banner.id
+    : '/' + locale + '/get-started?banner=' + banner.id + (banner.service ? '&service=' + banner.service : '') + (banner.promoCode ? '&promo=' + banner.promoCode : '') + (banner.discountPercent ? '&discount=' + banner.discountPercent : '')
 
   return (
     <div
