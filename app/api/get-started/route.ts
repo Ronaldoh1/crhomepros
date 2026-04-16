@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createLeadInDrive, isDriveConfigured } from '@/lib/google-drive'
 import { sendNewLeadNotification, sendLeadConfirmation, isEmailConfigured } from '@/lib/email'
 import { saveLead } from '@/lib/firebase-admin-server'
+import { isBundleLead, formatBundleEmailSubject, formatBundleEmailHeader } from '@/lib/banners'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,6 +14,7 @@ export async function POST(request: NextRequest) {
       projectDescription, timeline, budget,
       additionalNotes, howDidYouHear,
       images,
+      bannerId, promoCode, discountPercent, isBundle: isBundleFlag,
     } = body
 
     // Validate required fields
@@ -32,9 +34,21 @@ export async function POST(request: NextRequest) {
         address, city, state, zip, services,
         projectDescription, timeline, budget,
         howDidYouHear, additionalNotes,
+        bannerId: bannerId || null, promoCode: promoCode || null, discountPercent: discountPercent || 0, isBundle: bundleDetected,
       })
     } catch (fbError: any) {
       console.error('❌ Firebase save error (non-fatal):', fbError?.message || fbError)
+    }
+
+    // Bundle + promo detection
+    const bundleDetected = isBundleFlag || isBundleLead(services || [])
+    const promoInfo = promoCode ? { code: promoCode, discount: discountPercent || 0, bannerId: bannerId || '' } : null
+
+    if (bundleDetected) {
+      console.log('📦 BUNDLE LEAD detected: ' + services.join(' + '))
+    }
+    if (promoInfo) {
+      console.log('🏷️ Promo: ' + promoInfo.code + ' (' + promoInfo.discount + '% off)')
     }
 
     // Generate communication tag

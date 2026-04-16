@@ -1,4 +1,5 @@
 import { Metadata } from 'next'
+import { Suspense } from 'react'
 import { Shield, Clock, Phone, CheckCircle } from 'lucide-react'
 import { COMPANY } from '@/lib/constants'
 import { IntakeForm } from '@/components/forms/IntakeForm'
@@ -57,7 +58,9 @@ export default function GetStartedPage() {
       <section className="py-12 bg-white">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto">
-            <IntakeForm />
+            <Suspense fallback={<div className="animate-pulse h-96 bg-dark-50 rounded-xl" />}>
+              <IntakeForm />
+            </Suspense>
           </div>
         </div>
       </section>

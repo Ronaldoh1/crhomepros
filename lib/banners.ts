@@ -252,7 +252,7 @@ export function formatBundleEmailSubject(services: string[], name: string): stri
   return 'New Lead — ' + services[0] + ' — ' + name
 }
 
-export function formatBundleEmailHeader(services: string[], promoCode: string): string {
+export function formatBundleEmailHeader(services: string[], promoCode: string, discountPercent?: number): string {
   if (services.length >= 2) {
     const lines = [
       '⚠️ BUNDLED REQUEST — Needs custom pricing',

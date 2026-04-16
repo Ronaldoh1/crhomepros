@@ -7,6 +7,9 @@ import { z } from 'zod'
 import { ArrowRight, ArrowLeft, Loader2, CheckCircle, Upload, X, Phone, Calendar, Mail, MessageSquare } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
 import { cn, formatPhoneLink } from '@/lib/utils'
+import { useSearchParams } from 'next/navigation'
+import { getBannerById, isBundleLead, getDiscountForService, DEFAULT_BANNERS, type BannerConfig } from '@/lib/banners'
+import { Tag, Package, Sparkles } from 'lucide-react'
 import { SERVICES, BUDGET_RANGES, TIMELINE_OPTIONS, REFERRAL_SOURCES, COMPANY } from '@/lib/constants'
 
 const intakeSchema = z.object({
@@ -49,6 +52,17 @@ const steps = [
 ]
 
 export function IntakeForm() {
+  // Banner/promo awareness
+  const searchParams = useSearchParams()
+  const bannerId = searchParams?.get('banner') || null
+  const preService = searchParams?.get('service') || null
+  const promoCode = searchParams?.get('promo') || null
+  const discountParam = parseInt(searchParams?.get('discount') || '0', 10)
+  const discountPercent = isNaN(discountParam) ? 0 : discountParam
+
+  const [bannerConfig, setBannerConfig] = useState<BannerConfig | null>(null)
+  const [showBundlePrompt, setShowBundlePrompt] = useState(false)
+
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -98,7 +112,22 @@ export function IntakeForm() {
     }
   }, [currentStep, syncAutocomplete])
 
+  // Banner: pre-select service from URL param
+  useEffect(() => {
+    if (bannerId) {
+      const found = DEFAULT_BANNERS.find(b => b.id === bannerId) || null
+      setBannerConfig(found)
+    }
+    if (preService) {
+      const current = getValues('services') || []
+      if (!current.includes(preService)) {
+        setValue('services', [...current, preService], { shouldValidate: true })
+      }
+    }
+  }, [bannerId, preService, setValue, getValues])
+
   const selectedServices = watch('services') || []
+  const isBundle = isBundleLead(selectedServices)
 
   const validateStep = async () => {
     const fieldsToValidate: (keyof IntakeFormData)[][] = [
@@ -146,7 +175,14 @@ export function IntakeForm() {
       const response = await fetch('/api/get-started', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, images }),
+        body: JSON.stringify({
+          ...data,
+          images,
+          bannerId: bannerId || undefined,
+          promoCode: promoCode || undefined,
+          discountPercent: discountPercent || undefined,
+          isBundle: isBundleLead(data.services),
+        }),
       })
 
       if (!response.ok) throw new Error('Submission failed')
@@ -339,6 +375,35 @@ export function IntakeForm() {
                 ))}
               </div>
               {errors.services && <p className="mt-2 text-sm text-red-500">{errors.services.message}</p>}
+
+              {/* Bundle Prompt */}
+              {isBundle && (
+                <div className="mt-4 p-4 bg-purple-50 border-2 border-purple-200 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center flex-shrink-0">
+                      <Package className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-purple-800 text-sm">
+                        📦 Bundle Deal — {selectedServices.length} services selected
+                      </p>
+                      <p className="text-xs text-purple-600 mt-0.5">
+                        Carlos will provide custom bundle pricing for your combo — save more when you bundle
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Upsell: suggest adding more if only 1 service */}
+              {selectedServices.length === 1 && !isBundle && (
+                <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-xs text-amber-800 flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                    <span><strong>Save more:</strong> Add another service to unlock bundle pricing — Carlos will call with a custom combo rate</span>
+                  </p>
+                </div>
+              )}
             </div>
             <div>
               <label className="label">Tell Us About Your Project *</label>
