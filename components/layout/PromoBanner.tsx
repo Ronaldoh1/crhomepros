@@ -22,17 +22,17 @@ export default function PromoBanner() {
       setDismissed(true)
       return
     }
-    // Try Firebase, fall back to defaults
-    fetchBanners()
-      .then(b => {
-        const active = b.length > 0 ? b : DEFAULT_BANNERS.filter(x => x.active)
-        setBanners(active)
-        // Random start
-        if (active.length > 0) {
-          setCurrentIndex(Math.floor(Math.random() * active.length))
-        }
-        setLoaded(true)
-      })
+    // Use defaults immediately, then try Firebase in background
+    const active = DEFAULT_BANNERS.filter(x => x.active)
+    setBanners(active)
+    if (active.length > 0) {
+      setCurrentIndex(Math.floor(Math.random() * active.length))
+    }
+    setLoaded(true)
+    // Try Firebase override in background (non-blocking)
+    fetchBanners().then(b => {
+      if (b.length > 0) setBanners(b)
+    }).catch(() => {})
       .catch(() => {
         const active = DEFAULT_BANNERS.filter(x => x.active)
         setBanners(active)
