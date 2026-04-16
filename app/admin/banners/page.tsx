@@ -56,7 +56,7 @@ const emptyBanner: BannerConfig = {
   discountPercent: 15,
   promoCode: '',
   tier: 'big',
-  priority: 99,
+  season: 'summer',
 }
 
 export default function AdminBannersPage() {
