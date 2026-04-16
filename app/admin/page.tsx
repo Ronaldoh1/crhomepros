@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   Users, Briefcase, Star, FileText, ClipboardList, DollarSign,
   Phone, ArrowRight, AlertCircle, Receipt, FileSignature, FilePlus,
-  Settings, ImageIcon, HelpCircle, X, Sparkles, ChevronDown, ChevronUp
+  Settings, ImageIcon, Megaphone, HelpCircle, X, Sparkles, ChevronDown, ChevronUp
 } from 'lucide-react'
 
 const stats = [
@@ -24,7 +24,8 @@ const quickActions = [
   { label: 'Manage Reviews', href: '/admin/reviews', icon: Star, desc: 'Approve & manage reviews', color: 'from-yellow-600 to-yellow-700', help: 'New reviews need your approval before appearing on the website. Approve the good ones, remove the rest.' },
   { label: 'Field Notes', href: '/admin/field-notes', icon: FilePlus, desc: 'On-site project notes', color: 'from-slate-600 to-slate-700', help: 'Take notes on-site with measurements, materials needed, and photos. Everything saves to the cloud — no more lost paper notes.' },
   { label: 'Manage Images', href: '/admin/images', icon: ImageIcon, desc: 'Upload project photos', color: 'from-pink-600 to-pink-700', help: 'Upload before/after photos of your projects. Great images help win new customers!' },
-  { label: 'Site Settings', href: '/admin/settings', icon: Settings, desc: 'Edit banner, contact, payments', color: 'from-orange-600 to-orange-700', help: 'Control what appears on your website: the announcement banner, contact info, payment methods, service areas, and more. No coding needed!' },
+  { label: 'Site Settings', href: '/admin/settings', icon: Settings, desc: 'Edit banner, contact, payments', color: 'from-orange-600 to-orange-700', help: 'Control what appears on your website: the announcement banner, contact info, payment methods, service areas, and more. No coding needed!' }
+  { label: 'Promo Banners', href: '/admin/banners', icon: Megaphone, desc: 'Create & manage promos', color: 'from-rose-600 to-rose-700', help: 'Create rotating banners with discounts, seasonal promos, and bundle deals. Each banner links to the contact form with the service pre-selected.' },
 ]
 
 const sentLinks = [
