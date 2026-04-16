@@ -256,6 +256,20 @@ export function IntakeForm() {
         <p className="text-dark-500">{steps[currentStep].description}</p>
       </div>
 
+      {/* Banner Promo Badge */}
+      {bannerConfig && promoCode && (
+        <div className="mx-6 mt-4 p-3 rounded-xl border-2 flex items-center gap-3" style={{ borderColor: bannerConfig.accentColor, backgroundColor: bannerConfig.accentColor + '10' }}>
+          <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: bannerConfig.accentColor + '20' }}>
+            <Tag className="w-5 h-5" style={{ color: bannerConfig.accentColor }} />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-sm" style={{ color: bannerConfig.accentColor }}>
+              {bannerConfig.emoji} {discountPercent > 0 ? discountPercent + '% discount unlocked' : 'Special offer applied'}
+            </p>
+            <p className="text-xs text-dark-500">Promo: {promoCode} — Carlos will review and discuss final details with you</p>
+          </div>
+        </div>
+      )}
       {/* Form */}
       <form onSubmit={handleSubmit(onSubmit)} onKeyDown={(e) => { if (e.key === "Enter" && (e.target as HTMLElement).tagName !== "TEXTAREA") e.preventDefault() }} className="p-6 md:p-8">
         {/* Step 1: Contact Info */}
