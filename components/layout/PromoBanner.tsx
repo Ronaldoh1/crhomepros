@@ -127,3 +127,10 @@ export default function PromoBanner() {
     </div>
   )
 }
+
+// Backward compat — layout imports this as wrapper
+export function BannerProvider({ children }: { children: React.ReactNode }) {
+  return <>{children}</>
+}
+
+export const useBannerHeight = () => ({ bannerHeight: 40 })
