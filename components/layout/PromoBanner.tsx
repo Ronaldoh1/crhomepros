@@ -1,64 +1,129 @@
 'use client'
 
-import { useState, createContext, useContext, useEffect } from 'react'
-import Link from 'next/link'
+import { useState, useEffect, useCallback } from 'react'
 import { X } from 'lucide-react'
-import { useSiteSettings } from '@/lib/site-settings-provider'
+import Link from 'next/link'
+import { useLocale } from '@/lib/i18n/provider'
+import { DEFAULT_BANNERS, fetchBanners, type BannerConfig } from '@/lib/banners'
 
-// Context so Navbar can read banner height
-const BannerContext = createContext({ bannerHeight: 0 })
-export const useBannerHeight = () => useContext(BannerContext)
+export default function PromoBanner() {
+  const { locale } = useLocale()
+  const isEs = locale === 'es'
+  const [banners, setBanners] = useState<BannerConfig[]>([])
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [dismissed, setDismissed] = useState(false)
+  const [fade, setFade] = useState(true)
+  const [loaded, setLoaded] = useState(false)
 
-export function BannerProvider({ children }: { children: React.ReactNode }) {
-  const siteSettings = useSiteSettings()
-  const bannerEnabled = siteSettings.banner.enabled
-  const [visible, setVisible] = useState(true)
-  const [bannerHeight, setBannerHeight] = useState(bannerEnabled ? 40 : 0)
-
+  // Load banners
   useEffect(() => {
-    if (!visible || !bannerEnabled) {
-      setBannerHeight(0)
+    // Check session dismiss
+    if (typeof window !== 'undefined' && sessionStorage.getItem('banner_dismissed') === 'true') {
+      setDismissed(true)
       return
     }
-    const updateHeight = () => {
-      setBannerHeight(window.innerWidth < 640 ? 64 : 40)
+    // Try Firebase, fall back to defaults
+    fetchBanners()
+      .then(b => {
+        const active = b.length > 0 ? b : DEFAULT_BANNERS.filter(x => x.active)
+        setBanners(active)
+        // Random start
+        if (active.length > 0) {
+          setCurrentIndex(Math.floor(Math.random() * active.length))
+        }
+        setLoaded(true)
+      })
+      .catch(() => {
+        const active = DEFAULT_BANNERS.filter(x => x.active)
+        setBanners(active)
+        if (active.length > 0) {
+          setCurrentIndex(Math.floor(Math.random() * active.length))
+        }
+        setLoaded(true)
+      })
+  }, [])
+
+  // Auto-rotate every 10 seconds
+  useEffect(() => {
+    if (banners.length <= 1) return
+    const interval = setInterval(() => {
+      setFade(false)
+      setTimeout(() => {
+        setCurrentIndex(prev => (prev + 1) % banners.length)
+        setFade(true)
+      }, 300)
+    }, 10000)
+    return () => clearInterval(interval)
+  }, [banners.length])
+
+  const handleDismiss = useCallback(() => {
+    setDismissed(true)
+    if (typeof window !== 'undefined') {
+      sessionStorage.setItem('banner_dismissed', 'true')
     }
-    updateHeight()
-    window.addEventListener('resize', updateHeight)
-    return () => window.removeEventListener('resize', updateHeight)
-  }, [visible, bannerEnabled])
+  }, [])
+
+  // Don't render until loaded, if dismissed, or no banners
+  if (!loaded || dismissed || banners.length === 0) return null
+
+  const banner = banners[currentIndex % banners.length]
+  if (!banner) return null
+
+  const text = isEs ? banner.textEs : banner.textEn
+  const cta = isEs ? banner.ctaEs : banner.ctaEn
+
+  // Referral banner links to /referrals, others to /get-started with banner param
+  const href = banner.id === 'referral-program'
+    ? '/' + locale + '/referrals'
+    : '/' + locale + '/get-started?banner=' + banner.id
 
   return (
-    <BannerContext.Provider value={{ bannerHeight }}>
-      {bannerEnabled && visible && (
-        <div
-          className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-gold-600 to-gold-500 text-dark-900 py-2 sm:py-2.5 px-4 text-center text-sm font-medium"
-          style={{ minHeight: bannerHeight }}
+    <div
+      className="relative z-50 overflow-hidden"
+      style={{ background: banner.gradient }}
+    >
+      <div
+        className="flex items-center justify-center gap-3 px-4 py-2.5 transition-opacity duration-300"
+        style={{ opacity: fade ? 1 : 0 }}
+      >
+        <Link
+          href={href}
+          className="flex items-center gap-2 text-white text-sm font-medium hover:opacity-90 transition-opacity text-center flex-1 justify-center"
         >
-          <div className="container-custom flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 pr-6">
-            <span className="font-semibold text-xs sm:text-sm">{siteSettings.banner.text}</span>
-            {siteSettings.banner.linkText && siteSettings.banner.linkUrl && (
-              <Link
-                href={siteSettings.banner.linkUrl}
-                className="inline-flex items-center gap-1 px-3 py-0.5 sm:py-1 bg-dark-900 text-white rounded-full text-xs font-semibold hover:bg-dark-800 transition-colors"
-              >
-                {siteSettings.banner.linkText}
-              </Link>
-            )}
+          <span className="hidden sm:inline">{banner.emoji}</span>
+          <span className="line-clamp-1">{text}</span>
+          <span className="hidden sm:inline-flex items-center gap-1 px-3 py-0.5 bg-white/20 rounded-full text-xs font-bold whitespace-nowrap ml-2">
+            {cta} →
+          </span>
+        </Link>
+
+        {/* Dot indicators */}
+        {banners.length > 1 && (
+          <div className="hidden md:flex items-center gap-1 ml-2">
+            {banners.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => { setFade(false); setTimeout(() => { setCurrentIndex(i); setFade(true) }, 150) }}
+                className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+                style={{
+                  backgroundColor: i === currentIndex % banners.length ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.3)',
+                  transform: i === currentIndex % banners.length ? 'scale(1.3)' : 'scale(1)',
+                }}
+                aria-label={'Banner ' + (i + 1)}
+              />
+            ))}
           </div>
-          <button
-            onClick={() => setVisible(false)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-black/10 rounded-full transition-colors"
-            aria-label="Dismiss banner"
-          >
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-      {children}
-    </BannerContext.Provider>
+        )}
+
+        {/* Dismiss */}
+        <button
+          onClick={handleDismiss}
+          className="p-1 text-white/60 hover:text-white transition-colors flex-shrink-0 ml-1"
+          aria-label="Dismiss banner"
+        >
+          <X className="w-4 h-4" />
+        </button>
+      </div>
+    </div>
   )
 }
-
-// Backward compat
-export function PromoBanner() { return null }

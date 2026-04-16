@@ -471,3 +471,116 @@ describe('Admin Document Pages — Text Readability', () => {
     expect(slate500).toBe(0)
   })
 })
+
+
+// ============================================
+// Banner System
+// ============================================
+
+describe('Banner System', () => {
+  it('should export DEFAULT_BANNERS with required fields', async () => {
+    const { DEFAULT_BANNERS } = await import('@/lib/banners')
+    expect(DEFAULT_BANNERS.length).toBeGreaterThanOrEqual(5)
+    for (const b of DEFAULT_BANNERS) {
+      expect(b.id).toBeTruthy()
+      expect(b.textEn).toBeTruthy()
+      expect(b.textEs).toBeTruthy()
+      expect(b.ctaEn).toBeTruthy()
+      expect(b.ctaEs).toBeTruthy()
+      expect(b.gradient).toContain('linear-gradient')
+    }
+  })
+
+  it('should not have duplicate banner IDs', async () => {
+    const { DEFAULT_BANNERS } = await import('@/lib/banners')
+    const ids = DEFAULT_BANNERS.map(b => b.id)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('should have no blue gradients (site is already blue)', async () => {
+    const { DEFAULT_BANNERS } = await import('@/lib/banners')
+    for (const b of DEFAULT_BANNERS) {
+      // No pure blues (#1E3A8A, #2563EB, #0C1355 etc)
+      expect(b.gradient).not.toMatch(/#0C1355/)
+      expect(b.gradient).not.toMatch(/#1E3A8A/)
+      expect(b.gradient).not.toMatch(/#2563EB/)
+    }
+  })
+
+  it('should correctly identify bundle leads (2+ services)', async () => {
+    const { isBundleLead } = await import('@/lib/banners')
+    expect(isBundleLead(['Kitchen Remodeling'])).toBe(false)
+    expect(isBundleLead(['Kitchen Remodeling', 'Bathroom Renovation'])).toBe(true)
+    expect(isBundleLead(['Kitchen Remodeling', 'Painting', 'Flooring'])).toBe(true)
+    expect(isBundleLead([])).toBe(false)
+  })
+
+  it('should return correct discount tiers', async () => {
+    const { getServiceDiscount } = await import('@/lib/banners')
+    expect(getServiceDiscount('Kitchen Remodeling')).toBe(15)
+    expect(getServiceDiscount('Bathroom Renovation')).toBe(15)
+    expect(getServiceDiscount('Roofing')).toBe(15)
+    expect(getServiceDiscount('Power Washing')).toBe(5)
+    expect(getServiceDiscount('Fencing')).toBe(5)
+    expect(getServiceDiscount('Gutters & Downspouts')).toBe(5)
+    expect(getServiceDiscount('nonexistent')).toBe(0)
+  })
+
+  it('should format bundle email subjects with emojis', async () => {
+    const { formatBundleEmailSubject } = await import('@/lib/banners')
+    const single = formatBundleEmailSubject(['Kitchen Remodeling'], 'John')
+    expect(single).toContain('Kitchen Remodeling')
+    expect(single).not.toContain('BUNDLE')
+
+    const bundle = formatBundleEmailSubject(['Kitchen Remodeling', 'Bathroom Renovation'], 'Jane')
+    expect(bundle).toContain('BUNDLE')
+    expect(bundle).toContain('Kitchen Remodeling + Bathroom Renovation')
+
+    const custom = formatBundleEmailSubject(['A', 'B', 'C'], 'Bob')
+    expect(custom).toContain('CUSTOM PROJECT')
+    expect(custom).toContain('3 Services')
+  })
+
+  it('should format bundle email header with warning flags', async () => {
+    const { formatBundleEmailHeader } = await import('@/lib/banners')
+    const single = formatBundleEmailHeader(['Kitchen'], 'SUMMER15')
+    expect(single).toContain('SUMMER15')
+    expect(single).not.toContain('BUNDLED')
+
+    const bundle = formatBundleEmailHeader(['Kitchen', 'Bath'], 'BUNDLE')
+    expect(bundle).toContain('BUNDLED REQUEST')
+    expect(bundle).toContain('custom pricing')
+    expect(bundle).toContain('Kitchen + Bath')
+  })
+
+  it('should get banner by ID', async () => {
+    const { getBannerById } = await import('@/lib/banners')
+    const kitchen = getBannerById('summer-kitchen-15')
+    expect(kitchen).toBeTruthy()
+    expect(kitchen!.service).toBe('Kitchen Remodeling')
+    expect(kitchen!.discountPercent).toBe(15)
+
+    const none = getBannerById('nonexistent')
+    expect(none).toBeUndefined()
+  })
+
+  it('should filter active banners only', async () => {
+    const { getActiveBanners } = await import('@/lib/banners')
+    const testBanners = [
+      { id: '1', active: true } as any,
+      { id: '2', active: false } as any,
+      { id: '3', active: true } as any,
+    ]
+    const active = getActiveBanners(testBanners)
+    expect(active.length).toBe(2)
+    expect(active.map(b => b.id)).toEqual(['1', '3'])
+  })
+
+  it('referral banner should link to /referrals not /get-started', async () => {
+    const { DEFAULT_BANNERS } = await import('@/lib/banners')
+    const referral = DEFAULT_BANNERS.find(b => b.id === 'referral-program')
+    expect(referral).toBeTruthy()
+    expect(referral!.service).toBe('')
+    expect(referral!.promoCode).toBe('REFERRAL')
+  })
+})
