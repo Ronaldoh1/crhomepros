@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
         address, city, state, zip, services,
         projectDescription, timeline, budget,
         howDidYouHear, additionalNotes,
-        bannerId: bannerId || null, promoCode: promoCode || null, discountPercent: discountPercent || 0, isBundle: bundleDetected,
+        
       })
     } catch (fbError: any) {
       console.error('❌ Firebase save error (non-fatal):', fbError?.message || fbError)

@@ -8,7 +8,7 @@ import { ArrowRight, ArrowLeft, Loader2, CheckCircle, Upload, X, Phone, Calendar
 import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
 import { cn, formatPhoneLink } from '@/lib/utils'
 import { useSearchParams } from 'next/navigation'
-import { getBannerById, isBundleLead, getDiscountForService, DEFAULT_BANNERS, type BannerConfig } from '@/lib/banners'
+import { getBannerById, isBundleLead, getServiceDiscount, DEFAULT_BANNERS, type BannerConfig } from '@/lib/banners'
 import { Tag, Package, Sparkles } from 'lucide-react'
 import { SERVICES, BUDGET_RANGES, TIMELINE_OPTIONS, REFERRAL_SOURCES, COMPANY } from '@/lib/constants'
 
