@@ -64,6 +64,9 @@ export default function PromoBanner() {
     }
   }, [])
 
+  // Hide on get-started page (user already clicked a banner)
+  const pathname = usePathname()
+  if (pathname?.includes('/get-started')) return null
   // Don't render until loaded, if dismissed, or no banners
   if (!loaded || dismissed || banners.length === 0) return null
 
