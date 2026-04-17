@@ -25,7 +25,7 @@ const nextConfig = {
       },
       {
         source: '/images/og-image.jpg',
-        destination: 'https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Fog-image.jpg?alt=media',
+        destination: 'https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Flogo.png?alt=media',
       },
       // Proxy /images/team-* → Firebase Storage team/*
       {

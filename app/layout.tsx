@@ -22,13 +22,13 @@ export const metadata: Metadata = {
     title: META.title,
     description: META.description,
     siteName: 'CR Home Pros',
-    images: [{ url: 'https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Fog-image.jpg?alt=media', width: 1200, height: 630, alt: 'CR Home Pros' }],
+    images: [{ url: 'https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Flogo.png?alt=media', width: 1200, height: 630, alt: 'CR Home Pros' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: META.title,
     description: META.description,
-    images: ['https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Fog-image.jpg?alt=media'],
+    images: ['https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Flogo.png?alt=media'],
   },
   robots: {
     index: true,
