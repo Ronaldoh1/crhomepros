@@ -361,7 +361,7 @@ describe('Admin Pages', () => {
 // ============================================
 
 describe('Firebase Wiring', () => {
-  it('PromoBanner should read from useSiteSettings', () => {
+  it('PromoBanner should use banner rotation system', () => {
     const src = readFile('components/layout/PromoBanner.tsx')
     expect(src).toContain('useSiteSettings')
     expect(src).toContain('siteSettings.banner')
