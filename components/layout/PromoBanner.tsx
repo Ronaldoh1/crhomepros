@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { X } from 'lucide-react'
+import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { useLocale } from '@/lib/i18n/provider'
 import { DEFAULT_BANNERS, fetchBanners, type BannerConfig } from '@/lib/banners'
@@ -52,7 +53,7 @@ export default function PromoBanner() {
         setCurrentIndex(prev => (prev + 1) % banners.length)
         setFade(true)
       }, 300)
-    }, 10000)
+    }, 7000)
     return () => clearInterval(interval)
   }, [banners.length])
 
