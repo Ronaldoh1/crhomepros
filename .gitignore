@@ -39,3 +39,4 @@ yarn-error.log*
 next-env.d.ts
 scripts/firebase-service-account.json
 .backup-*
+.env*

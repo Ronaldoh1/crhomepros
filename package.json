@@ -50,5 +50,13 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "allowScripts": {
+    "esbuild@0.27.0": true,
+    "esbuild@0.21.5": true,
+    "esbuild@0.27.7": true,
+    "fsevents@2.3.3": true,
+    "protobufjs@7.5.4": true,
+    "unrs-resolver@1.11.1": true
   }
 }
