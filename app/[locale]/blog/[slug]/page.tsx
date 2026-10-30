@@ -36,7 +36,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <>
-      <section className="relative pt-32 pb-16 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
+      <section className="relative page-top pb-16 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
         <div className="absolute inset-0">
           <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
         </div>

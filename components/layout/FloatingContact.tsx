@@ -30,7 +30,7 @@ export function FloatingContact() {
       <button
         onClick={scrollToTop}
         className={cn(
-          'fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-dark-800/80 backdrop-blur-sm text-white flex items-center justify-center shadow-lg hover:bg-dark-700 transition-all duration-500 border border-white/10',
+          'fixed bottom-6 left-6 z-40 w-12 h-12 rounded-full bg-dark-800/80 backdrop-blur-sm text-white hidden lg:flex items-center justify-center shadow-lg hover:bg-dark-700 transition-all duration-500 border border-white/10',
           showBackToTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
         )}
         aria-label="Back to top"
@@ -41,7 +41,7 @@ export function FloatingContact() {
       {/* Contact FAB - bottom right */}
       <div
         className={cn(
-          'fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3 transition-all duration-500',
+          'fixed bottom-6 right-6 z-40 hidden lg:flex flex-col items-end gap-3 transition-all duration-500',
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'
         )}
       >

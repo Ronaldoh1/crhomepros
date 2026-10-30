@@ -1,9 +1,8 @@
 import { i18n, isValidLocale } from '@/lib/i18n/config'
 import type { Locale } from '@/lib/i18n/config'
 import { LocaleProvider } from '@/lib/i18n/provider'
-import { Navbar, Footer, FloatingContact } from '@/components/layout'
+import { Navbar, Footer, FloatingContact, MobileActionBar } from '@/components/layout'
 import { BannerProvider } from '@/components/layout/PromoBanner'
-import PromoBanner from "@/components/layout/PromoBanner"
 import { SiteSettingsProvider } from '@/lib/site-settings-provider'
 
 export function generateStaticParams() {
@@ -22,11 +21,12 @@ export default function LocaleLayout({
   return (
     <LocaleProvider locale={locale}>
       <SiteSettingsProvider>
-        <BannerProvider><PromoBanner />
+        <BannerProvider>
           <Navbar />
           <main className="min-h-screen">{children}</main>
           <Footer />
           <FloatingContact />
+          <MobileActionBar />
         </BannerProvider>
       </SiteSettingsProvider>
     </LocaleProvider>

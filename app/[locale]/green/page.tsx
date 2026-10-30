@@ -71,7 +71,7 @@ export default function GreenPage() {
   const lp = (path: string) => locale === 'en' ? path : `/es${path}`
 
   return (
-    <main className="pt-24 pb-16">
+    <main className="page-top pb-16">
       {/* Hero */}
       <section className="relative bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M30 5C15 20 5 30 15 45c10-5 20-10 30-5C55 30 45 15 30 5z\' fill=\'white\' fill-opacity=\'0.3\'/%3E%3C/svg%3E")' }} />

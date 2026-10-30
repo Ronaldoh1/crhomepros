@@ -27,7 +27,7 @@ export default function PricingDictionaryPage() {
     setExpandedService((prev) => (prev === id ? null : id))
 
   return (
-    <div className="pt-32 pb-20">
+    <div className="page-top pb-20">
       {/* Hero */}
       <section className="container-custom text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-display font-bold text-dark-900 mb-4">

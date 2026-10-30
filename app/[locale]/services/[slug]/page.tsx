@@ -106,7 +106,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   return (
     <>
       {/* Hero */}
-      <section className="relative pt-32 pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
+      <section className="relative page-top pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
         <div className="absolute inset-0">
           <Image src={content.heroImage} alt={service.name} fill className="object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-r from-dark-900/90 to-dark-900/70" />

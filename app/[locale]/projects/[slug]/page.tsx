@@ -80,7 +80,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
   return (
     <>
       {/* Hero */}
-      <section className="relative pt-32 pb-12 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950">
+      <section className="relative page-top pb-12 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950">
         <div className="container-custom relative z-10">
           <Link href="/projects" className="inline-flex items-center text-primary-100 hover:text-white mb-6">
             ← Back to Projects

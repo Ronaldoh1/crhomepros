@@ -83,7 +83,7 @@ export default function PromoBanner() {
 
   return (
     <div
-      className="fixed top-0 left-0 right-0 z-[60] overflow-hidden"
+      className="relative overflow-hidden"
       style={{ background: banner.gradient }}
     >
       <div

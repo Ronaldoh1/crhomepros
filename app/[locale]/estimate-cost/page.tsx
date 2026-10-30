@@ -22,7 +22,7 @@ export default function EstimateCostPage() {
   const tier = service && selectedTier !== null ? service.tiers[selectedTier] : null
 
   return (
-    <div className="pt-32 pb-20">
+    <div className="page-top pb-20">
       {/* Hero */}
       <section className="container-custom text-center mb-12">
         <div className="w-14 h-14 mx-auto rounded-full bg-primary-100 flex items-center justify-center mb-4">

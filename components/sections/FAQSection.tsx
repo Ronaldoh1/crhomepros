@@ -10,7 +10,7 @@ import { useTranslation } from '@/lib/i18n/provider'
 
 const FAQ_COUNT = 15
 
-export function FAQSection() {
+export function FAQSection({ limit, id, tinted = false }: { limit?: number; id?: string; tinted?: boolean } = {}) {
   const t = useTranslation()
   const [openIndex, setOpenIndex] = useState<number | null>(0)
 
@@ -21,9 +21,10 @@ export function FAQSection() {
     const a = (t.faq as Record<string, string>)[`a${i}`]
     if (q && a) faqItems.push({ question: q, answer: a })
   }
+  const shownItems = limit ? faqItems.slice(0, limit) : faqItems
 
   return (
-    <section className="section-padding bg-white">
+    <section id={id} className={cn('section-padding scroll-mt-28', tinted ? 'bg-dark-50' : 'bg-white')}>
       <div className="container-custom">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
@@ -41,10 +42,10 @@ export function FAQSection() {
 
           {/* FAQ Items */}
           <div className="space-y-3">
-            {faqItems.map((item, index) => (
+            {shownItems.map((item, index) => (
               <div
                 key={index}
-                className="border border-dark-100 rounded-xl overflow-hidden hover:border-primary-200 transition-colors"
+                className="border border-dark-100 rounded-xl overflow-hidden bg-white hover:border-primary-200 transition-colors"
               >
                 <button
                   onClick={() => setOpenIndex(openIndex === index ? null : index)}
@@ -71,7 +72,7 @@ export function FAQSection() {
           </div>
 
           {/* Still have questions? */}
-          <div className="mt-10 text-center bg-dark-50 rounded-2xl p-8">
+          <div className="mt-10 text-center bg-white border border-dark-100 rounded-2xl p-8">
             <p className="text-dark-700 font-medium mb-4">{t.faq.stillHaveQuestions}</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <a

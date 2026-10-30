@@ -75,6 +75,11 @@
     @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
   }
 
+  /* Space under the fixed header (its live height is set by Navbar as --header-h) */
+  .page-top {
+    padding-top: calc(var(--header-h, 108px) + 2rem);
+  }
+
   /* Section spacing */
   .section-padding {
     @apply py-16 md:py-24 lg:py-32;

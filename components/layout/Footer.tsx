@@ -1,8 +1,7 @@
 'use client'
 
-import { resolveImageUrl } from '@/lib/resolve-images'
+import { LOGO } from '@/lib/site-images'
 import Link from 'next/link'
-import Image from 'next/image'
 import {
   Phone,
   Mail,
@@ -82,15 +81,8 @@ export function Footer() {
           {/* Company Info */}
           <div className="lg:col-span-1">
             <div className="mb-6">
-              <Image
-                src={resolveImageUrl("/images/logo.png")}
-                alt="CR Home Pros"
-                width={220}
-                height={70}
-                className="h-20 w-auto object-contain"
-                quality={100}
-                unoptimized
-              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={LOGO.wordmark} alt="CR Home Pros" width={444} height={234} className="h-16 w-auto" />
             </div>
             <p className="text-dark-200 text-sm leading-relaxed mb-6">
               {t.footer.description}

@@ -38,7 +38,7 @@ export default function FinancingPage() {
   ]
 
   return (
-    <div className="pt-32 pb-20">
+    <div className="page-top pb-20">
       {/* Hero */}
       <section className="container-custom text-center mb-16">
         <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
