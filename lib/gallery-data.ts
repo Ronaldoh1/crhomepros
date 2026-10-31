@@ -335,6 +335,24 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'waterproofing-washington-dc',
+    title: 'Basement Waterproofing & Finish — Washington, DC',
+    category: 'Basement',
+    description: 'Basement in Washington, DC — waterproofing, new framing and insulation, drywall, and painting, finished into an open living area with a wall of windows. Before and after transformation.',
+    featured: true,
+    beforeImages: [
+      '/images/recent-projects/waterproofing-washington-dc/during-insulated-wall-framing.jpg',
+    ],
+    images: [
+      '/images/recent-projects/waterproofing-washington-dc/after-living-area-windows-wide.jpg',
+      '/images/2026-waterproofing-nwdc/after-living-room-full.jpeg',
+      '/images/recent-projects/waterproofing-washington-dc/before-vapor-barrier-framing-room.jpg',
+      '/images/2026-waterproofing-nwdc/before-foundation-drainage.png',
+      '/images/recent-projects/waterproofing-washington-dc/during-insulation-corner.jpg',
+      '/images/recent-projects/waterproofing-washington-dc/during-drywall-patching.jpg',
+    ],
+  },
+  {
     id: 'fence-suitland-md',
     title: 'Vinyl Privacy Fence — Suitland, MD',
     category: 'Fencing',

@@ -177,11 +177,6 @@
       "role": "after"
     },
     {
-      "file": "2026-waterproofing-nwdc/after-living-area-wide.png",
-      "project": "(not in gallery yet)",
-      "role": "after"
-    },
-    {
       "file": "recent-projects/basement-finish-porcelain/after-staircase-wide.jpg",
       "project": "basement-finish-porcelain",
       "role": "after"
@@ -229,6 +224,36 @@
     {
       "file": "recent-projects/fence-suitland-md/after-gate-panels-new-soil.jpg",
       "project": "fence-suitland-md",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/waterproofing-washington-dc/during-insulated-wall-framing.jpg",
+      "project": "waterproofing-washington-dc",
+      "role": "before"
+    },
+    {
+      "file": "recent-projects/waterproofing-washington-dc/after-living-area-windows-wide.jpg",
+      "project": "waterproofing-washington-dc",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/waterproofing-washington-dc/before-vapor-barrier-framing-room.jpg",
+      "project": "waterproofing-washington-dc",
+      "role": "before"
+    },
+    {
+      "file": "recent-projects/waterproofing-washington-dc/during-insulation-corner.jpg",
+      "project": "waterproofing-washington-dc",
+      "role": "before"
+    },
+    {
+      "file": "recent-projects/waterproofing-washington-dc/during-drywall-patching.jpg",
+      "project": "waterproofing-washington-dc",
+      "role": "before"
+    },
+    {
+      "file": "2026-waterproofing-nwdc/after-living-room-full.jpeg",
+      "project": "waterproofing-washington-dc",
       "role": "after"
     }
   ]

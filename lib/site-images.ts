@@ -89,17 +89,17 @@ export const FEATURED_PROJECTS: ProjectCard[] = [
     },
   },
   {
-    slug: 'basement-waterproofing-nwdc',
+    slug: 'waterproofing-washington-dc',
     title: 'Basement Waterproofing & Finish',
     titleEs: 'Impermeabilización y Acabado de Sótano',
     category: 'Basement',
     categoryEs: 'Sótano',
-    location: 'Northwest Washington, DC',
-    summary: 'Drainage and vapor barrier installed behind new framing, then finished into an open living area.',
-    summaryEs: 'Drenaje y barrera de vapor instalados detrás de la nueva estructura, luego terminado como un área de estar abierta.',
+    location: 'Washington, DC',
+    summary: 'Waterproofing, new framing and insulation, drywall and paint, finished into an open living area.',
+    summaryEs: 'Impermeabilización, nueva estructura y aislamiento, drywall y pintura, terminado como un área de estar abierta.',
     image: {
-      src: real('2026-waterproofing-nwdc/after-living-room-full.jpeg'),
-      alt: 'Finished basement living area after waterproofing',
+      src: real('recent-projects/waterproofing-washington-dc/after-living-area-windows-wide.jpg'),
+      alt: 'Finished basement living area with a wall of windows in Washington, DC',
       placeholder: false,
     },
   },
@@ -122,18 +122,18 @@ export const FEATURED_PROJECTS: ProjectCard[] = [
 
 export const BEFORE_AFTER = {
   before: {
-    src: real('recent-projects/addition-leesburg-va/during-tile-floor-install.jpg'),
-    alt: 'House extension while the plank tile floor was being installed',
+    src: real('recent-projects/waterproofing-washington-dc/during-insulated-wall-framing.jpg'),
+    alt: 'Basement wall opened up to the framing and insulation',
     placeholder: false,
   } as SiteImage,
   after: {
-    src: real('recent-projects/addition-leesburg-va/after-family-room-wide.jpg'),
-    alt: 'The finished family room in the house extension',
+    src: real('recent-projects/waterproofing-washington-dc/after-living-area-windows-wide.jpg'),
+    alt: 'The same basement wall finished, with drywall and paint',
     placeholder: false,
   } as SiteImage,
-  title: 'House Extension',
-  titleEs: 'Ampliación de Casa',
-  location: 'Leesburg, VA',
+  title: 'Basement Waterproofing & Finish',
+  titleEs: 'Impermeabilización y Acabado de Sótano',
+  location: 'Washington, DC',
   projectHref: '/projects',
 }
 
