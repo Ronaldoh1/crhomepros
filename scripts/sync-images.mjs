@@ -57,13 +57,17 @@ function ensureImport(src) {
 
 const manifest = JSON.parse(readFileSync(join(__dirname, 'image-manifest.json'), 'utf8'))
 const ready = manifest.slots.filter(s => s.file)
+// Photos used only in gallery-data.ts: upload, no code swap
+const uploadOnly = (manifest.galleryOnly || [])
+  .filter(g => !manifest.slots.some(s => s.file === g.file))
+  .map(g => ({ id: `gallery:${g.project}`, file: g.file, placeholder: null }))
 const pending = manifest.slots.filter(s => !s.file)
 
 console.log(`\n${APPLY ? '🚀 APPLY' : '👀 DRY RUN'}: ${ready.length} slots filled, ${pending.length} still on temporary photos\n`)
 
 // ── 1. Check files ──
 let missing = 0
-for (const s of ready) {
+for (const s of [...ready, ...uploadOnly]) {
   s.localPath = `/images/${s.file}`
   s.diskPath = join(ROOT, 'public', 'images', s.file)
   s.storagePath = toStoragePath(s.localPath)
@@ -86,7 +90,7 @@ if (!SKIP_UPLOAD) {
     bucket = getStorage().bucket()
   }
   console.log('☁️  Upload')
-  for (const s of ready) {
+  for (const s of [...ready, ...uploadOnly]) {
     if (!bucket) { console.log(`   would upload  ${s.file}  →  ${s.storagePath}`); continue }
     const [exists] = await bucket.file(s.storagePath).exists()
     if (exists) { console.log(`   ✓ exists      ${s.storagePath}`); continue }

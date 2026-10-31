@@ -6,7 +6,8 @@
     "Fill a slot by putting the new filename in its 'file' field, then run:",
     "  node scripts/sync-images.mjs            (dry run: shows what would happen)",
     "  node scripts/sync-images.mjs --apply    (uploads to Firebase Storage + updates the code)",
-    "Never use a filename that already exists in Storage: Storage files are cached for a year."
+    "Never use a filename that already exists in Storage: Storage files are cached for a year.",
+    "'galleryOnly' lists photos used in lib/gallery-data.ts; the script uploads them too."
   ],
   "slots": [
     {
@@ -71,8 +72,8 @@
       "where": [
         "components/sections/Hero.tsx"
       ],
-      "file": "",
-      "what": ""
+      "file": "addition-leesburg-va/during-tile-floor-install.jpg",
+      "what": "Wood-look plank tile going down with spacers, house extension, Leesburg VA"
     },
     {
       "id": "hero-4-living-room",
@@ -81,8 +82,8 @@
       "where": [
         "components/sections/Hero.tsx"
       ],
-      "file": "2026-waterproofing-nwdc/after-living-area-wide.png",
-      "what": "Finished basement living area, NW DC waterproofing job (already in repo; confirm)"
+      "file": "addition-leesburg-va/after-family-room-wide.jpg",
+      "what": "Finished family room in the house extension, Leesburg VA"
     },
     {
       "id": "hero-5-exterior",
@@ -154,6 +155,23 @@
       ],
       "file": "2026-waterproofing-nwdc/before-foundation-drainage.png",
       "what": "Foundation drainage before finishing, NW DC job (already in repo; confirm)"
+    }
+  ],
+  "galleryOnly": [
+    {
+      "file": "addition-leesburg-va/during-tile-floor-install.jpg",
+      "project": "addition-leesburg-va",
+      "role": "before"
+    },
+    {
+      "file": "addition-leesburg-va/after-family-room-wide.jpg",
+      "project": "addition-leesburg-va",
+      "role": "after"
+    },
+    {
+      "file": "2026-waterproofing-nwdc/after-living-area-wide.png",
+      "project": "(not in gallery yet)",
+      "role": "after"
     }
   ]
 }

@@ -325,6 +325,19 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'addition-leesburg-va',
+    title: 'House Extension — Leesburg, VA',
+    category: 'Complete Renovation',
+    description: 'House extension in Leesburg, VA — a new family room built onto the home. Wood-look porcelain plank tile laid in a staggered pattern, recessed lighting, a new bank of windows, wall sconces, a pass-through opening to the kitchen, and fresh trim and paint throughout. Before and after transformation.',
+    featured: true,
+    beforeImages: [
+      '/images/addition-leesburg-va/during-tile-floor-install.jpg',
+    ],
+    images: [
+      '/images/addition-leesburg-va/after-family-room-wide.jpg',
+    ],
+  },
+  {
     id: 'renovation-painting-va',
     title: 'Interior Renovation & Paint — Virginia',
     category: 'Complete Renovation',
