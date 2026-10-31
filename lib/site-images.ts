@@ -49,7 +49,11 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
     alt: 'Finished basement with porcelain tile floor and white staircase',
     placeholder: false,
   },
-  roofing: { src: local('home-exterior.png'), alt: 'House exterior with new roof', placeholder: true },
+  roofing: {
+    src: real('recent-projects/roof-replacement-tearoff-decking/during-tearoff-new-decking.jpg'),
+    alt: 'CR Home Pros crew tearing off an old roof and laying new decking',
+    placeholder: false,
+  },
   'concrete-driveways': { src: local('concrete-work.png'), alt: 'Crew pouring a concrete driveway', placeholder: true },
   painting: {
     src: real('recent-projects/exterior-painting-gutters-potomac-md/after-cornice-window-trim.jpg'),

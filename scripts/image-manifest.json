@@ -310,6 +310,21 @@
       "file": "recent-projects/bathroom-maryland/after-walk-in-shower-glass-door.jpg",
       "project": "bathroom-maryland",
       "role": "after"
+    },
+    {
+      "file": "recent-projects/roof-replacement-tearoff-decking/during-tearoff-new-decking.jpg",
+      "project": "roof-replacement-tearoff-decking",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/roof-replacement-brick-two-story/during-crew-on-roof-garage-side.jpg",
+      "project": "roof-replacement-brick-two-story",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/roof-replacement-brick-two-story/during-shingles-delivered-front.jpg",
+      "project": "roof-replacement-brick-two-story",
+      "role": "during"
     }
   ]
 }

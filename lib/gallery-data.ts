@@ -335,6 +335,27 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'roof-replacement-tearoff-decking',
+    title: 'Roof Replacement — Maryland', // TODO: city to confirm (Ron said Temple Hills for the set; two houses)
+    category: 'Roofing',
+    description: 'Roof replacement in Maryland — the crew tearing off the old roof down to the rafters and laying new roof decking.',
+    featured: true,
+    images: [
+      '/images/recent-projects/roof-replacement-tearoff-decking/during-tearoff-new-decking.jpg',
+    ],
+  },
+  {
+    id: 'roof-replacement-brick-two-story',
+    title: 'Roof Replacement — Maryland', // TODO: city to confirm
+    category: 'Roofing',
+    description: 'Roof replacement on a two-story brick-front home in Maryland — new shingles delivered to the driveway and the crew working across the main roof.',
+    featured: true,
+    images: [
+      '/images/recent-projects/roof-replacement-brick-two-story/during-crew-on-roof-garage-side.jpg',
+      '/images/recent-projects/roof-replacement-brick-two-story/during-shingles-delivered-front.jpg',
+    ],
+  },
+  {
     id: 'bathroom-maryland',
     title: 'New Bathroom — Maryland', // TODO: add city once Ron confirms
     category: 'Bathroom',
