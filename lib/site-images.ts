@@ -40,8 +40,8 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
     placeholder: true,
   },
   'bathroom-renovation': {
-    src: real('recent-projects/bathroom-rockville-md/during-shower-tile-bench.jpg'),
-    alt: 'Marble-look tile shower with hexagon mosaic floor and bench in Rockville, MD',
+    src: real('recent-projects/bathroom-maryland/after-walk-in-shower-glass-door.jpg'),
+    alt: 'Finished bathroom with a walk-in tile shower, glass door and bench',
     placeholder: false,
   },
   'basement-finishing': {

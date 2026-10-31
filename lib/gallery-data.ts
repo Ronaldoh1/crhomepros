@@ -335,6 +335,16 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'bathroom-maryland',
+    title: 'New Bathroom — Maryland', // TODO: add city once Ron confirms
+    category: 'Bathroom',
+    description: 'New bathroom in Maryland — walk-in shower in marble-look tile with a built-in bench, hexagon mosaic shower floor, sliding glass door and grab bars, plus marble-look tile on the bathroom floor.',
+    featured: true,
+    images: [
+      '/images/recent-projects/bathroom-maryland/after-walk-in-shower-glass-door.jpg',
+    ],
+  },
+  {
     id: 'bathroom-rockville-md',
     title: 'New Bathroom — Rockville, MD',
     category: 'Bathroom',
