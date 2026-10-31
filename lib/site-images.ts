@@ -40,9 +40,9 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
     placeholder: true,
   },
   'bathroom-renovation': {
-    src: unsplash('photo-1552321554-5fefe8c9ef14'),
-    alt: 'Renovated bathroom with tile shower',
-    placeholder: true,
+    src: real('recent-projects/bathroom-rockville-md/during-shower-tile-bench.jpg'),
+    alt: 'Marble-look tile shower with hexagon mosaic floor and bench in Rockville, MD',
+    placeholder: false,
   },
   'basement-finishing': {
     src: real('recent-projects/basement-finish-porcelain/after-staircase-wide.jpg'),

@@ -295,6 +295,16 @@
       "file": "recent-projects/flooring-painting-bedroom/after-hardwood-floor-two-tone-walls.jpg",
       "project": "flooring-painting-bedroom",
       "role": "after"
+    },
+    {
+      "file": "recent-projects/bathroom-rockville-md/during-shower-tile-bench.jpg",
+      "project": "bathroom-rockville-md",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/bathroom-rockville-md/during-floor-tile-shower-curb.jpg",
+      "project": "bathroom-rockville-md",
+      "role": "during"
     }
   ]
 }

@@ -335,6 +335,17 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'bathroom-rockville-md',
+    title: 'New Bathroom — Rockville, MD',
+    category: 'Bathroom',
+    description: 'New bathroom in Rockville, MD — marble-look tile shower with a blue glass accent stripe, hexagon mosaic shower floor, a built-in bench, and marble-look plank tile on the bathroom floor. Photos taken during the tile work.',
+    featured: true,
+    images: [
+      '/images/recent-projects/bathroom-rockville-md/during-shower-tile-bench.jpg',
+      '/images/recent-projects/bathroom-rockville-md/during-floor-tile-shower-curb.jpg',
+    ],
+  },
+  {
     id: 'flooring-painting-bedroom',
     title: 'New Flooring & Interior Painting', // TODO: add city once Ron confirms
     category: 'Painting',
