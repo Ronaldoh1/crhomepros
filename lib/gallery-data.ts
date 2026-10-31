@@ -335,6 +335,16 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'flooring-painting-bedroom',
+    title: 'New Flooring & Interior Painting', // TODO: add city once Ron confirms
+    category: 'Painting',
+    description: 'New flooring and interior painting — dark plank flooring, two-tone walls in turquoise and light gray split by a white chair rail, and white baseboards.',
+    featured: true,
+    images: [
+      '/images/recent-projects/flooring-painting-bedroom/after-hardwood-floor-two-tone-walls.jpg',
+    ],
+  },
+  {
     id: 'basement-vinyl-floor-potomac-md',
     title: 'Basement Waterproofing & Vinyl Floor — Potomac, MD',
     category: 'Basement',
