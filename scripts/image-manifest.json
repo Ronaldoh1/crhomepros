@@ -265,6 +265,31 @@
       "file": "recent-projects/exterior-painting-gutters-potomac-md/after-cornice-window-trim.jpg",
       "project": "exterior-painting-gutters-potomac-md",
       "role": "after"
+    },
+    {
+      "file": "recent-projects/basement-vinyl-floor-potomac-md/before-insulated-framing-windows.jpg",
+      "project": "basement-vinyl-floor-potomac-md",
+      "role": "before"
+    },
+    {
+      "file": "recent-projects/basement-vinyl-floor-potomac-md/after-vinyl-floor-windows.jpg",
+      "project": "basement-vinyl-floor-potomac-md",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/basement-vinyl-floor-potomac-md/after-vinyl-floor-wide.jpg",
+      "project": "basement-vinyl-floor-potomac-md",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/basement-vinyl-floor-potomac-md/after-vinyl-floor-door-windows.jpg",
+      "project": "basement-vinyl-floor-potomac-md",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/basement-vinyl-floor-potomac-md/during-drywall-patching-windows.jpg",
+      "project": "basement-vinyl-floor-potomac-md",
+      "role": "before"
     }
   ]
 }

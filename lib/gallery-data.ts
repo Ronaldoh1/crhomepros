@@ -335,6 +335,22 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'basement-vinyl-floor-potomac-md',
+    title: 'Basement Waterproofing & Vinyl Floor — Potomac, MD',
+    category: 'Basement',
+    description: 'Basement in Potomac, MD — new waterproofing, insulated walls, drywall and paint, finished with vinyl plank flooring and white baseboards. Before and after transformation.',
+    featured: true,
+    beforeImages: [
+      '/images/recent-projects/basement-vinyl-floor-potomac-md/before-insulated-framing-windows.jpg',
+    ],
+    images: [
+      '/images/recent-projects/basement-vinyl-floor-potomac-md/after-vinyl-floor-windows.jpg',
+      '/images/recent-projects/basement-vinyl-floor-potomac-md/after-vinyl-floor-wide.jpg',
+      '/images/recent-projects/basement-vinyl-floor-potomac-md/after-vinyl-floor-door-windows.jpg',
+      '/images/recent-projects/basement-vinyl-floor-potomac-md/during-drywall-patching-windows.jpg',
+    ],
+  },
+  {
     id: 'exterior-painting-gutters-potomac-md',
     title: 'Exterior Painting & Gutters — Potomac, MD',
     category: 'Painting',
