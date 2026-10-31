@@ -325,6 +325,30 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'basement-finish-porcelain',
+    title: 'Finished Basement — Porcelain Tile Floor',
+    category: 'Basement',
+    description: 'Finished basement with porcelain tile flooring throughout, recessed lighting, fresh paint, and white trim and baseboards. The open staircase is finished in white to match.',
+    featured: true,
+    images: [
+      '/images/recent-projects/basement-finish-porcelain/after-staircase-wide.jpg',
+    ],
+  },
+  {
+    id: 'addition-leesburg-va',
+    title: 'House Extension — Leesburg, VA',
+    category: 'Complete Renovation',
+    description: 'House extension in Leesburg, VA — a new family room built onto the home. Wood-look porcelain plank tile laid in a staggered pattern, recessed lighting, a new bank of windows, wall sconces, a pass-through opening to the kitchen, and fresh trim and paint throughout. Before and after transformation.',
+    featured: true,
+    beforeImages: [
+      '/images/recent-projects/addition-leesburg-va/during-tile-floor-install.jpg',
+    ],
+    images: [
+      '/images/recent-projects/addition-leesburg-va/after-family-room-wide.jpg',
+      '/images/recent-projects/addition-leesburg-va/after-tile-grouted-window-wall.jpg',
+    ],
+  },
+  {
     id: 'renovation-painting-va',
     title: 'Interior Renovation & Paint — Virginia',
     category: 'Complete Renovation',

@@ -1,0 +1,187 @@
+{
+  "_readme": [
+    "Maps each real photo to the temporary (stock) photo it replaces.",
+    "Photos live in public/images/. Naming: team photos = team-carlos-NN-<what>.jpg;",
+    "job photos = recent-projects/<job-type>-<location>/<before|during|after>-<subject>.jpg (no year when unknown).",
+    "Fill a slot by putting the new filename in its 'file' field, then run:",
+    "  node scripts/sync-images.mjs            (dry run: shows what would happen)",
+    "  node scripts/sync-images.mjs --apply    (uploads to Firebase Storage + updates the code)",
+    "Never use a filename that already exists in Storage: Storage files are cached for a year.",
+    "'galleryOnly' lists photos used in lib/gallery-data.ts; the script uploads them too."
+  ],
+  "slots": [
+    {
+      "id": "founder-portrait",
+      "needs": "Carlos, portrait, vertical (4:5 crop)",
+      "placeholder": "/images/team-carlos-01.jpg",
+      "where": [
+        "components/sections/MeetCarlos.tsx",
+        "app/[locale]/about/page.tsx"
+      ],
+      "file": "team-carlos-04-portrait-blazer.jpg",
+      "what": "Carlos Hernandez, founder: navy blazer, grey shirt, outdoors at dusk"
+    },
+    {
+      "id": "team-photo-1",
+      "needs": "Carlos with a team member on a job, vertical (3:4)",
+      "placeholder": "/images/team-carlos-02.png",
+      "where": [
+        "components/sections/MeetCarlos.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "team-photo-2",
+      "needs": "Carlos with crew, e.g. painting, vertical (3:4)",
+      "placeholder": "/images/team-carlos-03.png",
+      "where": [
+        "components/sections/MeetCarlos.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "hero-1-kitchen",
+      "needs": "Finished kitchen, wide/landscape (home page slideshow)",
+      "placeholder": "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136",
+      "where": [
+        "components/sections/Hero.tsx",
+        "app/[locale]/projects/[slug]/page.tsx",
+        "app/[locale]/services/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "hero-2-bathroom",
+      "needs": "Finished bathroom, wide (home page slideshow)",
+      "placeholder": "https://images.unsplash.com/photo-1552321554-5fefe8c9ef14",
+      "where": [
+        "components/sections/Hero.tsx",
+        "app/[locale]/projects/[slug]/page.tsx",
+        "app/[locale]/services/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "hero-3-construction",
+      "needs": "Work in progress / crew on site, wide (home page slideshow)",
+      "placeholder": "https://images.unsplash.com/photo-1503387762-592deb58ef4e",
+      "where": [
+        "components/sections/Hero.tsx"
+      ],
+      "file": "recent-projects/addition-leesburg-va/during-tile-floor-install.jpg",
+      "what": "Wood-look plank tile going down with spacers, house extension, Leesburg VA"
+    },
+    {
+      "id": "hero-4-living-room",
+      "needs": "Finished living area, wide (home page slideshow)",
+      "placeholder": "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2",
+      "where": [
+        "components/sections/Hero.tsx"
+      ],
+      "file": "recent-projects/addition-leesburg-va/after-family-room-wide.jpg",
+      "what": "Finished family room in the house extension, Leesburg VA"
+    },
+    {
+      "id": "hero-5-exterior",
+      "needs": "Finished home exterior, wide (home page slideshow)",
+      "placeholder": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+      "where": [
+        "components/sections/Hero.tsx",
+        "app/[locale]/projects/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "hero-6-modern-home",
+      "needs": "Second exterior or roof job, wide (home page slideshow)",
+      "placeholder": "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+      "where": [
+        "components/sections/Hero.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "project-kitchen-island",
+      "needs": "Kitchen island with seating (project page)",
+      "placeholder": "https://images.unsplash.com/photo-1556909172-54557c7e4fb7",
+      "where": [
+        "app/[locale]/projects/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "project-kitchen-appliances",
+      "needs": "Kitchen appliances / detail (project page)",
+      "placeholder": "https://images.unsplash.com/photo-1556909212-d5b604d0c90d",
+      "where": [
+        "app/[locale]/projects/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "project-shower-detail",
+      "needs": "Walk-in shower detail (project page)",
+      "placeholder": "https://images.unsplash.com/photo-1620626011761-996317b8d101",
+      "where": [
+        "app/[locale]/projects/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "service-default-hero",
+      "needs": "Generic job-site photo (fallback for service pages)",
+      "placeholder": "https://images.unsplash.com/photo-1504307651254-35680f356dfd",
+      "where": [
+        "app/[locale]/services/[slug]/page.tsx"
+      ],
+      "file": "",
+      "what": ""
+    },
+    {
+      "id": "blog-basement-waterproofing",
+      "needs": "Basement waterproofing photo (blog post cover)",
+      "placeholder": "https://images.unsplash.com/photo-1646592474094-342fbc28736c",
+      "where": [
+        "lib/blog-posts.ts"
+      ],
+      "file": "2026-waterproofing-nwdc/before-foundation-drainage.png",
+      "what": "Foundation drainage before finishing, NW DC job (already in repo; confirm)"
+    }
+  ],
+  "galleryOnly": [
+    {
+      "file": "recent-projects/addition-leesburg-va/during-tile-floor-install.jpg",
+      "project": "addition-leesburg-va",
+      "role": "before"
+    },
+    {
+      "file": "recent-projects/addition-leesburg-va/after-family-room-wide.jpg",
+      "project": "addition-leesburg-va",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/addition-leesburg-va/after-tile-grouted-window-wall.jpg",
+      "project": "addition-leesburg-va",
+      "role": "after"
+    },
+    {
+      "file": "2026-waterproofing-nwdc/after-living-area-wide.png",
+      "project": "(not in gallery yet)",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/basement-finish-porcelain/after-staircase-wide.jpg",
+      "project": "basement-finish-porcelain",
+      "role": "after"
+    }
+  ]
+}
