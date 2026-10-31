@@ -113,13 +113,13 @@ export const FEATURED_PROJECTS: ProjectCard[] = [
   },
   {
     slug: 'deck-alexandria-va',
-    title: 'Finished Deck',
-    titleEs: 'Terraza Terminada',
+    title: 'New Composite Deck',
+    titleEs: 'Terraza Nueva de Material Compuesto',
     category: 'Decks & Outdoor Living',
     categoryEs: 'Terrazas y Exteriores',
     location: 'Alexandria, VA',
-    summary: 'Gray deck boards and stairs with white railings, black balusters and white fascia.',
-    summaryEs: 'Tablas y escalones grises con barandas blancas, balaustres negros y fascia blanca.',
+    summary: 'Gray composite boards and stairs with white railings, black balusters and white fascia.',
+    summaryEs: 'Tablas y escalones grises de material compuesto con barandas blancas, balaustres negros y fascia blanca.',
     image: {
       src: real('recent-projects/deck-alexandria-va/after-deck-stairs-railing-wide.jpg'),
       alt: 'Finished deck in Alexandria, VA with white railings and black balusters',

@@ -325,6 +325,21 @@
       "file": "recent-projects/roof-replacement-brick-two-story/during-shingles-delivered-front.jpg",
       "project": "roof-replacement-brick-two-story",
       "role": "during"
+    },
+    {
+      "file": "recent-projects/deck-alexandria-va/after-railing-rear-wide.jpg",
+      "project": "deck-alexandria-va",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/deck-alexandria-va/after-stairs-railing.jpg",
+      "project": "deck-alexandria-va",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/deck-alexandria-va/during-composite-boards-posts.jpg",
+      "project": "deck-alexandria-va",
+      "role": "during"
     }
   ]
 }

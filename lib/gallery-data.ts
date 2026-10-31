@@ -450,12 +450,15 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
   },
   {
     id: 'deck-alexandria-va',
-    title: 'Finished Deck — Alexandria, VA',
+    title: 'New Composite Deck — Alexandria, VA',
     category: 'Deck',
-    description: 'Finished deck in Alexandria, VA — gray deck boards and stair treads, white railings with black balusters, and white fascia around the deck and stairs.',
+    description: 'New composite deck in Alexandria, VA — gray composite deck boards and stair treads, white railings with black balusters, and white fascia around the deck and stairs.',
     featured: true,
     images: [
       '/images/recent-projects/deck-alexandria-va/after-deck-stairs-railing-wide.jpg',
+      '/images/recent-projects/deck-alexandria-va/after-railing-rear-wide.jpg',
+      '/images/recent-projects/deck-alexandria-va/after-stairs-railing.jpg',
+      '/images/recent-projects/deck-alexandria-va/during-composite-boards-posts.jpg',
     ],
   },
   {
