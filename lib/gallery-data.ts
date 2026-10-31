@@ -335,6 +335,16 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'deck-alexandria-va',
+    title: 'Finished Deck — Alexandria, VA',
+    category: 'Deck',
+    description: 'Finished deck in Alexandria, VA — gray deck boards and stair treads, white railings with black balusters, and white fascia around the deck and stairs.',
+    featured: true,
+    images: [
+      '/images/recent-projects/deck-alexandria-va/after-deck-stairs-railing-wide.jpg',
+    ],
+  },
+  {
     id: 'deck-leesburg-va',
     title: 'Finished Deck — Leesburg, VA',
     category: 'Deck',
