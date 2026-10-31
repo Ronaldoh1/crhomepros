@@ -50,8 +50,8 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
     placeholder: false,
   },
   roofing: {
-    src: real('recent-projects/roof-replacement-tearoff-decking/during-tearoff-new-decking.jpg'),
-    alt: 'CR Home Pros crew tearing off an old roof and laying new decking',
+    src: real('recent-projects/roof-replacement-ridge-maryland/after-new-shingles-ridge-vent.jpg'),
+    alt: 'New architectural shingles and ridge vent on a finished roof',
     placeholder: false,
   },
   'concrete-driveways': { src: local('concrete-work.png'), alt: 'Crew pouring a concrete driveway', placeholder: true },

@@ -340,6 +340,21 @@
       "file": "recent-projects/deck-alexandria-va/during-composite-boards-posts.jpg",
       "project": "deck-alexandria-va",
       "role": "during"
+    },
+    {
+      "file": "recent-projects/bathroom-rockville-md/after-shower-glass-door-bench.jpg",
+      "project": "bathroom-rockville-md",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/roof-replacement-ridge-maryland/after-new-shingles-ridge-vent.jpg",
+      "project": "roof-replacement-ridge-maryland",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/roof-replacement-ridge-maryland/during-tearoff-plank-decking.jpg",
+      "project": "roof-replacement-ridge-maryland",
+      "role": "during"
     }
   ]
 }

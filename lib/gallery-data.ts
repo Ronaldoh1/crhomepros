@@ -335,6 +335,17 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'roof-replacement-ridge-maryland',
+    title: 'New Roof — Maryland',
+    category: 'Roofing',
+    description: 'New roof in Maryland — the old shingles torn off down to the wood plank decking, then new architectural shingles with a ridge vent along the peak.',
+    featured: true,
+    images: [
+      '/images/recent-projects/roof-replacement-ridge-maryland/after-new-shingles-ridge-vent.jpg',
+      '/images/recent-projects/roof-replacement-ridge-maryland/during-tearoff-plank-decking.jpg',
+    ],
+  },
+  {
     id: 'roof-replacement-tearoff-decking',
     title: 'Roof Replacement — Maryland', // TODO: city to confirm (Ron said Temple Hills for the set; two houses)
     category: 'Roofing',
@@ -367,11 +378,12 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
   },
   {
     id: 'bathroom-rockville-md',
-    title: 'New Bathroom — Rockville, MD',
+    title: 'New Bathroom — Maryland', // TODO: city to confirm (Ron said Rockville, then Bethesda; photo metadata says Fort Washington)
     category: 'Bathroom',
-    description: 'New bathroom in Rockville, MD — marble-look tile shower with a blue glass accent stripe, hexagon mosaic shower floor, a built-in bench, and marble-look plank tile on the bathroom floor. Photos taken during the tile work.',
+    description: 'New bathroom in Maryland — marble-look tile shower with a blue glass accent stripe, hexagon mosaic shower floor, a built-in bench with a stone top, sliding glass door and grab bar, and marble-look plank tile on the bathroom floor.',
     featured: true,
     images: [
+      '/images/recent-projects/bathroom-rockville-md/after-shower-glass-door-bench.jpg',
       '/images/recent-projects/bathroom-rockville-md/during-shower-tile-bench.jpg',
       '/images/recent-projects/bathroom-rockville-md/during-floor-tile-shower-curb.jpg',
     ],
