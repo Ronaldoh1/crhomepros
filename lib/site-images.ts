@@ -24,10 +24,12 @@ export const LOGO = {
   wordmark: '/images/brand/logo-wordmark.png',
 }
 
+const real = (file: string) => `/images/${file}`
+
 export const HERO_IMAGE: SiteImage = {
-  src: local('living-room.png'),
-  alt: 'Bright finished living room with hardwood floors',
-  placeholder: true,
+  src: real('recent-projects/addition-leesburg-va/after-family-room-wide.jpg'),
+  alt: 'Finished family room in a house extension in Leesburg, VA, with plank tile floor and new windows',
+  placeholder: false,
 }
 
 /** Keyed by SERVICES[].id in lib/constants.ts */
@@ -42,7 +44,11 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
     alt: 'Renovated bathroom with tile shower',
     placeholder: true,
   },
-  'basement-finishing': { src: local('basement.png'), alt: 'Basement being finished', placeholder: true },
+  'basement-finishing': {
+    src: real('recent-projects/basement-finish-porcelain/after-staircase-wide.jpg'),
+    alt: 'Finished basement with porcelain tile floor and white staircase',
+    placeholder: false,
+  },
   roofing: { src: local('home-exterior.png'), alt: 'House exterior with new roof', placeholder: true },
   'concrete-driveways': { src: local('concrete-work.png'), alt: 'Crew pouring a concrete driveway', placeholder: true },
   painting: { src: local('painting.png'), alt: 'Interior room prepared for painting', placeholder: true },
@@ -64,51 +70,71 @@ export type ProjectCard = {
 /** Featured projects on the homepage. Replace with real jobs + photos. */
 export const FEATURED_PROJECTS: ProjectCard[] = [
   {
-    slug: 'basement-transformation',
-    title: 'Complete Basement Transformation',
-    titleEs: 'Transformación Completa de Sótano',
-    category: 'Basement Finishing',
-    categoryEs: 'Acabado de Sótano',
-    location: 'Laurel, MD',
-    summary: 'Raw concrete space turned into a finished family room with recessed lighting and a laundry nook.',
-    summaryEs: 'Un espacio de concreto convertido en una sala familiar terminada con iluminación empotrada y área de lavandería.',
-    image: { src: local('living-room.png'), alt: 'Finished basement family room', placeholder: true },
+    slug: 'addition-leesburg-va',
+    title: 'House Extension',
+    titleEs: 'Ampliación de Casa',
+    category: 'Additions',
+    categoryEs: 'Ampliaciones',
+    location: 'Leesburg, VA',
+    summary: 'A new family room built onto the home, with wood-look plank tile, recessed lighting and a new bank of windows.',
+    summaryEs: 'Una nueva sala familiar construida en la casa, con piso de porcelanato tipo madera, luces empotradas y ventanas nuevas.',
+    image: {
+      src: real('recent-projects/addition-leesburg-va/after-tile-grouted-window-wall.jpg'),
+      alt: 'Finished house extension with plank tile floor and new windows',
+      placeholder: false,
+    },
   },
   {
-    slug: 'deck-outdoor-kitchen',
-    title: 'Covered Deck & Outdoor Grill',
-    titleEs: 'Terraza Cubierta y Parrilla Exterior',
-    category: 'Decks & Outdoor Living',
-    categoryEs: 'Terrazas y Exteriores',
-    location: 'Prince George’s County, MD',
-    summary: 'New wood deck with a covered roof and a stone grill station for year-round use.',
-    summaryEs: 'Nueva terraza de madera con techo cubierto y estación de parrilla de piedra para todo el año.',
-    image: { src: local('deck.png'), alt: 'Covered wood deck with stone grill', placeholder: true },
+    slug: 'basement-waterproofing-nwdc',
+    title: 'Basement Waterproofing & Finish',
+    titleEs: 'Impermeabilización y Acabado de Sótano',
+    category: 'Basement',
+    categoryEs: 'Sótano',
+    location: 'Northwest Washington, DC',
+    summary: 'Drainage and vapor barrier installed behind new framing, then finished into an open living area.',
+    summaryEs: 'Drenaje y barrera de vapor instalados detrás de la nueva estructura, luego terminado como un área de estar abierta.',
+    image: {
+      src: real('2026-waterproofing-nwdc/after-living-room-full.jpeg'),
+      alt: 'Finished basement living area after waterproofing',
+      placeholder: false,
+    },
   },
   {
-    slug: 'fence-bowie',
-    title: 'Privacy Fence Installation',
-    titleEs: 'Instalación de Cerca de Privacidad',
-    category: 'Fencing',
-    categoryEs: 'Cercas',
-    location: 'Bowie, MD',
-    summary: 'New privacy fence around the backyard, set level on a sloped lot.',
-    summaryEs: 'Nueva cerca de privacidad alrededor del patio, nivelada en un terreno inclinado.',
-    image: { src: local('home-exterior.png'), alt: 'Home exterior and yard', placeholder: true },
+    slug: 'basement-finish-porcelain',
+    title: 'Finished Basement',
+    titleEs: 'Sótano Terminado',
+    category: 'Basement',
+    categoryEs: 'Sótano',
+    location: 'DMV area', // TODO: city to confirm with Ron
+    summary: 'Porcelain tile floor throughout, recessed lighting, fresh paint and a white staircase.',
+    summaryEs: 'Piso de porcelanato, luces empotradas, pintura nueva y escalera blanca.',
+    image: {
+      src: real('recent-projects/basement-finish-porcelain/after-staircase-wide.jpg'),
+      alt: 'Finished basement with porcelain tile floor and white staircase',
+      placeholder: false,
+    },
   },
 ]
 
 export const BEFORE_AFTER = {
-  before: { src: local('basement.png'), alt: 'Unfinished basement before the remodel', placeholder: true } as SiteImage,
-  after: { src: local('living-room.png'), alt: 'Finished living space after the remodel', placeholder: true } as SiteImage,
-  title: 'Basement to Family Room',
-  titleEs: 'De Sótano a Sala Familiar',
-  location: 'Laurel, MD',
+  before: {
+    src: real('recent-projects/addition-leesburg-va/during-tile-floor-install.jpg'),
+    alt: 'House extension while the plank tile floor was being installed',
+    placeholder: false,
+  } as SiteImage,
+  after: {
+    src: real('recent-projects/addition-leesburg-va/after-family-room-wide.jpg'),
+    alt: 'The finished family room in the house extension',
+    placeholder: false,
+  } as SiteImage,
+  title: 'House Extension',
+  titleEs: 'Ampliación de Casa',
+  location: 'Leesburg, VA',
   projectHref: '/projects',
 }
 
 export const ABOUT_IMAGE: SiteImage = {
-  src: local('team-working.png'),
-  alt: 'CR Home Pros crew at work',
-  placeholder: true,
+  src: real('team-carlos-04-portrait-blazer.jpg'),
+  alt: 'Carlos Hernandez, founder of CR Home Pros',
+  placeholder: false,
 }

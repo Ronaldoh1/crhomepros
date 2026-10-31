@@ -5,10 +5,10 @@
 // Gallery data uses paths like '/images/2025-05/kitchen.png'
 // This resolver maps them to the correct Firebase Storage location.
 
-import { USE_SAMPLE_PHOTOS, samplePhotoFor } from './sample-photos'
+import { USE_SAMPLE_PHOTOS, samplePhotoFor, isCommittedPhoto } from './sample-photos'
 import { LOGO } from './site-images'
 
-const BUCKET = 'crhomepros.firebasestorage.app'
+const BUCKET = 'crhomepros-9309c.firebasestorage.app' // old bucket crhomepros.firebasestorage.app is offline (402)
 
 /**
  * Map local /images/ paths to Firebase Storage paths.
@@ -44,7 +44,11 @@ export function resolveImageUrl(localPath: string, category?: string): string {
   if (localPath.startsWith('http://') || localPath.startsWith('https://')) {
     return localPath
   }
-  if (localPath.startsWith('/images/placeholder/') || localPath.startsWith('/images/brand/')) {
+  if (
+    localPath.startsWith('/images/placeholder/') ||
+    localPath.startsWith('/images/brand/') ||
+    isCommittedPhoto(localPath)
+  ) {
     return localPath
   }
 

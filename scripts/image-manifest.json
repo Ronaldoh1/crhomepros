@@ -7,7 +7,10 @@
     "  node scripts/sync-images.mjs            (dry run: shows what would happen)",
     "  node scripts/sync-images.mjs --apply    (uploads to Firebase Storage + updates the code)",
     "Never use a filename that already exists in Storage: Storage files are cached for a year.",
-    "'galleryOnly' lists photos used in lib/gallery-data.ts; the script uploads them too."
+    "'galleryOnly' lists photos used in lib/gallery-data.ts; the script uploads them too.",
+    "Redesign (Oct 31 2026): photos committed under public/images/recent-projects/, public/images/2026-waterproofing-nwdc/ and team-carlos-04+ are served straight from the site (lib/sample-photos.ts isCommittedPhoto), so the Firebase upload is optional for them.",
+    "The redesigned homepage no longer uses Hero.tsx or MeetCarlos.tsx; its photos (hero, featured projects, before/after, service cards) are set in lib/site-images.ts.",
+    "Slots still empty show a sample photo until filled (lib/sample-photos.ts, USE_SAMPLE_PHOTOS)."
   ],
   "slots": [
     {

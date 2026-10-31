@@ -12,6 +12,15 @@
 
 export const USE_SAMPLE_PHOTOS = true
 
+// Real photos committed to the repo under public/images/. These are always
+// served straight from the site (never Firebase, never swapped for a sample).
+// New jobs go in recent-projects/, new team photos are team-carlos-04 and up.
+const COMMITTED_PHOTO = /^\/images\/(recent-projects\/|2026-waterproofing-nwdc\/|team-carlos-(0[4-9]|[1-9]\d)-)/
+
+export function isCommittedPhoto(path: string) {
+  return COMMITTED_PHOTO.test(path)
+}
+
 const local = (file: string) => `/images/placeholder/${file}`
 const unsplash = (id: string) => `https://images.unsplash.com/${id}?w=1200&q=75&auto=format&fit=crop`
 

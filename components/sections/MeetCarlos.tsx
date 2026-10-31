@@ -19,7 +19,7 @@ export function MeetCarlos() {
           <div className="relative order-2 lg:order-1">
             <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-dark-100 shadow-2xl">
               <Image
-                src={resolveImageUrl("/images/team-carlos-01.jpg")}
+                src={resolveImageUrl("/images/team-carlos-04-portrait-blazer.jpg")}
                 alt="Carlos Hernandez - Founder of CR Home Pros"
                 fill
                 className="object-cover"

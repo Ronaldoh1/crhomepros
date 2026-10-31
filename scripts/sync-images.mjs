@@ -21,7 +21,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = join(__dirname, '..')
 const APPLY = process.argv.includes('--apply')
 const SKIP_UPLOAD = process.argv.includes('--skip-upload')
-const BUCKET = 'crhomepros.firebasestorage.app'
+const BUCKET = 'crhomepros-9309c.firebasestorage.app' // old bucket crhomepros.firebasestorage.app is offline (402)
 const SCAN_DIRS = ['app', 'components', 'lib']
 // Data files whose consumers already call resolveImageUrl(): write a plain local path there.
 const DATA_FILES = new Set(['lib/blog-posts.ts', 'lib/gallery-data.ts'])

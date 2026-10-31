@@ -77,10 +77,10 @@ export default function AboutPage() {
             <div className="relative">
               <div className="aspect-[4/5] rounded-2xl overflow-hidden bg-dark-100">
                 <Image
-                  src={resolveImageUrl("/images/team-carlos-01.jpg")}
+                  src={resolveImageUrl("/images/team-carlos-04-portrait-blazer.jpg")}
                   alt="Carlos Hernandez - Founder"
                   fill
-                  className="object-cover"
+                  className="object-cover object-[50%_20%]"
                 />
               </div>
               {/* Floating card */}

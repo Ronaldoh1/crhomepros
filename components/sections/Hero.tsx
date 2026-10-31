@@ -14,8 +14,8 @@ import { useTranslation, useLocale } from '@/lib/i18n/provider'
 const slideImages = [
   'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1920&q=80', // Modern kitchen
   'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1920&q=80', // Bathroom
-  'https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=1920&q=80', // Construction/renovation
-  'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=1920&q=80', // Living room
+  resolveImageUrl('/images/recent-projects/addition-leesburg-va/during-tile-floor-install.jpg'), // Construction/renovation
+  resolveImageUrl('/images/recent-projects/addition-leesburg-va/after-family-room-wide.jpg'), // Living room
   'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1920&q=80', // Beautiful home exterior
   'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?w=1920&q=80', // Modern home
 ]
