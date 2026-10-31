@@ -328,7 +328,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     id: 'basement-finish-porcelain',
     title: 'Finished Basement — Porcelain Tile Floor',
     category: 'Basement',
-    description: 'Full basement finish — drywall, recessed lighting, fresh paint, and porcelain tile flooring throughout. The open staircase was rebuilt and finished in white with a turned newel post and balusters, with matching baseboards and trim around the room.',
+    description: 'Finished basement with porcelain tile flooring throughout, recessed lighting, fresh paint, and white trim and baseboards. The open staircase is finished in white to match.',
     featured: true,
     images: [
       '/images/recent-projects/basement-finish-porcelain/after-staircase-wide.jpg',
