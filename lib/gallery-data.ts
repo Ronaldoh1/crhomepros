@@ -331,10 +331,11 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     description: 'House extension in Leesburg, VA — a new family room built onto the home. Wood-look porcelain plank tile laid in a staggered pattern, recessed lighting, a new bank of windows, wall sconces, a pass-through opening to the kitchen, and fresh trim and paint throughout. Before and after transformation.',
     featured: true,
     beforeImages: [
-      '/images/addition-leesburg-va/during-tile-floor-install.jpg',
+      '/images/recent-projects/addition-leesburg-va/during-tile-floor-install.jpg',
     ],
     images: [
-      '/images/addition-leesburg-va/after-family-room-wide.jpg',
+      '/images/recent-projects/addition-leesburg-va/after-family-room-wide.jpg',
+      '/images/recent-projects/addition-leesburg-va/after-tile-grouted-window-wall.jpg',
     ],
   },
   {

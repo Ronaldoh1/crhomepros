@@ -2,7 +2,7 @@
   "_readme": [
     "Maps each real photo to the temporary (stock) photo it replaces.",
     "Photos live in public/images/. Naming: team photos = team-carlos-NN-<what>.jpg;",
-    "job photos = <year>-<job-type>-<location>/<before|during|after>-<subject>.jpg.",
+    "job photos = recent-projects/<job-type>-<location>/<before|during|after>-<subject>.jpg (no year when unknown).",
     "Fill a slot by putting the new filename in its 'file' field, then run:",
     "  node scripts/sync-images.mjs            (dry run: shows what would happen)",
     "  node scripts/sync-images.mjs --apply    (uploads to Firebase Storage + updates the code)",
@@ -72,7 +72,7 @@
       "where": [
         "components/sections/Hero.tsx"
       ],
-      "file": "addition-leesburg-va/during-tile-floor-install.jpg",
+      "file": "recent-projects/addition-leesburg-va/during-tile-floor-install.jpg",
       "what": "Wood-look plank tile going down with spacers, house extension, Leesburg VA"
     },
     {
@@ -82,7 +82,7 @@
       "where": [
         "components/sections/Hero.tsx"
       ],
-      "file": "addition-leesburg-va/after-family-room-wide.jpg",
+      "file": "recent-projects/addition-leesburg-va/after-family-room-wide.jpg",
       "what": "Finished family room in the house extension, Leesburg VA"
     },
     {
@@ -159,12 +159,17 @@
   ],
   "galleryOnly": [
     {
-      "file": "addition-leesburg-va/during-tile-floor-install.jpg",
+      "file": "recent-projects/addition-leesburg-va/during-tile-floor-install.jpg",
       "project": "addition-leesburg-va",
       "role": "before"
     },
     {
-      "file": "addition-leesburg-va/after-family-room-wide.jpg",
+      "file": "recent-projects/addition-leesburg-va/after-family-room-wide.jpg",
+      "project": "addition-leesburg-va",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/addition-leesburg-va/after-tile-grouted-window-wall.jpg",
       "project": "addition-leesburg-va",
       "role": "after"
     },
