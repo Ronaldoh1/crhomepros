@@ -335,6 +335,23 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'fence-suitland-md',
+    title: 'Vinyl Privacy Fence — Suitland, MD',
+    category: 'Fencing',
+    description: 'Vinyl fence in Suitland, MD — the old, leaning wood fence was taken out and replaced with a white vinyl privacy fence and gate. Before and after transformation.',
+    featured: true,
+    beforeImages: [
+      '/images/recent-projects/fence-suitland-md/before-wood-fence-broken.jpg',
+    ],
+    images: [
+      '/images/recent-projects/fence-suitland-md/after-side-panels-mulch.jpg',
+      '/images/recent-projects/fence-suitland-md/after-gate-panels-lawn.jpg',
+      '/images/recent-projects/fence-suitland-md/after-side-panels-lawn.jpg',
+      '/images/recent-projects/fence-suitland-md/after-gate-panels-new-soil.jpg',
+      '/images/recent-projects/fence-suitland-md/during-vinyl-panels-install.jpg',
+    ],
+  },
+  {
     id: 'deck-alexandria-va',
     title: 'Finished Deck — Alexandria, VA',
     category: 'Deck',
