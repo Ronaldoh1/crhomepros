@@ -5,6 +5,9 @@
 // Gallery data uses paths like '/images/2025-05/kitchen.png'
 // This resolver maps them to the correct Firebase Storage location.
 
+import { USE_SAMPLE_PHOTOS, samplePhotoFor } from './sample-photos'
+import { LOGO } from './site-images'
+
 const BUCKET = 'crhomepros.firebasestorage.app'
 
 /**
@@ -36,11 +39,20 @@ function toStoragePath(localPath: string): string {
 /**
  * Resolve an image path to Firebase Storage CDN URL.
  */
-export function resolveImageUrl(localPath: string): string {
-  // Already a full URL? Return as-is
+export function resolveImageUrl(localPath: string, category?: string): string {
+  // Already a full URL, or one of our own local files? Return as-is
   if (localPath.startsWith('http://') || localPath.startsWith('https://')) {
     return localPath
   }
+  if (localPath.startsWith('/images/placeholder/') || localPath.startsWith('/images/brand/')) {
+    return localPath
+  }
+
+  // Logo is always served locally
+  if (/\/logo\.png$/.test(localPath)) return LOGO.wordmark
+
+  // Redesign preview: show sample photos until Carlos's photos are uploaded
+  if (USE_SAMPLE_PHOTOS) return samplePhotoFor(localPath, category)
 
   const storagePath = toStoragePath(localPath)
   const encoded = encodeURIComponent(storagePath)
@@ -50,14 +62,14 @@ export function resolveImageUrl(localPath: string): string {
 /**
  * Resolve all images in a gallery project.
  */
-export function resolveProjectImages<T extends { images: string[]; beforeImages?: string[] }>(
+export function resolveProjectImages<T extends { images: string[]; beforeImages?: string[]; category?: string }>(
   project: T
 ): T {
   return {
     ...project,
-    images: project.images.map(resolveImageUrl),
+    images: project.images.map((p) => resolveImageUrl(p, project.category)),
     ...(project.beforeImages && {
-      beforeImages: project.beforeImages.map(resolveImageUrl),
+      beforeImages: project.beforeImages.map((p) => resolveImageUrl(p, "before")),
     }),
   }
 }

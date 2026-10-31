@@ -1,3 +1,4 @@
+import { SERVICE_IMAGES } from '@/lib/site-images'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -99,14 +100,15 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
   const service = SERVICES.find((s) => s.id === params.slug)
   if (!service) notFound()
 
-  const content = serviceContent[params.slug] || defaultContent
+  const baseContent = serviceContent[params.slug] || defaultContent
+  const content = { ...baseContent, heroImage: SERVICE_IMAGES[params.slug]?.src ?? baseContent.heroImage }
   const IconComponent = iconMap[service.icon] || Home
   const relatedTestimonial = TESTIMONIALS[0]
 
   return (
     <>
       {/* Hero */}
-      <section className="relative page-top pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
+      <section className="relative page-top pb-20 bg-dark-900 overflow-hidden">
         <div className="absolute inset-0">
           <Image src={content.heroImage} alt={service.name} fill className="object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-r from-dark-900/90 to-dark-900/70" />
@@ -136,7 +138,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/get-started" className="btn-gold btn-lg">
-                Get Free Estimate <ArrowRight className="w-5 h-5 ml-2" />
+                Request an Estimate <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <a href={formatPhoneLink(COMPANY.phone)} className="btn-outline-white btn-lg">
                 <Phone className="w-5 h-5 mr-2" /> {COMPANY.phoneFormatted}

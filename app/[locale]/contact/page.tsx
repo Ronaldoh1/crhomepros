@@ -37,17 +37,13 @@ const contactMethods = [
 export default function ContactPage() {
   return (
     <>
-      <section className="relative page-top pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
-        </div>
+      <section className="relative page-top pb-20 bg-dark-900 overflow-hidden">
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">Get In Touch</span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
               {"Let's Talk About "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">Your Project</span>
+              <span className="text-gold-400">Your Project</span>
             </h1>
             <p className="text-xl text-white/90 leading-relaxed">
               {"Have questions? Ready for an estimate? We'd love to hear from you. Reach out and let's discuss how we can help transform your home."}
@@ -89,7 +85,7 @@ export default function ContactPage() {
                 </ul>
               </div>
               <Link href="/get-started" className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl hover:from-gold-600 hover:to-gold-700 transition-all shadow-lg shadow-gold-500/25">
-                {"Get Your Free Estimate"}
+                {"Request an Estimate"}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <p className="text-center text-sm text-dark-400 mt-4">

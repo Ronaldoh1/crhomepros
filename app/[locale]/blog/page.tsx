@@ -28,10 +28,7 @@ export default function BlogPage() {
 
   return (
     <>
-      <section className="relative page-top pb-16 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-        </div>
+      <section className="relative page-top pb-16 bg-dark-900 overflow-hidden">
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
@@ -39,7 +36,7 @@ export default function BlogPage() {
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
               {isEs ? "Consejos para el " : "Home Improvement "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">
+              <span className="text-gold-400">
                 {isEs ? "Hogar" : "Tips & Insights"}
               </span>
             </h1>

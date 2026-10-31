@@ -36,10 +36,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
   return (
     <>
-      <section className="relative page-top pb-16 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-        </div>
+      <section className="relative page-top pb-16 bg-dark-900 overflow-hidden">
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <Link href={"/" + locale + "/blog"} className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors">
@@ -95,7 +92,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           <h2 className="text-3xl font-display font-bold mb-4">{isEs ? '¿Listo Para Tu Proyecto?' : 'Ready to Start Your Project?'}</h2>
           <p className="text-primary-200 mb-8">{isEs ? 'Contáctenos para una consulta gratuita.' : 'Contact us for a free consultation and detailed estimate.'}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href={"/" + locale + "/get-started"} className="btn-gold">{isEs ? 'Estimado Gratis' : 'Get Free Estimate'} <ArrowRight className="w-5 h-5 ml-2" /></Link>
+            <Link href={"/" + locale + "/get-started"} className="btn-gold">{isEs ? 'Solicitar un Estimado' : 'Request an Estimate'} <ArrowRight className="w-5 h-5 ml-2" /></Link>
             <Link href={"/" + locale + "/contact"} className="px-6 py-3 border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">{isEs ? 'Contactar' : 'Contact Us'}</Link>
           </div>
         </div>

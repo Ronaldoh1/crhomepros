@@ -50,11 +50,7 @@ export default function ReviewsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative page-top pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
-        </div>
+      <section className="relative page-top pb-20 bg-dark-900 overflow-hidden">
         
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
@@ -63,7 +59,7 @@ export default function ReviewsPage() {
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
               What Our Clients{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">
+              <span className="text-gold-400">
                 Say About Us
               </span>
             </h1>
@@ -300,7 +296,7 @@ export default function ReviewsPage() {
               Get a free estimate and see why hundreds of homeowners trust CR Home Pros.
             </p>
             <Link href="/get-started" className="btn-gold btn-lg">
-              Get Free Estimate
+              Request an Estimate
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </div>

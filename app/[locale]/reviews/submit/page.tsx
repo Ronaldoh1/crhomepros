@@ -99,7 +99,7 @@ export default function SubmitReviewPage() {
 
   return (
     <>
-      <section className="page-top pb-12 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950">
+      <section className="page-top pb-12 bg-dark-900">
         <div className="container-custom">
           <Link href="/reviews" className="inline-flex items-center gap-2 text-white/80 hover:text-white mb-6 transition-colors">
             <ArrowLeft className="w-4 h-4" />Back to Reviews

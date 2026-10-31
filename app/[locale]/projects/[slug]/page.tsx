@@ -80,7 +80,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
   return (
     <>
       {/* Hero */}
-      <section className="relative page-top pb-12 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950">
+      <section className="relative page-top pb-12 bg-dark-900">
         <div className="container-custom relative z-10">
           <Link href="/projects" className="inline-flex items-center text-primary-100 hover:text-white mb-6">
             ← Back to Projects
@@ -216,7 +216,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
                     Let's discuss your project and bring your vision to life.
                   </p>
                   <Link href="/get-started" className="btn-gold w-full justify-center text-sm">
-                    Get Free Estimate
+                    Request an Estimate
                   </Link>
                 </div>
               </div>

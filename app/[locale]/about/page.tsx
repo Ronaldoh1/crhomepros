@@ -47,11 +47,7 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero Section */}
-      <section className="relative page-top pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-          <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
-        </div>
+      <section className="relative page-top pb-20 bg-dark-900 overflow-hidden">
         
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
@@ -60,7 +56,7 @@ export default function AboutPage() {
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
               Building Dreams,{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">
+              <span className="text-gold-400">
                 One Home at a Time
               </span>
             </h1>
@@ -328,7 +324,7 @@ export default function AboutPage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/get-started" className="btn-gold btn-lg">
-                Get Free Estimate
+                Request an Estimate
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <Link href="/projects" className="btn-outline btn-lg">

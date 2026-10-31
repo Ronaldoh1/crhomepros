@@ -76,8 +76,7 @@ export default function ProjectsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative page-top pb-20 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950">
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-white to-transparent" />
+      <section className="relative page-top pb-20 bg-dark-900">
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
@@ -85,7 +84,7 @@ export default function ProjectsPage() {
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
               Project{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-400 to-gold-300">
+              <span className="text-gold-400">
                 Gallery
               </span>
             </h1>

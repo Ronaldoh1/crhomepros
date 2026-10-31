@@ -98,10 +98,7 @@ export default function EstimatePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative page-top pb-12 bg-gradient-to-br from-dark-900 via-primary-900 to-dark-950 overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gold-500/10 rounded-full blur-3xl" />
-        </div>
+      <section className="relative page-top pb-12 bg-dark-900 overflow-hidden">
         
         <div className="container-custom relative z-10">
           <div className="max-w-3xl mx-auto text-center">
@@ -111,7 +108,7 @@ export default function EstimatePage() {
             </div>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
               Project Cost{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-gold-300 to-gold-500">
+              <span className="text-gold-400">
                 Calculator
               </span>
             </h1>
