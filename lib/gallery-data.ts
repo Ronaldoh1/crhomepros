@@ -335,6 +335,17 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'exterior-painting-gutters-potomac-md',
+    title: 'Exterior Painting & Gutters — Potomac, MD',
+    category: 'Painting',
+    description: 'Exterior painting and gutters in Potomac, MD — freshly painted trim, cornice and window surrounds on a brick home and garage, with gutters and downspouts along the roofline.',
+    featured: true,
+    images: [
+      '/images/recent-projects/exterior-painting-gutters-potomac-md/after-garage-trim-gutters.jpg',
+      '/images/recent-projects/exterior-painting-gutters-potomac-md/after-cornice-window-trim.jpg',
+    ],
+  },
+  {
     id: 'waterproofing-washington-dc',
     title: 'Basement Waterproofing & Finish — Washington, DC',
     category: 'Basement',

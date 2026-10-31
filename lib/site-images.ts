@@ -51,7 +51,11 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
   },
   roofing: { src: local('home-exterior.png'), alt: 'House exterior with new roof', placeholder: true },
   'concrete-driveways': { src: local('concrete-work.png'), alt: 'Crew pouring a concrete driveway', placeholder: true },
-  painting: { src: local('painting.png'), alt: 'Interior room prepared for painting', placeholder: true },
+  painting: {
+    src: real('recent-projects/exterior-painting-gutters-potomac-md/after-cornice-window-trim.jpg'),
+    alt: 'Painted cornice and window trim on a brick home in Potomac, MD',
+    placeholder: false,
+  },
   'deck-outdoor': {
     src: real('recent-projects/deck-alexandria-va/after-deck-stairs-railing-wide.jpg'),
     alt: 'Finished deck in Alexandria, VA with white railings and black balusters',
