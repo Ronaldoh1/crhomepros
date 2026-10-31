@@ -335,6 +335,17 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'deck-leesburg-va',
+    title: 'Finished Deck — Leesburg, VA',
+    category: 'Deck',
+    description: 'Finished deck in Leesburg, VA — new pressure-treated deck boards laid in angled sections with border boards between them, and new stair treads and risers, framed by the cream railings and pergola.',
+    featured: true,
+    images: [
+      '/images/recent-projects/deck-leesburg-va/after-stairs-deck-wide.jpg',
+      '/images/recent-projects/deck-leesburg-va/after-deck-boards-pergola.jpg',
+    ],
+  },
+  {
     id: 'addition-leesburg-va',
     title: 'House Extension — Leesburg, VA',
     category: 'Complete Renovation',

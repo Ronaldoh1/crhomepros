@@ -52,7 +52,11 @@ export const SERVICE_IMAGES: Record<string, SiteImage> = {
   roofing: { src: local('home-exterior.png'), alt: 'House exterior with new roof', placeholder: true },
   'concrete-driveways': { src: local('concrete-work.png'), alt: 'Crew pouring a concrete driveway', placeholder: true },
   painting: { src: local('painting.png'), alt: 'Interior room prepared for painting', placeholder: true },
-  'deck-outdoor': { src: local('deck.png'), alt: 'Covered wood deck with stone grill', placeholder: true },
+  'deck-outdoor': {
+    src: real('recent-projects/deck-leesburg-va/after-stairs-deck-wide.jpg'),
+    alt: 'Finished deck in Leesburg, VA with new boards and stairs',
+    placeholder: false,
+  },
 }
 
 export type ProjectCard = {
@@ -100,17 +104,17 @@ export const FEATURED_PROJECTS: ProjectCard[] = [
     },
   },
   {
-    slug: 'basement-finish-porcelain',
-    title: 'Finished Basement',
-    titleEs: 'Sótano Terminado',
-    category: 'Basement',
-    categoryEs: 'Sótano',
-    location: 'DMV area', // TODO: city to confirm with Ron
-    summary: 'Porcelain tile floor throughout, recessed lighting, fresh paint and a white staircase.',
-    summaryEs: 'Piso de porcelanato, luces empotradas, pintura nueva y escalera blanca.',
+    slug: 'deck-leesburg-va',
+    title: 'Finished Deck',
+    titleEs: 'Terraza Terminada',
+    category: 'Decks & Outdoor Living',
+    categoryEs: 'Terrazas y Exteriores',
+    location: 'Leesburg, VA',
+    summary: 'New deck boards laid in angled sections with border boards, plus new stair treads and risers.',
+    summaryEs: 'Tablas nuevas colocadas en secciones en ángulo con bordes, además de escalones nuevos.',
     image: {
-      src: real('recent-projects/basement-finish-porcelain/after-staircase-wide.jpg'),
-      alt: 'Finished basement with porcelain tile floor and white staircase',
+      src: real('recent-projects/deck-leesburg-va/after-stairs-deck-wide.jpg'),
+      alt: 'Finished deck in Leesburg, VA, seen from the new stairs',
       placeholder: false,
     },
   },
