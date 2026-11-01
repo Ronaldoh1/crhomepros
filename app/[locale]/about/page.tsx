@@ -145,6 +145,34 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* The crew */}
+      <section className="section-padding bg-dark-50">
+        <div className="container-custom">
+          <div className="max-w-2xl mb-10">
+            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+              The Crew
+            </span>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-4">
+              Carlos and his team on the job
+            </h2>
+            <p className="text-dark-600 leading-relaxed">
+              The same hands-on crew, job after job, for years.
+            </p>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {[
+              { src: '/images/team-carlos-06-with-crew-member.jpg', alt: 'Carlos with a member of his crew on a job' },
+              { src: '/images/team-carlos-07-with-crew-member.jpg', alt: 'Carlos with a member of his crew in a finished room' },
+              { src: '/images/team-carlos-05-crew-drywall-job.jpg', alt: 'CR Home Pros crew members on a drywall job' },
+            ].map((photo) => (
+              <div key={photo.src} className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-dark-100">
+                <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 640px) 33vw, 100vw" className="object-cover object-top" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Our Values */}
       <section className="section-padding bg-dark-50">
         <div className="container-custom">

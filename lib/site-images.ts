@@ -35,9 +35,9 @@ export const HERO_IMAGE: SiteImage = {
 /** Keyed by SERVICES[].id in lib/constants.ts */
 export const SERVICE_IMAGES: Record<string, SiteImage> = {
   'kitchen-remodeling': {
-    src: unsplash('photo-1556909114-f6e7ad7d3136'),
-    alt: 'Modern remodeled kitchen',
-    placeholder: true,
+    src: real('recent-projects/kitchen-remodel/after-dark-cabinets-quartz-counters.jpg'),
+    alt: 'Remodeled kitchen with dark shaker cabinets and white marble-look counters',
+    placeholder: false,
   },
   'bathroom-renovation': {
     src: real('recent-projects/bathroom-maryland/after-walk-in-shower-glass-door.jpg'),

@@ -31,8 +31,8 @@
       "where": [
         "components/sections/MeetCarlos.tsx"
       ],
-      "file": "",
-      "what": ""
+      "file": "team-carlos-06-with-crew-member.jpg",
+      "what": "Carlos (left) with a crew member, finished room with tile floor"
     },
     {
       "id": "team-photo-2",
@@ -41,8 +41,8 @@
       "where": [
         "components/sections/MeetCarlos.tsx"
       ],
-      "file": "",
-      "what": ""
+      "file": "team-carlos-07-with-crew-member.jpg",
+      "what": "Carlos (left) with a crew member, finished room with tile floor"
     },
     {
       "id": "hero-1-kitchen",
@@ -355,6 +355,16 @@
       "file": "recent-projects/roof-replacement-ridge-maryland/during-tearoff-plank-decking.jpg",
       "project": "roof-replacement-ridge-maryland",
       "role": "during"
+    },
+    {
+      "file": "recent-projects/kitchen-remodel/after-dark-cabinets-quartz-counters.jpg",
+      "project": "kitchen-remodel",
+      "role": "after"
+    },
+    {
+      "file": "team-carlos-05-crew-drywall-job.jpg",
+      "project": "about-page crew section",
+      "role": "team"
     }
   ]
 }
