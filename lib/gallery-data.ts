@@ -415,6 +415,19 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'power-washing-painting-maryland',
+    title: 'Power Washing & Exterior Painting — Maryland',
+    category: 'Painting',
+    description: 'Power washing and exterior painting on a brick and stone home in Maryland — white trim, columns, window surrounds and bay window. Photos taken during the job.',
+    featured: true,
+    images: [
+      '/images/recent-projects/power-washing-painting-maryland/during-garage-side-balcony.jpg',
+      '/images/recent-projects/power-washing-painting-maryland/during-front-entry-ladders.jpg',
+      '/images/recent-projects/power-washing-painting-maryland/during-rear-patio-windows.jpg',
+      '/images/recent-projects/power-washing-painting-maryland/during-bay-window-rear.jpg',
+    ],
+  },
+  {
     id: 'exterior-painting-gutters-potomac-md',
     title: 'Exterior Painting & Gutters — Potomac, MD',
     category: 'Painting',

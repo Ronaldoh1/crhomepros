@@ -385,6 +385,26 @@
       "file": "recent-projects/waterproofing-washington-dc/after-painted-living-area-long.jpg",
       "project": "waterproofing-washington-dc",
       "role": "after"
+    },
+    {
+      "file": "recent-projects/power-washing-painting-maryland/during-garage-side-balcony.jpg",
+      "project": "power-washing-painting-maryland",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/power-washing-painting-maryland/during-front-entry-ladders.jpg",
+      "project": "power-washing-painting-maryland",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/power-washing-painting-maryland/during-rear-patio-windows.jpg",
+      "project": "power-washing-painting-maryland",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/power-washing-painting-maryland/during-bay-window-rear.jpg",
+      "project": "power-washing-painting-maryland",
+      "role": "during"
     }
   ]
 }
