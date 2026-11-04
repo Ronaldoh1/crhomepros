@@ -29,13 +29,13 @@ export function FAQSection({ limit, id, tinted = false }: { limit?: number; id?:
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="text-center mb-12">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               {t.faq.badge}
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-4">
               {t.faq.title}
             </h2>
-            <p className="text-lg text-dark-500">
+            <p className="text-lg text-dark-600">
               {t.faq.description}
             </p>
           </div>
@@ -54,7 +54,7 @@ export function FAQSection({ limit, id, tinted = false }: { limit?: number; id?:
                   <span className="font-semibold text-dark-900 pr-4">{item.question}</span>
                   <ChevronDown
                     className={cn(
-                      'w-5 h-5 text-dark-400 transition-transform duration-200 flex-shrink-0',
+                      'w-5 h-5 text-dark-600 transition-transform duration-200 flex-shrink-0',
                       openIndex === index && 'rotate-180'
                     )}
                   />
@@ -86,7 +86,7 @@ export function FAQSection({ limit, id, tinted = false }: { limit?: number; id?:
                 href={formatWhatsAppLink(COMPANY.phone, t.common.whatsappGreeting)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-medium hover:bg-[#20bd5a] transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#075E54] text-white font-medium hover:bg-[#054a42] transition-colors"
               >
                 <WhatsAppIcon className="w-4 h-4" />
                 {t.faq.whatsappUs}

@@ -62,7 +62,7 @@ export function FloatingContact() {
             <span className="px-3 py-1.5 bg-white rounded-lg shadow-lg text-sm font-medium text-dark-700 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               WhatsApp Us
             </span>
-            <div className="w-14 h-14 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-110 hover:shadow-xl transition-all whatsapp-pulse">
+            <div className="w-14 h-14 rounded-full bg-[#075E54] text-white flex items-center justify-center shadow-lg hover:scale-110 hover:shadow-xl transition-all whatsapp-pulse">
               <WhatsAppIcon className="w-6 h-6" />
             </div>
           </a>

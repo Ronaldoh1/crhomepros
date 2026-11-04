@@ -31,7 +31,7 @@ export function MeetCarlos() {
 
           {/* Content Side */}
           <div className="order-1 lg:order-2">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               {t.about.subtitle}
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
@@ -77,7 +77,7 @@ export function MeetCarlos() {
           <h3 className="text-2xl font-display font-bold text-dark-900 mb-2 text-center">
             {t.meetCarlos.teamTitle}
           </h3>
-          <p className="text-dark-500 text-center mb-8 max-w-2xl mx-auto">
+          <p className="text-dark-600 text-center mb-8 max-w-2xl mx-auto">
             {t.meetCarlos.teamDesc}
           </p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-3xl mx-auto">

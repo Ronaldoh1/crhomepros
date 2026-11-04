@@ -39,13 +39,13 @@ export function ServicesPreview() {
       <div className="container-custom">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+          <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
             {t.services.title}
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-dark-900 mb-6">
             {t.services.subtitle}
           </h2>
-          <p className="text-lg text-dark-500 leading-relaxed">
+          <p className="text-lg text-dark-600 leading-relaxed">
             {t.services.description}
           </p>
         </div>
@@ -76,7 +76,7 @@ export function ServicesPreview() {
                 <h3 className="font-display font-semibold text-dark-900 mb-2 group-hover:text-primary-800 transition-colors">
                   {translated?.name || service.name}
                 </h3>
-                <p className="text-sm text-dark-500 line-clamp-2">
+                <p className="text-sm text-dark-600 line-clamp-2">
                   {translated?.short || service.shortDescription}
                 </p>
 

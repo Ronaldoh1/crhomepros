@@ -15,7 +15,7 @@ export function EcoBadge({ size = 'md', showLink = true, className = '' }: EcoBa
 
   const badge = (
     <span
-      className={`inline-flex items-center font-semibold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 ${sizes[size]} ${className}`}
+      className={`inline-flex items-center font-semibold rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 ${sizes[size]} ${className}`}
     >
       <span className="text-emerald-500">🌿</span>
       Eco-Friendly Options
@@ -44,13 +44,13 @@ export function EcoBanner() {
           <h3 className="text-lg font-display font-bold text-emerald-800 mb-1">
             Green & Sustainable Options Available
           </h3>
-          <p className="text-emerald-700 text-sm mb-3">
+          <p className="text-emerald-800 text-sm mb-3">
             We offer eco-friendly materials, energy-efficient upgrades, and sustainable practices on every project.
             Ask about low-VOC paints, Energy Star appliances, LED lighting, and reclaimed materials.
           </p>
           <Link
             href="/en/green"
-            className="text-emerald-600 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1"
+            className="text-emerald-800 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1"
           >
             Learn about our green approach →
           </Link>

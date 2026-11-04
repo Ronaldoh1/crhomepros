@@ -153,7 +153,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">What's Included</span>
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">What's Included</span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">Our {service.name} Services</h2>
               <div className="space-y-4">
                 {content.benefits.map((benefit) => (
@@ -175,7 +175,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">Our Process</span>
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">Our Process</span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">How We Work</h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -183,7 +183,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               <div key={step.title} className="bg-white rounded-2xl p-6 border border-dark-100">
                 <div className="w-10 h-10 rounded-full bg-primary-800 text-white flex items-center justify-center font-bold mb-4">{index + 1}</div>
                 <h3 className="text-lg font-semibold text-dark-900 mb-2">{step.title}</h3>
-                <p className="text-dark-500 text-sm">{step.description}</p>
+                <p className="text-dark-600 text-sm">{step.description}</p>
               </div>
             ))}
           </div>

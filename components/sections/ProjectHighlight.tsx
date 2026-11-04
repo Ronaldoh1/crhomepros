@@ -112,7 +112,7 @@ export function ProjectHighlight() {
               {t.projectHighlight.highlightTitle}
             </h3>
 
-            <div className="flex items-center gap-4 text-dark-500">
+            <div className="flex items-center gap-4 text-dark-600">
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4" />
                 <span>{t.projectHighlight.highlightLocation}</span>
@@ -132,7 +132,7 @@ export function ProjectHighlight() {
               {stats.map((stat) => (
                 <div key={stat.label}>
                   <div className="text-lg font-bold text-dark-900">{stat.value}</div>
-                  <div className="text-sm text-dark-400">{stat.label}</div>
+                  <div className="text-sm text-dark-600">{stat.label}</div>
                 </div>
               ))}
             </div>

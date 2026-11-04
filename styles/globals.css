@@ -50,7 +50,7 @@
   }
 
   p {
-    @apply text-dark-600 leading-relaxed;
+    @apply leading-relaxed; /* color inherits from the section, so text on dark backgrounds stays light */
   }
 
   /* Focus styles */

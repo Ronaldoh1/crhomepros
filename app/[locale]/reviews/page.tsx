@@ -78,7 +78,7 @@ export default function ReviewsPage() {
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-primary-700">{stat.value}</div>
-                <div className="text-dark-500">{stat.label}</div>
+                <div className="text-dark-600">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -101,7 +101,7 @@ export default function ReviewsPage() {
                   </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-dark-900">{review.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-dark-500">
+                    <div className="flex items-center gap-2 text-sm text-dark-600">
                       <MapPin className="w-3 h-3" />
                       {review.location}
                     </div>
@@ -195,7 +195,7 @@ export default function ReviewsPage() {
             <h2 className="text-3xl font-display font-bold text-dark-900 mb-4">
               Find Us On
             </h2>
-            <p className="text-lg text-dark-500">
+            <p className="text-lg text-dark-600">
               See what our clients are saying across the web.
             </p>
           </div>
@@ -219,7 +219,7 @@ export default function ReviewsPage() {
                 <h3 className="font-display font-semibold text-dark-900 group-hover:text-blue-600 transition-colors">
                   Google Reviews
                 </h3>
-                <p className="text-sm text-dark-500">Read reviews on Google</p>
+                <p className="text-sm text-dark-600">Read reviews on Google</p>
               </div>
               <ArrowRight className="w-5 h-5 text-dark-300 ml-auto group-hover:translate-x-1 transition-transform" />
             </a>
@@ -240,7 +240,7 @@ export default function ReviewsPage() {
                 <h3 className="font-display font-semibold text-dark-900 group-hover:text-red-600 transition-colors">
                   Yelp Reviews
                 </h3>
-                <p className="text-sm text-dark-500">Read reviews on Yelp</p>
+                <p className="text-sm text-dark-600">Read reviews on Yelp</p>
               </div>
               <ArrowRight className="w-5 h-5 text-dark-300 ml-auto group-hover:translate-x-1 transition-transform" />
             </a>
@@ -273,7 +273,7 @@ export default function ReviewsPage() {
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               Had a Great Experience?
             </h2>
-            <p className="text-lg text-dark-500 mb-8">
+            <p className="text-lg text-dark-600 mb-8">
               We'd love to hear about your project! Share your experience and help other homeowners 
               find quality contractors they can trust.
             </p>

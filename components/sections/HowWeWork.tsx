@@ -21,7 +21,7 @@ export function HowWeWork() {
       <div className="container-custom">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+          <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
             {t.howWeWork.title}
           </span>
           <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
@@ -30,7 +30,7 @@ export function HowWeWork() {
               ✓
             </span>
           </h2>
-          <p className="text-lg text-dark-500">
+          <p className="text-lg text-dark-600">
             {t.howWeWork.subtitle}
           </p>
         </div>
@@ -60,7 +60,7 @@ export function HowWeWork() {
                 <h3 className="text-xl font-display font-semibold text-dark-900 mb-3">
                   {step.title}
                 </h3>
-                <p className="text-dark-500 leading-relaxed">
+                <p className="text-dark-600 leading-relaxed">
                   {step.description}
                 </p>
 

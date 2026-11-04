@@ -35,7 +35,7 @@ export function PaymentOptions() {
           <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mb-3">
             {t.payment.title}
           </h2>
-          <p className="text-dark-500 max-w-xl mx-auto">
+          <p className="text-dark-600 max-w-xl mx-auto">
             {t.payment.description}
           </p>
         </div>
@@ -58,7 +58,7 @@ export function PaymentOptions() {
                   <Icon className="w-5 h-5" />
                 </div>
                 <div className="font-semibold text-dark-800 text-sm">{method.name}</div>
-                <div className="text-dark-400 text-xs mt-1">{method.detail}</div>
+                <div className="text-dark-600 text-xs mt-1">{method.detail}</div>
               </div>
             )
           })}

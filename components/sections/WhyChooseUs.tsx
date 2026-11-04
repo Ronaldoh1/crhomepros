@@ -20,14 +20,14 @@ export function WhyChooseUs() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
           {/* Left - Content */}
           <div>
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               {t.services.whyChoose}
             </span>
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-dark-900 mb-6">
               {COMPANY.yearsInBusiness}+ {t.whyChoose.heading}{' '}
               <span className="text-primary-700">{t.whyChoose.headingAccent}</span>
             </h2>
-            <p className="text-lg text-dark-500 leading-relaxed mb-8">
+            <p className="text-lg text-dark-600 leading-relaxed mb-8">
               {t.whyChoose.description}
             </p>
 
@@ -38,7 +38,7 @@ export function WhyChooseUs() {
               </p>
               <footer className="not-italic">
                 <strong className="text-dark-900">{t.whyChoose.quoteAuthor}</strong>
-                <span className="text-dark-400"> — {t.whyChoose.quoteRole}</span>
+                <span className="text-dark-600"> — {t.whyChoose.quoteRole}</span>
               </footer>
             </blockquote>
           </div>
@@ -59,7 +59,7 @@ export function WhyChooseUs() {
                   <h3 className="font-display font-semibold text-dark-900 mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-dark-500">
+                  <p className="text-sm text-dark-600">
                     {item.description}
                   </p>
                 </div>

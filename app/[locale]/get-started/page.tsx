@@ -66,15 +66,15 @@ export default function GetStartedPage() {
       <section className="py-8 bg-dark-50 border-t border-dark-100">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-center">
-            <p className="text-dark-500">
+            <p className="text-dark-600">
               <strong className="text-dark-700">{COMPANY.projectsCompleted}</strong> projects completed
             </p>
             <span className="hidden md:block text-dark-300">•</span>
-            <p className="text-dark-500">
+            <p className="text-dark-600">
               <strong className="text-dark-700">{COMPANY.yearsInBusiness}+</strong> years experience
             </p>
             <span className="hidden md:block text-dark-300">•</span>
-            <p className="text-dark-500">
+            <p className="text-dark-600">
               <strong className="text-dark-700">{COMPANY.license}</strong>
             </p>
           </div>

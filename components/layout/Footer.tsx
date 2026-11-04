@@ -165,7 +165,7 @@ export function Footer() {
               <li>
                 <Link
                   href={lp('/services')}
-                  className="text-primary-400 hover:text-primary-300 font-medium hover:pl-1 transition-all duration-200"
+                  className="text-gold-400 hover:text-gold-300 font-medium hover:pl-1 transition-all duration-200"
                 >
                   {t.services.viewAll} →
                 </Link>
@@ -281,7 +281,7 @@ export function Footer() {
               <span className="font-semibold text-white">{t.footer.weAccept}:</span>
               {paymentMethods.map((method, idx) => (
                 <span key={method}>
-                  {idx > 0 && <span className="text-dark-400 mr-3">•</span>}
+                  {idx > 0 && <span className="text-dark-300 mr-3">•</span>}
                   <span className={idx === paymentMethods.length - 1 ? "text-gold-400 font-medium" : ""}>{method}</span>
                 </span>
               ))}
@@ -300,7 +300,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-dark-200">
             <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
               <p>© {currentYear} {COMPANY.legalName}</p>
-              <span className="hidden md:inline text-dark-400">•</span>
+              <span className="hidden md:inline text-dark-300">•</span>
               <p className="font-medium">{COMPANY.license}</p>
             </div>
             <div className="flex items-center gap-6">

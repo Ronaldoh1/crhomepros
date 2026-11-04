@@ -153,7 +153,7 @@ export function Navbar() {
         {/* ── Utility row (desktop) ── */}
         <div className="hidden lg:block bg-dark-950 text-[13px]">
           <div className="container-custom flex h-9 items-center justify-between">
-            <span className="text-white/70">{r.serving}</span>
+            <span className="text-white/90">{r.serving}</span>
             <div className="flex items-center gap-6">
               <button
                 type="button"
@@ -362,7 +362,7 @@ export function Navbar() {
                 setMobileOpen(false)
                 setShowEmergency(true)
               }}
-              className="font-medium text-red-600"
+              className="font-medium text-red-800"
             >
               {r.emergency}
             </button>

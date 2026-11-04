@@ -46,29 +46,29 @@ export function EmergencyModal({ isOpen, onClose }: EmergencyModalProps) {
             <div className="flex items-center justify-between p-3 bg-dark-50 rounded-xl">
               <div>
                 <p className="font-semibold text-dark-900">Standard Emergency</p>
-                <p className="text-sm text-dark-500">Mon–Fri, 8AM–6PM</p>
+                <p className="text-sm text-dark-600">Mon–Fri, 8AM–6PM</p>
               </div>
-              <span className="text-xl font-bold text-red-600">$150<span className="text-sm font-normal text-dark-400">/hr</span></span>
+              <span className="text-xl font-bold text-red-800">$150<span className="text-sm font-normal text-dark-600">/hr</span></span>
             </div>
 
             <div className="flex items-center justify-between p-3 bg-dark-50 rounded-xl">
               <div>
                 <p className="font-semibold text-dark-900">After Hours</p>
-                <p className="text-sm text-dark-500">Mon–Fri, 6PM–8AM</p>
+                <p className="text-sm text-dark-600">Mon–Fri, 6PM–8AM</p>
               </div>
-              <span className="text-xl font-bold text-red-600">$200<span className="text-sm font-normal text-dark-400">/hr</span></span>
+              <span className="text-xl font-bold text-red-800">$200<span className="text-sm font-normal text-dark-600">/hr</span></span>
             </div>
 
             <div className="flex items-center justify-between p-3 bg-dark-50 rounded-xl">
               <div>
                 <p className="font-semibold text-dark-900">Weekends & Holidays</p>
-                <p className="text-sm text-dark-500">Sat–Sun, all day</p>
+                <p className="text-sm text-dark-600">Sat–Sun, all day</p>
               </div>
-              <span className="text-xl font-bold text-red-600">$250<span className="text-sm font-normal text-dark-400">/hr</span></span>
+              <span className="text-xl font-bold text-red-800">$250<span className="text-sm font-normal text-dark-600">/hr</span></span>
             </div>
           </div>
 
-          <p className="text-xs text-dark-400 italic">
+          <p className="text-xs text-dark-600 italic">
             Dispatch fee of $75 applies. Minimum 1-hour service call.
             Additional work billed separately. We'll provide a full estimate before starting major repairs.
           </p>

@@ -41,13 +41,13 @@ export default function FinancingPage() {
     <div className="page-top pb-20">
       {/* Hero */}
       <section className="container-custom text-center mb-16">
-        <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+        <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
           {t.financing.title}
         </span>
         <h1 className="text-4xl md:text-5xl font-display font-bold text-dark-900 mb-6">
           {t.financing.subtitle}
         </h1>
-        <p className="text-xl text-dark-500 max-w-2xl mx-auto">
+        <p className="text-xl text-dark-600 max-w-2xl mx-auto">
           {t.financing.description}
         </p>
       </section>
@@ -64,7 +64,7 @@ export default function FinancingPage() {
                 <b.icon className="w-6 h-6 text-primary-600" />
               </div>
               <h3 className="font-display font-semibold text-dark-900 mb-2">{b.title}</h3>
-              <p className="text-sm text-dark-500">{b.desc}</p>
+              <p className="text-sm text-dark-600">{b.desc}</p>
             </div>
           ))}
         </div>
@@ -80,10 +80,10 @@ export default function FinancingPage() {
             {options.map((opt) => (
               <div key={opt.title} className="bg-white/80 hover:bg-white/80 hover:bg-white rounded-2xl p-6 text-center shadow-sm hover:shadow-md transition-shadow">
                 <div className="w-14 h-14 mx-auto rounded-full bg-gold-100 flex items-center justify-center mb-4">
-                  <opt.icon className="w-7 h-7 text-gold-600" />
+                  <opt.icon className="w-7 h-7 text-gold-900" />
                 </div>
                 <h3 className="font-display font-semibold text-dark-900 mb-2">{opt.title}</h3>
-                <p className="text-sm text-dark-500">{opt.desc}</p>
+                <p className="text-sm text-dark-600">{opt.desc}</p>
               </div>
             ))}
           </div>
@@ -118,7 +118,7 @@ export default function FinancingPage() {
                 onChange={(e) => setProjectCost(Number(e.target.value))}
                 className="w-full h-2 bg-dark-100 rounded-lg appearance-none cursor-pointer accent-primary-600"
               />
-              <div className="flex justify-between text-xs text-dark-400 mt-1">
+              <div className="flex justify-between text-xs text-dark-600 mt-1">
                 <span>$1,000</span>
                 <span>$100,000</span>
               </div>
@@ -139,7 +139,7 @@ export default function FinancingPage() {
                 onChange={(e) => setTermMonths(Number(e.target.value))}
                 className="w-full h-2 bg-dark-100 rounded-lg appearance-none cursor-pointer accent-primary-600"
               />
-              <div className="flex justify-between text-xs text-dark-400 mt-1">
+              <div className="flex justify-between text-xs text-dark-600 mt-1">
                 <span>6 {t.financing.calculator.months}</span>
                 <span>60 {t.financing.calculator.months}</span>
               </div>
@@ -160,7 +160,7 @@ export default function FinancingPage() {
                 onChange={(e) => setApr(Number(e.target.value))}
                 className="w-full h-2 bg-dark-100 rounded-lg appearance-none cursor-pointer accent-primary-600"
               />
-              <div className="flex justify-between text-xs text-dark-400 mt-1">
+              <div className="flex justify-between text-xs text-dark-600 mt-1">
                 <span>0%</span>
                 <span>24.99%</span>
               </div>
@@ -173,7 +173,7 @@ export default function FinancingPage() {
               <p className="text-sm text-primary-200">/{locale === 'es' ? 'mes' : 'mo'}</p>
             </div>
 
-            <p className="text-xs text-dark-400 mt-4 text-center">
+            <p className="text-xs text-dark-600 mt-4 text-center">
               {t.financing.calculator.disclaimer}
             </p>
           </div>
@@ -197,7 +197,7 @@ export default function FinancingPage() {
               href={formatWhatsAppLink(COMPANY.phone, locale === 'es' ? '¡Hola! Me interesa el financiamiento para mi proyecto.' : 'Hi! I\'m interested in financing options for my project.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-medium hover:bg-[#20bd5a] transition-colors"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#075E54] text-white font-medium hover:bg-[#054a42] transition-colors"
             >
               <WhatsAppIcon className="w-5 h-5" />
               WhatsApp

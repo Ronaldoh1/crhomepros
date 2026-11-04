@@ -73,13 +73,13 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="max-w-3xl mx-auto grid grid-cols-2 gap-6">
             {prevPost ? (
               <Link href={"/" + locale + "/blog/" + prevPost.slug} className="group p-6 bg-white rounded-xl hover:shadow-md transition-shadow">
-                <span className="text-sm text-dark-500 mb-2 block">{isEs ? 'Anterior' : 'Previous Post'}</span>
+                <span className="text-sm text-dark-600 mb-2 block">{isEs ? 'Anterior' : 'Previous Post'}</span>
                 <span className="font-display font-semibold text-dark-900 group-hover:text-primary-800 transition-colors line-clamp-2">{prevPost.title}</span>
               </Link>
             ) : <div />}
             {nextPost ? (
               <Link href={"/" + locale + "/blog/" + nextPost.slug} className="group p-6 bg-white rounded-xl hover:shadow-md transition-shadow text-right">
-                <span className="text-sm text-dark-500 mb-2 block">{isEs ? 'Siguiente' : 'Next Post'}</span>
+                <span className="text-sm text-dark-600 mb-2 block">{isEs ? 'Siguiente' : 'Next Post'}</span>
                 <span className="font-display font-semibold text-dark-900 group-hover:text-primary-800 transition-colors line-clamp-2">{nextPost.title}</span>
               </Link>
             ) : <div />}

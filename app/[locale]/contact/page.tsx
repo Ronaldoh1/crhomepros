@@ -62,7 +62,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <p className="font-semibold text-dark-900">{method.value}</p>
-                  <p className="text-sm text-dark-500">{method.description}</p>
+                  <p className="text-sm text-dark-600">{method.description}</p>
                 </div>
               </a>
             ))}
@@ -75,20 +75,20 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
               <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mb-6">Request a Free Estimate</h2>
-              <p className="text-dark-500 mb-6">Tell us about your project and we will provide a detailed consultation within 24 hours. Our estimate process includes an on-site visit, project planning, and transparent pricing.</p>
+              <p className="text-dark-600 mb-6">Tell us about your project and we will provide a detailed consultation within 24 hours. Our estimate process includes an on-site visit, project planning, and transparent pricing.</p>
               <div className="bg-primary-50 border border-primary-100 rounded-2xl p-8 mb-8">
                 <h3 className="text-lg font-semibold text-dark-900 mb-4">What to expect:</h3>
                 <ul className="space-y-3 text-dark-600">
-                  <li className="flex items-start gap-3"><span className="text-gold-500 font-bold mt-0.5">1</span><span>Fill out a quick form about your project</span></li>
-                  <li className="flex items-start gap-3"><span className="text-gold-500 font-bold mt-0.5">2</span><span>We will contact you within 24 hours to schedule a visit</span></li>
-                  <li className="flex items-start gap-3"><span className="text-gold-500 font-bold mt-0.5">3</span><span>Receive a detailed, no-obligation estimate</span></li>
+                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">1</span><span>Fill out a quick form about your project</span></li>
+                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">2</span><span>We will contact you within 24 hours to schedule a visit</span></li>
+                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">3</span><span>Receive a detailed, no-obligation estimate</span></li>
                 </ul>
               </div>
-              <Link href="/get-started" className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-gold-500 to-gold-600 rounded-xl hover:from-gold-600 hover:to-gold-700 transition-all shadow-lg shadow-gold-500/25">
+              <Link href="/get-started" className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-dark-900 bg-gold-500 rounded-xl hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/25">
                 {"Request an Estimate"}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
-              <p className="text-center text-sm text-dark-400 mt-4">
+              <p className="text-center text-sm text-dark-600 mt-4">
                 {"Or call us directly at "}
                 <a href={formatPhoneLink(COMPANY.phone)} className="text-primary-600 font-medium hover:underline">{COMPANY.phoneFormatted}</a>
               </p>
@@ -104,7 +104,7 @@ export default function ContactPage() {
                   <div className="flex justify-between"><span>Monday - Friday</span><span className="font-medium text-dark-900">{HOURS.weekday}</span></div>
                   <div className="flex justify-between"><span>Saturday</span><span className="font-medium text-dark-900">{HOURS.saturday}</span></div>
                   <div className="flex justify-between"><span>Sunday</span><span className="font-medium text-dark-900">{HOURS.sunday}</span></div>
-                  <div className="pt-3 mt-3 border-t border-dark-200"><p className="text-sm text-gold-600 font-medium">{HOURS.emergency}</p></div>
+                  <div className="pt-3 mt-3 border-t border-dark-200"><p className="text-sm text-gold-900 font-medium">{HOURS.emergency}</p></div>
                 </div>
               </div>
 
@@ -122,19 +122,19 @@ export default function ContactPage() {
 
               <div className="bg-dark-50 rounded-2xl p-8">
                 <h3 className="text-xl font-display font-semibold text-dark-900 mb-4">Follow Us</h3>
-                <p className="text-dark-500 mb-6">See our latest projects and updates on social media.</p>
+                <p className="text-dark-600 mb-6">See our latest projects and updates on social media.</p>
                 <div className="flex gap-3">
-                  <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"><Facebook className="w-5 h-5" /></a>
-                  <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-500 hover:text-primary-600 hover:bg-primary-50 transition-colors"><Instagram className="w-5 h-5" /></a>
-                  <a href={SOCIAL.tiktok} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-500 hover:text-primary-600 hover:bg-primary-50 transition-colors">
+                  <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"><Facebook className="w-5 h-5" /></a>
+                  <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"><Instagram className="w-5 h-5" /></a>
+                  <a href={SOCIAL.tiktok} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-600 hover:text-primary-600 hover:bg-primary-50 transition-colors">
                     <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1v-3.5a6.37 6.37 0 00-.79-.05A6.34 6.34 0 003.15 15.2a6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.34-6.34V8.73a8.19 8.19 0 004.76 1.52v-3.4a4.85 4.85 0 01-1-.16z" /></svg>
                   </a>
                 </div>
               </div>
 
               <div className="bg-gold-50 border border-gold-200 rounded-2xl p-6 text-center">
-                <p className="text-lg font-semibold text-gold-800">{"Hablamos Espanol!"}</p>
-                <p className="text-gold-700 text-sm mt-1">We are happy to assist you in Spanish.</p>
+                <p className="text-lg font-semibold text-gold-900">{"Hablamos Espanol!"}</p>
+                <p className="text-gold-900 text-sm mt-1">We are happy to assist you in Spanish.</p>
               </div>
             </div>
           </div>

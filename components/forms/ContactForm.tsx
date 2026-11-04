@@ -68,7 +68,7 @@ export function ContactForm() {
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
         <h3 className="text-xl font-semibold text-green-800 mb-2">Message Sent!</h3>
-        <p className="text-green-700 mb-4">
+        <p className="text-green-800 mb-4">
           Thank you for reaching out. We'll get back to you within 24 hours.
         </p>
         <p className="text-sm text-green-600">
@@ -89,7 +89,7 @@ export function ContactForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
           {error}
         </div>
       )}
@@ -202,7 +202,7 @@ export function ContactForm() {
         )}
       </button>
 
-      <p className="text-center text-sm text-dark-400">
+      <p className="text-center text-sm text-dark-600">
         We typically respond within 24 hours.
       </p>
     </form>

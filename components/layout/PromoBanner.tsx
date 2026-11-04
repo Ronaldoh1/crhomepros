@@ -96,7 +96,7 @@ export default function PromoBanner() {
         >
           <span className="hidden sm:inline">{banner.emoji}</span>
           <span className="line-clamp-1">{text}</span>
-          <span className="hidden sm:inline-flex items-center gap-1 px-3 py-0.5 bg-white/20 rounded-full text-xs font-bold whitespace-nowrap ml-2">
+          <span className="hidden sm:inline-flex items-center gap-1 px-3 py-0.5 bg-white text-dark-900 rounded-full text-xs font-bold whitespace-nowrap ml-2">
             {cta} →
           </span>
         </Link>
@@ -122,7 +122,7 @@ export default function PromoBanner() {
         {/* Dismiss */}
         <button
           onClick={handleDismiss}
-          className="p-1 text-white/60 hover:text-white transition-colors flex-shrink-0 ml-1"
+          className="p-1 text-white/90 hover:text-white transition-colors flex-shrink-0 ml-1"
           aria-label="Dismiss banner"
         >
           <X className="w-4 h-4" />

@@ -85,7 +85,7 @@ export default function SubmitReviewPage() {
           <h2 className="text-2xl font-display font-bold text-dark-900 mb-4">
             Thank You!
           </h2>
-          <p className="text-dark-500 mb-6">
+          <p className="text-dark-600 mb-6">
             Your review has been submitted and is pending approval. We appreciate you taking 
             the time to share your experience!
           </p>
@@ -215,7 +215,7 @@ export default function SubmitReviewPage() {
                 )}
               </button>
 
-              <p className="text-sm text-dark-400 text-center">
+              <p className="text-sm text-dark-600 text-center">
                 Your review will be visible after approval. We may edit for clarity but never change your meaning.
               </p>
             </form>

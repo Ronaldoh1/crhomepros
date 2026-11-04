@@ -149,7 +149,7 @@ export default function EstimatePage() {
                         )}
                       >
                         <p className="font-semibold text-dark-900">{svc.name}</p>
-                        <p className="text-xs text-dark-500 mt-1">{svc.description}</p>
+                        <p className="text-xs text-dark-600 mt-1">{svc.description}</p>
                       </button>
                     ))}
                   </div>
@@ -174,7 +174,7 @@ export default function EstimatePage() {
                       }}
                       className="w-full h-2 bg-dark-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
                     />
-                    <div className="flex justify-between text-sm text-dark-500">
+                    <div className="flex justify-between text-sm text-dark-600">
                       <span>50 sq ft</span>
                       <span className="text-lg font-bold text-primary-700">{squareFootage} sq ft</span>
                       <span>2000 sq ft</span>
@@ -204,7 +204,7 @@ export default function EstimatePage() {
                         )}
                       >
                         <p className="font-semibold text-dark-900">{level.name}</p>
-                        <p className="text-xs text-dark-500 mt-1">{level.description}</p>
+                        <p className="text-xs text-dark-600 mt-1">{level.description}</p>
                       </button>
                     ))}
                   </div>
@@ -218,7 +218,7 @@ export default function EstimatePage() {
                     'w-full py-4 rounded-xl font-semibold text-lg transition-all',
                     selectedService
                       ? 'bg-primary-800 text-white hover:bg-primary-700'
-                      : 'bg-dark-100 text-dark-400 cursor-not-allowed'
+                      : 'bg-dark-100 text-dark-600 cursor-not-allowed'
                   )}
                 >
                   <Calculator className="w-5 h-5 inline mr-2" />
@@ -292,7 +292,7 @@ export default function EstimatePage() {
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               Want an Accurate Quote?
             </h2>
-            <p className="text-lg text-dark-500 mb-8">
+            <p className="text-lg text-dark-600 mb-8">
               Schedule a free on-site consultation. We'll assess your project in person and provide 
               a detailed, no-obligation estimate.
             </p>

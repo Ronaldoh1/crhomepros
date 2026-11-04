@@ -18,7 +18,7 @@ function Eyebrow({ children, light = false }: { children: React.ReactNode; light
   return (
     <span
       className={`block text-[12px] md:text-[13px] font-semibold uppercase tracking-[0.1em] md:tracking-[0.14em] ${
-        light ? 'text-gold-300' : 'text-gold-700'
+        light ? 'text-gold-300' : 'text-gold-900'
       }`}
     >
       {children}
@@ -85,7 +85,7 @@ function Photo({
     <div className={`relative overflow-hidden bg-dark-100 ${className}`}>
       <Image src={image.src} alt={image.alt} fill sizes={sizes} priority={priority} className="object-cover" />
       {image.placeholder && (
-        <span className="absolute bottom-2 left-2 rounded bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white/90">
+        <span className="absolute bottom-2 left-2 rounded bg-black/80 px-2 py-0.5 text-[11px] font-medium text-white/90">
           {r.sample}
         </span>
       )}
@@ -155,10 +155,10 @@ export function TrustStrip() {
       <ul className="container-custom grid grid-cols-2 gap-x-6 gap-y-8 py-10 lg:grid-cols-4 lg:py-12">
         {items.map(({ icon: Icon, title, detail }) => (
           <li key={title} className="flex items-start gap-3">
-            <Icon className="mt-0.5 h-7 w-7 shrink-0 text-gold-600" aria-hidden="true" />
+            <Icon className="mt-0.5 h-7 w-7 shrink-0 text-gold-900" aria-hidden="true" />
             <div>
               <p className="font-semibold text-dark-900 leading-snug">{title}</p>
-              <p className="mt-1 text-[15px] leading-snug text-dark-500">{detail}</p>
+              <p className="mt-1 text-[15px] leading-snug text-dark-600">{detail}</p>
             </div>
           </li>
         ))}
@@ -301,7 +301,7 @@ export function BeforeAfterShowcase() {
             {r.beforeAfter.after}
           </span>
           {(before.placeholder || after.placeholder) && (
-            <span className="absolute bottom-2 left-2 rounded bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white/90">
+            <span className="absolute bottom-2 left-2 rounded bg-black/80 px-2 py-0.5 text-[11px] font-medium text-white/90">
               {r.sample}
             </span>
           )}
@@ -320,11 +320,11 @@ export function BeforeAfterShowcase() {
           <h2 className="mt-3 text-[30px] leading-tight md:text-[40px] font-display font-semibold text-dark-900">
             {locale === 'es' ? BEFORE_AFTER.titleEs : BEFORE_AFTER.title}
           </h2>
-          <p className="mt-3 flex items-center gap-2 text-[17px] text-dark-500">
+          <p className="mt-3 flex items-center gap-2 text-[17px] text-dark-600">
             <MapPin className="h-4 w-4" aria-hidden="true" />
             {BEFORE_AFTER.location}
           </p>
-          <p className="mt-4 text-[15px] text-dark-500">{r.beforeAfter.title}</p>
+          <p className="mt-4 text-[15px] text-dark-600">{r.beforeAfter.title}</p>
           <div className="mt-8">
             <ArrowLink href={lp(BEFORE_AFTER.projectHref)}>{r.beforeAfter.viewProject}</ArrowLink>
           </div>
@@ -352,7 +352,7 @@ export function HowItWorks() {
         <ol className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {steps.map((s) => (
             <li key={s.n} className="border-t-2 border-dark-900 pt-5">
-              <span className="font-display text-sm font-semibold text-gold-700">{s.n}</span>
+              <span className="font-display text-sm font-semibold text-gold-900">{s.n}</span>
               <h3 className="mt-2 text-xl font-display font-semibold text-dark-900">{s.title}</h3>
               <p className="mt-2 text-[17px] leading-relaxed text-dark-600">{s.text}</p>
             </li>
@@ -394,7 +394,7 @@ export function ReviewCards() {
                 “{rv.text.length > 220 ? `${rv.text.slice(0, 220).trimEnd()}…` : rv.text}”
               </blockquote>
               <p className="mt-6 font-semibold text-dark-900">{rv.name}</p>
-              <p className="text-[15px] text-dark-500">
+              <p className="text-[15px] text-dark-600">
                 {rv.location} · {rv.service}
               </p>
             </li>
@@ -430,7 +430,7 @@ export function ServiceAreas() {
               key={area}
               className="inline-flex items-center gap-2 rounded-full border border-dark-200 px-4 py-2 text-[15px] text-dark-700"
             >
-              <MapPin className="h-4 w-4 text-gold-600" aria-hidden="true" />
+              <MapPin className="h-4 w-4 text-gold-900" aria-hidden="true" />
               {area}
             </li>
           ))}

@@ -28,13 +28,13 @@ export function Testimonials() {
       <div className="container-custom">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+          <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
             {t.testimonials.badge}
           </span>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-display font-bold text-dark-900 mb-6">
             {t.testimonials.title}
           </h2>
-          <p className="text-lg text-dark-500">
+          <p className="text-lg text-dark-600">
             {t.testimonials.description}
           </p>
         </div>

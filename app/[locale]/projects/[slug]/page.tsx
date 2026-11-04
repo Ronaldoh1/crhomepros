@@ -192,19 +192,19 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
                   <h3 className="font-semibold text-dark-900 mb-4">Project Details</h3>
                   <dl className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-dark-500">Type</dt>
+                      <dt className="text-dark-600">Type</dt>
                       <dd className="font-medium text-dark-900">{project.type}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-dark-500">Location</dt>
+                      <dt className="text-dark-600">Location</dt>
                       <dd className="font-medium text-dark-900">{project.location}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-dark-500">Duration</dt>
+                      <dt className="text-dark-600">Duration</dt>
                       <dd className="font-medium text-dark-900">{project.duration}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-dark-500">Year</dt>
+                      <dt className="text-dark-600">Year</dt>
                       <dd className="font-medium text-dark-900">{project.year}</dd>
                     </div>
                   </dl>
@@ -232,7 +232,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               Ready to Transform Your Space?
             </h2>
-            <p className="text-lg text-dark-500 mb-8">
+            <p className="text-lg text-dark-600 mb-8">
               Get a free consultation and see what's possible for your home.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

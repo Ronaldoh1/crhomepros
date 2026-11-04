@@ -102,7 +102,7 @@ export default function ProjectsPage() {
             {/* Sidebar Categories */}
             <aside className="lg:w-64 flex-shrink-0">
               <div className="sticky top-24">
-                <h3 className="text-sm font-semibold text-dark-500 uppercase tracking-wider mb-4">
+                <h3 className="text-sm font-semibold text-dark-600 uppercase tracking-wider mb-4">
                   Categories
                 </h3>
                 <nav className="space-y-1">
@@ -141,7 +141,7 @@ export default function ProjectsPage() {
                         <h3 className="text-lg md:text-xl font-display font-semibold text-dark-900">
                           {project.title}
                         </h3>
-                        <p className="text-sm text-dark-500 mt-1">
+                        <p className="text-sm text-dark-600 mt-1">
                           {project.category} • {project.images.length} photos
                         </p>
                         {project.description && (
@@ -151,9 +151,9 @@ export default function ProjectsPage() {
                         )}
                       </div>
                       {isProjectExpanded(project.id) ? (
-                        <ChevronUp className="w-5 h-5 text-dark-400 flex-shrink-0 ml-4" />
+                        <ChevronUp className="w-5 h-5 text-dark-600 flex-shrink-0 ml-4" />
                       ) : (
-                        <ChevronDown className="w-5 h-5 text-dark-400 flex-shrink-0 ml-4" />
+                        <ChevronDown className="w-5 h-5 text-dark-600 flex-shrink-0 ml-4" />
                       )}
                     </button>
 
@@ -163,7 +163,7 @@ export default function ProjectsPage() {
                         {/* Before/After Slider (if project has before images) */}
                         {project.beforeImages && project.beforeImages.length > 0 && (
                           <div className="mb-6">
-                            <div className="text-sm font-semibold text-dark-500 uppercase tracking-wider mb-3">Before &amp; After</div>
+                            <div className="text-sm font-semibold text-dark-600 uppercase tracking-wider mb-3">Before &amp; After</div>
                             <BeforeAfterSlider
                               beforeImage={project.beforeImages[0]}
                               afterImage={project.images[0]}
@@ -189,7 +189,7 @@ export default function ProjectsPage() {
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement
                                   target.style.display = 'none'
-                                  target.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-dark-400 text-xs">Photo unavailable</div>'
+                                  target.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-dark-600 text-xs">Photo unavailable</div>'
                                 }}
                               />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
@@ -222,7 +222,7 @@ export default function ProjectsPage() {
 
               {filteredProjects.length === 0 && (
                 <div className="text-center py-12 bg-dark-50 rounded-xl">
-                  <p className="text-dark-500">No projects found in this category.</p>
+                  <p className="text-dark-600">No projects found in this category.</p>
                 </div>
               )}
             </div>

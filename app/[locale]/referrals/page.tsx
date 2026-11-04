@@ -135,13 +135,13 @@ export default function ReferralsPage() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               Reward Structure
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               Earn More for Bigger Projects
             </h2>
-            <p className="text-lg text-dark-500">
+            <p className="text-lg text-dark-600">
               The bigger the project your referral completes, the bigger your reward.
             </p>
           </div>
@@ -162,18 +162,18 @@ export default function ReferralsPage() {
                   </div>
                 )}
                 <div className="text-center">
-                  <p className="text-sm font-medium text-dark-500 mb-1">{tier.range}</p>
+                  <p className="text-sm font-medium text-dark-600 mb-1">{tier.range}</p>
                   <h3 className="text-lg font-display font-semibold text-dark-900 mb-4">
                     {tier.project}
                   </h3>
-                  <div className={`text-4xl font-bold mb-1 ${tier.highlight ? 'text-gold-600' : 'text-primary-700'}`}>
+                  <div className={`text-4xl font-bold mb-1 ${tier.highlight ? 'text-gold-900' : 'text-primary-700'}`}>
                     {tier.reward}
                   </div>
                   {tier.rewardType && (
-                    <p className="text-xs font-semibold text-gold-600 mb-3">{tier.rewardType}</p>
+                    <p className="text-xs font-semibold text-gold-900 mb-3">{tier.rewardType}</p>
                   )}
                   {!tier.rewardType && <div className="mb-3" />}
-                  <p className="text-sm text-dark-500">
+                  <p className="text-sm text-dark-600">
                     {tier.examples}
                   </p>
                 </div>
@@ -182,7 +182,7 @@ export default function ReferralsPage() {
           </div>
 
           <div className="mt-8 text-center">
-            <p className="text-dark-500">
+            <p className="text-dark-600">
               <Zap className="w-5 h-5 inline text-gold-500 mr-1" />
               <strong>Bonus:</strong> Refer 3+ people in a year and earn an extra $200!
             </p>
@@ -194,13 +194,13 @@ export default function ReferralsPage() {
       <section id="how-it-works" className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               Simple Process
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               How It Works
             </h2>
-            <p className="text-lg text-dark-500">
+            <p className="text-lg text-dark-600">
               Four easy steps to earning referral rewards.
             </p>
           </div>
@@ -226,7 +226,7 @@ export default function ReferralsPage() {
                   <h3 className="text-lg font-display font-semibold text-dark-900 mb-2">
                     {step.title}
                   </h3>
-                  <p className="text-dark-500 text-sm">
+                  <p className="text-dark-600 text-sm">
                     {step.description}
                   </p>
                 </div>
@@ -241,13 +241,13 @@ export default function ReferralsPage() {
         <div className="container-custom">
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-12">
-              <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
                 Submit a Referral
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
                 Refer Someone Now
               </h2>
-              <p className="text-lg text-dark-500">
+              <p className="text-lg text-dark-600">
                 Fill out the form below and we'll reach out to your referral within 24 hours.
               </p>
             </div>
@@ -284,7 +284,7 @@ export default function ReferralsPage() {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
                 Questions?
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">
@@ -296,7 +296,7 @@ export default function ReferralsPage() {
               {faqs.map((faq, i) => (
                 <div key={i} className="bg-white rounded-xl p-6 border border-dark-100">
                   <h3 className="font-semibold text-dark-900 mb-2">{faq.q}</h3>
-                  <p className="text-dark-500">{faq.a}</p>
+                  <p className="text-dark-600">{faq.a}</p>
                 </div>
               ))}
             </div>

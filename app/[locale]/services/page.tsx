@@ -57,8 +57,8 @@ export default function ServicesPage() {
                   <h3 className="text-xl font-display font-semibold text-dark-900 mb-3 group-hover:text-primary-800 transition-colors">
                     {service.name}
                   </h3>
-                  <p className="text-dark-500 mb-4">{service.shortDescription}</p>
-                  <div className="flex items-center justify-between text-sm text-dark-400 pt-4 border-t border-dark-100">
+                  <p className="text-dark-600 mb-4">{service.shortDescription}</p>
+                  <div className="flex items-center justify-between text-sm text-dark-600 pt-4 border-t border-dark-100">
                     <span>{service.priceRange}</span>
                     <span>{service.duration}</span>
                   </div>
@@ -84,7 +84,7 @@ export default function ServicesPage() {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
                 Why CR Home Pros?
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
@@ -139,10 +139,10 @@ export default function ServicesPage() {
             </div>
             <div>
               <h3 className="text-xl font-display font-bold text-emerald-800 mb-1">Eco-Friendly Options on Every Project</h3>
-              <p className="text-emerald-700 text-sm mb-2">
+              <p className="text-emerald-800 text-sm mb-2">
                 Low-VOC paints, Energy Star appliances, LED lighting, sustainable materials, and responsible waste handling are standard.
               </p>
-              <Link href="/en/green" className="text-emerald-600 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1">
+              <Link href="/en/green" className="text-emerald-800 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1">
                 Read our sustainability approach →
               </Link>
             </div>
@@ -151,14 +151,14 @@ export default function ServicesPage() {
       </section>
 
       {/* Emergency Services */}
-      <section className="py-16 bg-gradient-to-r from-red-600 to-red-700">
+      <section className="py-16 bg-red-800">
         <div className="container-custom">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-white">
             <div>
               <h3 className="text-2xl font-display font-semibold mb-2">🚨 Emergency Repairs Available</h3>
-              <p className="text-white/80">Water damage, roof leaks, or urgent repairs? We're on call 24/7.</p>
+              <p className="text-white">Water damage, roof leaks, or urgent repairs? We're on call 24/7.</p>
             </div>
-            <a href={formatPhoneLink(COMPANY.phone)} className="flex items-center gap-2 bg-white text-red-600 px-6 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">
+            <a href={formatPhoneLink(COMPANY.phone)} className="flex items-center gap-2 bg-white text-red-800 px-6 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">
               <Phone className="w-5 h-5" />
               Call Now: {COMPANY.phoneFormatted}
             </a>

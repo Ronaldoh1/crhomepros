@@ -62,8 +62,8 @@ export default function BlogPage() {
               <div>
                 <span className="text-sm font-medium text-primary-600">{getLocalizedCategory(featuredPost.category, locale)}</span>
                 <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mt-2 mb-4 group-hover:text-primary-800 transition-colors">{featuredPost.title}</h2>
-                <p className="text-dark-500 mb-6">{featuredPost.excerpt}</p>
-                <div className="flex items-center gap-6 text-sm text-dark-400">
+                <p className="text-dark-600 mb-6">{featuredPost.excerpt}</p>
+                <div className="flex items-center gap-6 text-sm text-dark-600">
                   <span className="flex items-center gap-1"><User className="w-4 h-4" />{featuredPost.author}</span>
                   <span className="flex items-center gap-1"><Calendar className="w-4 h-4" />{new Date(featuredPost.date).toLocaleDateString(dateFmt, { month: "short", day: "numeric", year: "numeric" })}</span>
                   <span className="flex items-center gap-1"><Clock className="w-4 h-4" />{featuredPost.readTime}</span>
@@ -97,8 +97,8 @@ export default function BlogPage() {
                   </div>
                   <div className="p-6">
                     <h3 className="text-lg font-display font-semibold text-dark-900 mb-2 group-hover:text-primary-800 transition-colors line-clamp-2">{post.title}</h3>
-                    <p className="text-dark-500 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
-                    <div className="flex items-center justify-between text-xs text-dark-400">
+                    <p className="text-dark-600 text-sm mb-4 line-clamp-2">{post.excerpt}</p>
+                    <div className="flex items-center justify-between text-xs text-dark-600">
                       <span>{new Date(post.date).toLocaleDateString(dateFmt, { month: "short", day: "numeric" })}</span>
                       <span>{post.readTime} {isEs ? "lectura" : "read"}</span>
                     </div>
@@ -108,7 +108,7 @@ export default function BlogPage() {
             </div>
           ) : (
             <div className="text-center py-12 bg-white rounded-xl">
-              <p className="text-dark-500">{isEs ? "No hay artículos en esta categoría." : "No posts found in this category."}</p>
+              <p className="text-dark-600">{isEs ? "No hay artículos en esta categoría." : "No posts found in this category."}</p>
             </div>
           )}
         </div>

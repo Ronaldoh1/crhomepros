@@ -74,7 +74,7 @@ export function ReferralForm() {
         <h3 className="text-xl font-semibold text-green-800 mb-2">
           Referral Submitted!
         </h3>
-        <p className="text-green-700 mb-4">
+        <p className="text-green-800 mb-4">
           Thank you! We'll reach out to your referral within 24 hours. Once their project is 
           complete, your reward will be on its way!
         </p>
@@ -270,7 +270,7 @@ export function ReferralForm() {
             </>
           )}
         </button>
-        <p className="text-sm text-dark-400 text-center mt-4">
+        <p className="text-sm text-dark-600 text-center mt-4">
           We'll reach out to your referral within 24 hours and keep you updated on the status.
         </p>
       </div>

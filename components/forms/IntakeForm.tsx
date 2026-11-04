@@ -212,7 +212,7 @@ export function IntakeForm() {
         <h2 className="text-2xl md:text-3xl font-display font-bold text-green-800 mb-4">
           Request Submitted!
         </h2>
-        <p className="text-green-700 text-lg mb-6">
+        <p className="text-green-800 text-lg mb-6">
           Thank you! We've received your project details and will contact you within 24 hours 
           to schedule your free consultation.
         </p>
@@ -226,7 +226,7 @@ export function IntakeForm() {
           </a>
           <a
             href="/projects"
-            className="btn bg-white text-green-700 border border-green-200 hover:bg-green-50 w-full sm:w-auto px-6 py-3"
+            className="btn bg-white text-green-800 border border-green-200 hover:bg-green-50 w-full sm:w-auto px-6 py-3"
           >
             Browse Our Work
           </a>
@@ -243,7 +243,7 @@ export function IntakeForm() {
           <span className="text-sm font-medium text-dark-600">
             Step {currentStep + 1} of {steps.length}
           </span>
-          <span className="text-sm text-dark-500">
+          <span className="text-sm text-dark-600">
             {Math.round(((currentStep + 1) / steps.length) * 100)}% complete
           </span>
         </div>
@@ -260,7 +260,7 @@ export function IntakeForm() {
         <h2 className="text-xl md:text-2xl font-display font-bold text-dark-900">
           {steps[currentStep].title}
         </h2>
-        <p className="text-dark-500">{steps[currentStep].description}</p>
+        <p className="text-dark-600">{steps[currentStep].description}</p>
       </div>
 
       {/* Banner Promo Badge */}
@@ -273,7 +273,7 @@ export function IntakeForm() {
             <p className="font-semibold text-sm" style={{ color: bannerConfig.accentColor }}>
               {bannerConfig.emoji} {(discountPercent || bannerConfig.discountPercent) > 0 ? (discountPercent || bannerConfig.discountPercent) + '% discount unlocked' : 'Special offer applied'}
             </p>
-            <p className="text-xs text-dark-500">Promo: {promoCode || bannerConfig.promoCode} — Carlos will review and discuss final details with you</p>
+            <p className="text-xs text-dark-600">Promo: {promoCode || bannerConfig.promoCode} — Carlos will review and discuss final details with you</p>
           </div>
         </div>
       )}
@@ -317,7 +317,7 @@ export function IntakeForm() {
                 ].map((method) => (
                   <label key={method.value} className="flex items-center gap-2 cursor-pointer bg-white border border-dark-200 rounded-lg px-3 py-2.5 hover:border-primary-400 transition-colors has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50">
                     <input {...register('preferredContact')} type="radio" value={method.value} className="text-primary-600" />
-                    <span className={cn('flex-shrink-0', method.value === 'whatsapp' ? 'text-green-500' : 'text-dark-500')}>{method.icon}</span>
+                    <span className={cn('flex-shrink-0', method.value === 'whatsapp' ? 'text-green-500' : 'text-dark-600')}>{method.icon}</span>
                     <span className="text-sm font-medium">{method.label}</span>
                   </label>
                 ))}
@@ -503,7 +503,7 @@ export function IntakeForm() {
             </div>
             <div>
               <label className="label">📸 Upload Photos of Your Project (Optional)</label>
-              <p className="text-sm text-dark-500 mb-2">Help us understand your project better — share photos of the area you want renovated.</p>
+              <p className="text-sm text-dark-600 mb-2">Help us understand your project better — share photos of the area you want renovated.</p>
               {uploadedPhotos.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {uploadedPhotos.map((file, i) => (
@@ -525,9 +525,9 @@ export function IntakeForm() {
                 </div>
               )}
               <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-dark-300 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-colors">
-                <Upload className="w-8 h-8 text-dark-400" />
+                <Upload className="w-8 h-8 text-dark-600" />
                 <span className="text-sm font-medium text-dark-600">Tap to upload photos</span>
-                <span className="text-xs text-dark-400">JPG, PNG up to 10MB each • Max 5 photos</span>
+                <span className="text-xs text-dark-600">JPG, PNG up to 10MB each • Max 5 photos</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -560,7 +560,7 @@ export function IntakeForm() {
               />
             </div>
             <div className="bg-gold-50 border border-gold-200 rounded-xl p-4">
-              <p className="text-gold-800 text-sm">
+              <p className="text-gold-900 text-sm">
                 <strong>What happens next?</strong> We'll review your project details and contact you within 
                 24 hours to schedule a free on-site consultation and provide a detailed estimate.
               </p>

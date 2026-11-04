@@ -73,24 +73,24 @@ export default function GreenPage() {
   return (
     <main className="page-top pb-16">
       {/* Hero */}
-      <section className="relative bg-gradient-to-br from-green-900 via-green-800 to-emerald-700 text-white py-20 overflow-hidden">
+      <section className="relative bg-gradient-to-br from-green-950 via-green-900 to-emerald-900 text-white py-20 overflow-hidden">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cpath d=\'M30 5C15 20 5 30 15 45c10-5 20-10 30-5C55 30 45 15 30 5z\' fill=\'white\' fill-opacity=\'0.3\'/%3E%3C/svg%3E")' }} />
         <div className="container-custom relative">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-              <Leaf className="w-4 h-4 text-green-300" />
+              <Leaf className="w-4 h-4 text-white" />
               <span className="text-sm font-medium">
                 {isEs ? 'Remodelación Consciente' : 'Mindful Remodeling'}
               </span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 leading-tight">
               {isEs ? (
-                <>Renueva Tu Espacio. <span className="text-green-300">Respeta el Planeta.</span></>
+                <>Renueva Tu Espacio. <span className="text-white">Respeta el Planeta.</span></>
               ) : (
-                <>Regenerate Your Space. <span className="text-green-300">Respect the Planet.</span></>
+                <>Regenerate Your Space. <span className="text-white">Respect the Planet.</span></>
               )}
             </h1>
-            <p className="text-lg md:text-xl text-white/80 mb-8 max-w-2xl">
+            <p className="text-lg md:text-xl text-white mb-8 max-w-2xl">
               {isEs
                 ? 'Renovaciones inteligentes que reducen costos de energía, mejoran la calidad del aire y aumentan el valor de tu hogar — todo mientras cuidas el medio ambiente.'
                 : "Smart renovations that cut energy costs, improve air quality, and increase your home's value — all while being kind to the earth."
@@ -116,7 +116,7 @@ export default function GreenPage() {
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">
               {isEs ? 'Servicios de Remodelación Verde' : 'Green Remodeling Services'}
             </h2>
-            <p className="text-dark-500 mt-4 max-w-2xl mx-auto">
+            <p className="text-dark-600 mt-4 max-w-2xl mx-auto">
               {isEs
                 ? 'Cada proyecto incluye opciones sostenibles que protegen tu bolsillo y el planeta.'
                 : 'Every project includes sustainable options that protect your wallet and the planet.'
@@ -127,15 +127,15 @@ export default function GreenPage() {
             {greenServices.map((service, i) => (
               <div key={i} className="group bg-white border border-dark-100 rounded-2xl p-6 hover:shadow-xl hover:border-green-200 transition-all duration-300">
                 <div className="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
-                  <service.icon className="w-6 h-6 text-green-700" />
+                  <service.icon className="w-6 h-6 text-green-800" />
                 </div>
                 <h3 className="text-lg font-bold text-dark-900 mb-2">
                   {isEs ? service.titleEs : service.title}
                 </h3>
-                <p className="text-dark-500 text-sm mb-4">
+                <p className="text-dark-600 text-sm mb-4">
                   {isEs ? service.descriptionEs : service.description}
                 </p>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-700 rounded-full text-xs font-semibold">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-800 rounded-full text-xs font-semibold">
                   <TreePine className="w-3.5 h-3.5" />
                   {service.savings}
                 </div>
@@ -148,13 +148,13 @@ export default function GreenPage() {
       {/* Tax Credits */}
       <section className="py-16 bg-dark-50">
         <div className="container-custom">
-          <div className="bg-gradient-to-br from-green-800 to-emerald-700 rounded-3xl p-8 md:p-12 text-white">
+          <div className="bg-gradient-to-br from-green-900 to-emerald-900 rounded-3xl p-8 md:p-12 text-white">
             <div className="grid md:grid-cols-2 gap-10 items-center">
               <div>
                 <h2 className="text-3xl font-display font-bold mb-4">
                   {isEs ? '💰 Créditos Fiscales 2025-2026' : '💰 2025-2026 Tax Credits'}
                 </h2>
-                <p className="text-white/80 mb-6">
+                <p className="text-white mb-6">
                   {isEs
                     ? 'El gobierno federal ofrece créditos fiscales significativos para mejoras de eficiencia energética. Te ayudamos a maximizar tus ahorros.'
                     : 'The federal government offers significant tax credits for energy efficiency upgrades. We help you maximize your savings.'
@@ -168,10 +168,10 @@ export default function GreenPage() {
                 {taxCredits.map((credit, i) => (
                   <div key={i} className="flex items-center justify-between bg-white/10 backdrop-blur-sm rounded-lg px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <CheckCircle className="w-4 h-4 text-green-300 flex-shrink-0" />
+                      <CheckCircle className="w-4 h-4 text-white flex-shrink-0" />
                       <span className="text-sm font-medium">{isEs ? credit.itemEs : credit.item}</span>
                     </div>
-                    <span className="text-green-300 font-bold text-sm whitespace-nowrap">{credit.credit}</span>
+                    <span className="text-white font-bold text-sm whitespace-nowrap">{credit.credit}</span>
                   </div>
                 ))}
               </div>
@@ -187,7 +187,7 @@ export default function GreenPage() {
           <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-4">
             {isEs ? '¿Listo para una Renovación Consciente?' : 'Ready for a Mindful Renovation?'}
           </h2>
-          <p className="text-dark-500 max-w-xl mx-auto mb-8">
+          <p className="text-dark-600 max-w-xl mx-auto mb-8">
             {isEs
               ? 'Cada proyecto que hacemos considera el impacto ambiental. Tu hogar puede ser hermoso Y responsable.'
               : "Every project we take on considers environmental impact. Your home can be beautiful AND responsible."
@@ -195,7 +195,7 @@ export default function GreenPage() {
           </p>
           <Link
             href={lp('/get-started')}
-            className="inline-flex items-center gap-2 bg-green-700 text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-green-600 transition-colors"
+            className="inline-flex items-center gap-2 bg-green-900 text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-green-800 transition-colors"
           >
             {isEs ? 'Solicita Tu Auditoría Eco' : 'Request Your Eco Audit'}
             <ArrowRight className="w-5 h-5" />

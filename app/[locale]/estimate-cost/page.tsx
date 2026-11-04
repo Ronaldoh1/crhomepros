@@ -31,14 +31,14 @@ export default function EstimateCostPage() {
         <h1 className="text-4xl md:text-5xl font-display font-bold text-dark-900 mb-4">
           {t.quoteEstimator.title}
         </h1>
-        <p className="text-xl text-dark-500 max-w-2xl mx-auto mb-4">
+        <p className="text-xl text-dark-600 max-w-2xl mx-auto mb-4">
           {t.quoteEstimator.description}
         </p>
         <div className="flex justify-center gap-3">
           <a href="/pricing" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full hover:bg-primary-100 transition-colors">
             📋 Full Pricing Guide
           </a>
-          <a href="/en/green" className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors">
+          <a href="/en/green" className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors">
             🌿 Eco-Friendly Options
           </a>
         </div>
@@ -89,7 +89,7 @@ export default function EstimateCostPage() {
                 <h3 className="font-display font-semibold text-dark-900 mb-1">
                   {isEs ? t2.labelEs : t2.label}
                 </h3>
-                <p className="text-sm text-dark-500">
+                <p className="text-sm text-dark-600">
                   {isEs ? t2.descriptionEs : t2.description}
                 </p>
                 <p className="text-lg font-bold text-primary-700 mt-3">
@@ -135,8 +135,8 @@ export default function EstimateCostPage() {
       {/* Disclaimer */}
       <section className="container-custom mb-16">
         <div className="max-w-2xl mx-auto bg-dark-50 rounded-xl p-6 flex gap-4">
-          <Info className="w-5 h-5 text-dark-400 mt-0.5 flex-shrink-0" />
-          <p className="text-sm text-dark-500">
+          <Info className="w-5 h-5 text-dark-600 mt-0.5 flex-shrink-0" />
+          <p className="text-sm text-dark-600">
             {t.quoteEstimator.disclaimer}
           </p>
         </div>
@@ -159,7 +159,7 @@ export default function EstimateCostPage() {
               href={formatWhatsAppLink(COMPANY.phone, isEs ? '¡Hola! Necesito un presupuesto para mi proyecto.' : 'Hi! I need a quote for my project.')}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#25D366] text-white font-medium hover:bg-[#20bd5a] transition-colors"
+              className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#075E54] text-white font-medium hover:bg-[#054a42] transition-colors"
             >
               <WhatsAppIcon className="w-5 h-5" />
               WhatsApp

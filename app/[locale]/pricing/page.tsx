@@ -33,14 +33,14 @@ export default function PricingDictionaryPage() {
         <h1 className="text-4xl md:text-5xl font-display font-bold text-dark-900 mb-4">
           Pricing Guide
         </h1>
-        <p className="text-xl text-dark-500 max-w-2xl mx-auto mb-6">
+        <p className="text-xl text-dark-600 max-w-2xl mx-auto mb-6">
           Transparent pricing for every service we offer. These are typical ranges for the DMV area — your
           actual quote depends on scope, materials, and site conditions.
         </p>
 
         {/* Search */}
         <div className="relative max-w-md mx-auto mb-4">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-400" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-dark-600" />
           <input
             type="text"
             value={searchQuery}
@@ -76,17 +76,17 @@ export default function PricingDictionaryPage() {
                       <h3 className="text-lg font-display font-bold text-dark-900">
                         {service.name}
                       </h3>
-                      <p className="text-sm text-dark-400">
+                      <p className="text-sm text-dark-600">
                         ${minPrice.toLocaleString()} – ${maxPrice.toLocaleString()}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="hidden md:inline text-sm text-dark-400">
+                    <span className="hidden md:inline text-sm text-dark-600">
                       {service.tiers.length} options
                     </span>
                     <ChevronDown
-                      className={`w-5 h-5 text-dark-400 transition-transform ${
+                      className={`w-5 h-5 text-dark-600 transition-transform ${
                         isExpanded ? 'rotate-180' : ''
                       }`}
                     />
@@ -104,13 +104,13 @@ export default function PricingDictionaryPage() {
                         >
                           <div>
                             <div className="font-semibold text-dark-800">{tier.label}</div>
-                            <div className="text-sm text-dark-500">{tier.description}</div>
+                            <div className="text-sm text-dark-600">{tier.description}</div>
                           </div>
                           <div className="text-right">
                             <div className="font-bold text-dark-900 text-lg">
                               ${tier.min.toLocaleString()}
                             </div>
-                            <div className="text-sm text-dark-400">
+                            <div className="text-sm text-dark-600">
                               to ${tier.max.toLocaleString()}
                             </div>
                           </div>
@@ -120,7 +120,7 @@ export default function PricingDictionaryPage() {
 
                     {/* Eco note for applicable services */}
                     {['kitchen', 'bathroom', 'basement', 'painting'].includes(service.id) && (
-                      <div className="mt-3 flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 px-3 py-2 rounded-lg">
+                      <div className="mt-3 flex items-center gap-2 text-sm text-emerald-800 bg-emerald-50 px-3 py-2 rounded-lg">
                         <Leaf className="w-4 h-4" />
                         Eco-friendly material options available for this service
                       </div>
@@ -133,7 +133,7 @@ export default function PricingDictionaryPage() {
         </div>
 
         {filteredServices.length === 0 && (
-          <div className="text-center py-12 text-dark-400">
+          <div className="text-center py-12 text-dark-600">
             No services match &ldquo;{searchQuery}&rdquo;. Try a different search term.
           </div>
         )}
@@ -145,10 +145,10 @@ export default function PricingDictionaryPage() {
           <div className="max-w-4xl mx-auto">
             <div className="bg-red-50 border border-red-200 rounded-2xl p-6 md:p-8">
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-red-600 rounded-xl flex items-center justify-center text-white text-xl">🚨</div>
+                <div className="w-12 h-12 bg-red-800 rounded-xl flex items-center justify-center text-white text-xl">🚨</div>
                 <div>
                   <h2 className="text-xl md:text-2xl font-display font-bold text-dark-900">24/7 Emergency Rates</h2>
-                  <p className="text-sm text-dark-500">Dispatch fee: ${EMERGENCY_RATES.calloutFee.min}–${EMERGENCY_RATES.calloutFee.max} (covers first hour)</p>
+                  <p className="text-sm text-dark-600">Dispatch fee: ${EMERGENCY_RATES.calloutFee.min}–${EMERGENCY_RATES.calloutFee.max} (covers first hour)</p>
                 </div>
               </div>
               <div className="grid sm:grid-cols-2 gap-3">
@@ -157,13 +157,13 @@ export default function PricingDictionaryPage() {
                     <span className="text-2xl">{cat.icon}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-semibold text-dark-900 truncate">{cat.name}</p>
-                      <p className="text-xs text-dark-500">{cat.rate}</p>
+                      <p className="text-xs text-dark-600">{cat.rate}</p>
                     </div>
                   </div>
                 ))}
               </div>
-              <p className="text-xs text-dark-400 mt-4 text-center">
-                Emergency rates apply to after-hours, weekends &amp; holidays. Call <a href={formatPhoneLink(COMPANY.phone)} className="text-red-600 font-semibold">{COMPANY.phoneFormatted}</a> now.
+              <p className="text-xs text-dark-600 mt-4 text-center">
+                Emergency rates apply to after-hours, weekends &amp; holidays. Call <a href={formatPhoneLink(COMPANY.phone)} className="text-red-800 font-semibold">{COMPANY.phoneFormatted}</a> now.
               </p>
             </div>
           </div>
@@ -199,7 +199,7 @@ export default function PricingDictionaryPage() {
       {/* Disclaimer */}
       <section className="container-custom mt-8">
         <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm text-dark-400">
+          <p className="text-sm text-dark-600">
             All prices are estimates for the Washington D.C., Maryland, and Virginia metro area.
             Actual costs vary based on project scope, materials, permits, site conditions, and
             complexity. Contact us for a free, detailed quote. Licensed MHIC #05-132359 &amp; #109350.

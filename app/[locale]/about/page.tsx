@@ -91,7 +91,7 @@ export default function AboutPage() {
                   </div>
                   <div>
                     <p className="font-bold text-dark-900">{COMPANY.license}</p>
-                    <p className="text-sm text-dark-500">Licensed Contractor/Salesman</p>
+                    <p className="text-sm text-dark-600">Licensed Contractor/Salesman</p>
                   </div>
                 </div>
               </div>
@@ -99,7 +99,7 @@ export default function AboutPage() {
 
             {/* Content */}
             <div>
-              <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
                 Meet the Founder
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
@@ -129,15 +129,15 @@ export default function AboutPage() {
               <div className="grid grid-cols-3 gap-6 mt-8 pt-8 border-t border-dark-100">
                 <div>
                   <p className="text-3xl font-bold text-primary-700">{COMPANY.yearsInBusiness}+</p>
-                  <p className="text-sm text-dark-500">Years Experience</p>
+                  <p className="text-sm text-dark-600">Years Experience</p>
                 </div>
                 <div>
                   <p className="text-3xl font-bold text-primary-700">500+</p>
-                  <p className="text-sm text-dark-500">Projects Done</p>
+                  <p className="text-sm text-dark-600">Projects Done</p>
                 </div>
                 <div>
                   <p className="text-3xl font-bold text-primary-700">100%</p>
-                  <p className="text-sm text-dark-500">Commitment</p>
+                  <p className="text-sm text-dark-600">Commitment</p>
                 </div>
               </div>
             </div>
@@ -149,7 +149,7 @@ export default function AboutPage() {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="max-w-2xl mb-10">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               The Crew
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-4">
@@ -177,13 +177,13 @@ export default function AboutPage() {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               Our Values
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               What We Stand For
             </h2>
-            <p className="text-lg text-dark-500">
+            <p className="text-lg text-dark-600">
               These aren't just words on a wall—they guide every decision we make and every project we take on.
             </p>
           </div>
@@ -200,7 +200,7 @@ export default function AboutPage() {
                 <h3 className="text-xl font-display font-semibold text-dark-900 mb-3">
                   {value.title}
                 </h3>
-                <p className="text-dark-500">
+                <p className="text-dark-600">
                   {value.description}
                 </p>
               </div>
@@ -213,7 +213,7 @@ export default function AboutPage() {
       <section className="section-padding bg-white">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
               Our Journey
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">
@@ -272,7 +272,7 @@ export default function AboutPage() {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <span className="inline-block text-sm font-semibold text-gold-600 tracking-wider uppercase mb-4">
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
                 Working with Us
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">
@@ -347,7 +347,7 @@ export default function AboutPage() {
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
               Ready to Start Your Project?
             </h2>
-            <p className="text-lg text-dark-500 mb-8">
+            <p className="text-lg text-dark-600 mb-8">
               Let's discuss your vision. Schedule a free consultation today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
