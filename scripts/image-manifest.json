@@ -365,6 +365,26 @@
       "file": "team-carlos-05-crew-drywall-job.jpg",
       "project": "about-page crew section",
       "role": "team"
+    },
+    {
+      "file": "recent-projects/deck-waterproofing/before-old-joists-removed.jpg",
+      "project": "deck-waterproofing",
+      "role": "before"
+    },
+    {
+      "file": "recent-projects/deck-waterproofing/during-waterproofing-membrane.jpg",
+      "project": "deck-waterproofing",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/deck-waterproofing/after-composite-deck.jpg",
+      "project": "deck-waterproofing",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/waterproofing-washington-dc/after-painted-living-area-long.jpg",
+      "project": "waterproofing-washington-dc",
+      "role": "after"
     }
   ]
 }

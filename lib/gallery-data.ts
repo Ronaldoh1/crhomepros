@@ -436,6 +436,7 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
     images: [
       '/images/recent-projects/waterproofing-washington-dc/after-living-area-windows-wide.jpg',
+      '/images/recent-projects/waterproofing-washington-dc/after-painted-living-area-long.jpg',
       '/images/2026-waterproofing-nwdc/after-living-room-full.jpeg',
       '/images/recent-projects/waterproofing-washington-dc/before-vapor-barrier-framing-room.jpg',
       '/images/recent-projects/waterproofing-washington-dc/before-foundation-drainage.jpg',
@@ -468,6 +469,20 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     featured: true,
     images: [
       '/images/recent-projects/kitchen-remodel/after-dark-cabinets-quartz-counters.jpg',
+    ],
+  },
+  {
+    id: 'deck-waterproofing',
+    title: 'Deck Waterproofing & New Composite Deck', // TODO: add city once Ron confirms
+    category: 'Deck',
+    description: 'Deck waterproofing and a new composite deck — the old deck boards removed down to the joists, a waterproofing membrane applied over the surface, and new gray composite decking installed up to the sliding doors. Before and after transformation.',
+    featured: true,
+    beforeImages: [
+      '/images/recent-projects/deck-waterproofing/before-old-joists-removed.jpg',
+    ],
+    images: [
+      '/images/recent-projects/deck-waterproofing/after-composite-deck.jpg',
+      '/images/recent-projects/deck-waterproofing/during-waterproofing-membrane.jpg',
     ],
   },
   {
