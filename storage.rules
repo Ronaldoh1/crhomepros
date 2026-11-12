@@ -1,6 +1,14 @@
 rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email.lower() in ['crhomepros@gmail.com', 'crgeneralservicesinc@gmail.com'];
+    }
+    // Carlos's private files (saved signature, documents): admin only
+    match /admin/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
     // Project images and site assets — public read
     match /projects/{allPaths=**} {
       allow read: if true;
