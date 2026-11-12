@@ -68,7 +68,12 @@ export default function InvoicesPage() {
       }
       const id = await saveDocument(docData)
       setSavedId(id)
-    } catch (err) { console.error('Save failed:', err) }
+    } catch (err) {
+      console.error('Save failed:', err)
+      alert(`The invoice could not be saved. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
+      setSaving(false)
+      throw err
+    }
     setSaving(false)
   }
 
@@ -85,9 +90,13 @@ export default function InvoicesPage() {
           items: inv.items, notes: inv.notes, taxRate: inv.taxRate,
         }})
       })
+      if (!res.ok) throw new Error(`PDF server error ${res.status}: ${(await res.text()).slice(0, 200)}`)
       const blob = await res.blob()
       window.open(URL.createObjectURL(blob), '_blank')
-    } catch (err) { console.error('PDF failed:', err) }
+    } catch (err) {
+      console.error('PDF failed:', err)
+      alert(`The PDF could not be created. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
+    }
     setGenerating(false)
   }
 
