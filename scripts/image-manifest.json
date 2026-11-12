@@ -435,6 +435,16 @@
       "file": "recent-projects/painting-kitchen-washington-dc/during-living-room-bay-windows.jpg",
       "project": "painting-kitchen-washington-dc",
       "role": "during"
+    },
+    {
+      "file": "recent-projects/painting-power-washing-maryland-brick/after-front-full.jpg",
+      "project": "painting-power-washing-maryland-brick",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/painting-power-washing-maryland-brick/after-front-side-angle.jpg",
+      "project": "painting-power-washing-maryland-brick",
+      "role": "after"
     }
   ]
 }

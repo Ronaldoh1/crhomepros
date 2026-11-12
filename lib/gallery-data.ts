@@ -415,6 +415,17 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'painting-power-washing-maryland-brick',
+    title: 'Exterior Painting & Power Washing — Maryland',
+    category: 'Painting',
+    description: 'Exterior painting and power washing on a brick colonial in Maryland — white trim, columns, balcony railing and dormers, with the brick, porch and driveway washed.',
+    featured: true,
+    images: [
+      '/images/recent-projects/painting-power-washing-maryland-brick/after-front-full.jpg',
+      '/images/recent-projects/painting-power-washing-maryland-brick/after-front-side-angle.jpg',
+    ],
+  },
+  {
     id: 'power-washing-painting-maryland',
     title: 'Power Washing & Exterior Painting — Maryland',
     category: 'Painting',
