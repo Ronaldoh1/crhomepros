@@ -502,9 +502,9 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
   },
   {
     id: 'kitchen-remodel',
-    title: 'Kitchen Remodel', // TODO: add city once Ron confirms
+    title: 'Kitchen Remodel — Maryland',
     category: 'Kitchen',
-    description: 'Kitchen remodel — dark shaker cabinets with brushed nickel pulls, white marble-look counters, a subway tile backsplash, wood-look plank tile floor, and stainless steel appliances.',
+    description: 'Kitchen remodel in Maryland — dark shaker cabinets with brushed nickel pulls, white marble-look counters, a subway tile backsplash, wood-look plank tile floor, and stainless steel appliances.',
     featured: true,
     images: [
       '/images/recent-projects/kitchen-remodel/after-dark-cabinets-quartz-counters.jpg',
