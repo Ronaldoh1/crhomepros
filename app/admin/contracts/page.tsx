@@ -8,6 +8,7 @@ import {
 import { SignaturePad } from '../_components/SignaturePad'
 import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
 
+import { adminFetch } from '@/lib/admin-api'
 import Link from 'next/link'
 
 interface ScopeItem { id: string; description: string }
@@ -89,7 +90,7 @@ export default function ContractsPage() {
       const third = Math.round(ct.totalAmount / 3 * 100) / 100
       setCt(prev => ({
         ...prev,
-        paymentStructure: `$${third.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD when client authorizes work agreement.\n$${third.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD due at project midpoint.\n$${third.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD upon completion and customer satisfaction.`
+        paymentStructure: `$${third.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD when client authorizes work agreement.\n$${third.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD due at project midpoint.\n$${third.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD upon completion and customer satisfaction.`
       }))
     }
   }, [ct.totalAmount])
@@ -126,48 +127,57 @@ export default function ContractsPage() {
     setSaving(false)
   }
 
+  // Everything the PDF needs, built from the form
+  const pdfData = () => ({
+    number: ct.isCorrection ? `${ct.number}-CORRECTED` : ct.number,
+    date: ct.date, clientName: ct.clientName, clientPhone: ct.clientPhone,
+    clientEmail: ct.clientEmail, clientAddress: ct.clientAddress,
+    propertyAddress: ct.propertyAddress,
+    projectName: ct.projectTitle || ct.projectName,
+    items: ct.scopeItems.map(s => ({ description: s.description })),
+    freeformDescription: ct.scopeNote ? `Note: ${ct.scopeNote}` : '',
+    paymentStructure: `${ct.paymentStructure}\n\nSum estimated to complete job: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`,
+    contractTerms: ct.contractTerms,
+    notes: ct.notes,
+    signatureData: ct.signatureData,
+  })
+
   const handleGeneratePdf = async () => {
     setGenerating(true)
     try {
-      const res = await fetch('/api/admin/generate-pdf', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'contract', data: {
-          number: ct.isCorrection ? `${ct.number}-CORRECTED` : ct.number,
-          date: ct.date, clientName: ct.clientName, clientPhone: ct.clientPhone,
-          clientEmail: ct.clientEmail, clientAddress: ct.clientAddress,
-          propertyAddress: ct.propertyAddress,
-          projectName: ct.projectTitle || ct.projectName,
-          items: ct.scopeItems.map(s => ({ description: s.description })),
-          freeformDescription: ct.scopeNote ? `Note: ${ct.scopeNote}` : '',
-          paymentStructure: `${ct.paymentStructure}\n\nSum estimated to complete job: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} USD`,
-          contractTerms: ct.contractTerms,
-          notes: ct.notes,
-        }})
-      })
-      const blob = await res.blob()
-      window.open(URL.createObjectURL(blob), '_blank')
-    } catch (err) { console.error('PDF failed:', err) }
+      const res = await adminFetch('/api/admin/generate-pdf', { type: 'contract', data: pdfData() })
+      window.open(URL.createObjectURL(await res.blob()), '_blank')
+    } catch (err) {
+      console.error('PDF failed:', err)
+      alert(`The PDF could not be created. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
+    }
     setGenerating(false)
   }
 
   const prepareEmail = () => {
     setEmailSubject(`Contract ${ct.number} — ${ct.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal estimated cost: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}\n\nPlease review, sign, and return at your earliest convenience. If you have any questions, don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+    setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal estimated cost: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nPlease review, sign, and return at your earliest convenience. If you have any questions, don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     setShowEmailModal(true)
   }
 
   const handleSend = async () => {
     setSending(true)
     try {
+      // Email goes out from the website with the PDF attached; Carlos gets a copy
+      await adminFetch('/api/admin/send-document', {
+        type: 'contract', data: pdfData(), to: ct.clientEmail.trim(), subject: emailSubject, message: emailBody,
+      })
       await handleSave('sent')
-      window.location.href = `mailto:${ct.clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
       setSent(true); setShowEmailModal(false)
-      setTimeout(() => setSent(false), 3000)
-    } catch (err) { console.error('Send failed:', err) }
+      setTimeout(() => setSent(false), 4000)
+    } catch (err) {
+      console.error('Send failed:', err)
+      alert(`The email was not sent.\n\n${err instanceof Error ? err.message : String(err)}`)
+    }
     setSending(false)
   }
 
-  const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+  const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const ic = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
   const dic = ic + " [color-scheme:dark]"
   const lc = "text-sm font-medium text-slate-300 mb-1.5 block"
@@ -313,7 +323,7 @@ export default function ContractsPage() {
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm">Cancel</button>
-              <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Open Email</button>
+              <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
             </div>
           </div>
         </div>

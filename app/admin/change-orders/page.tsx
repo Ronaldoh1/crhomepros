@@ -8,6 +8,7 @@ import {
 import { SignaturePad } from '../_components/SignaturePad'
 import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
 
+import { adminFetch } from '@/lib/admin-api'
 import Link from 'next/link'
 
 interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
@@ -44,8 +45,8 @@ export default function ChangeOrdersPage() {
   const [emailBody, setEmailBody] = useState('')
   const [tab, setTab] = useState<'edit' | 'preview'>('edit')
 
-  const changeTotal = co.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0)
-  const totalAfterChange = co.previousContractAmount + changeTotal - co.depositAmount
+  const changeTotal = Math.round(co.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0) * 100) / 100
+  const totalAfterChange = Math.round((co.previousContractAmount + changeTotal - co.depositAmount) * 100) / 100
 
   useEffect(() => {
     getSavedSignatureUrl().then(url => { if (url) setSavedSigUrl(url) })
@@ -105,44 +106,53 @@ export default function ChangeOrdersPage() {
     setSaving(false)
   }
 
+  // Everything the PDF needs, built from the form
+  const pdfData = () => ({
+    number: co.isCorrection ? `${co.number}-CORRECTED` : co.number,
+    date: co.date, clientName: co.clientName, clientPhone: co.clientPhone,
+    clientEmail: co.clientEmail, clientAddress: co.clientAddress,
+    propertyAddress: co.propertyAddress, projectName: co.projectName,
+    items: co.items, notes: co.notes,
+    paymentStructure: `DATE OF EXISTING CONTRACT: ${co.existingContractDate}\n\nPREVIOUS CONTRACT AMOUNT: $${co.previousContractAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nDEPOSIT: $${co.depositAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${co.depositNote}\n\nCHANGE ORDER TOTAL: $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\nTOTAL AFTER CHANGE ORDER: $${totalAfterChange.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+    signatureData: co.signatureData,
+  })
+
   const handleGeneratePdf = async () => {
     setGenerating(true)
     try {
-      const res = await fetch('/api/admin/generate-pdf', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'change-order', data: {
-          number: co.isCorrection ? `${co.number}-CORRECTED` : co.number,
-          date: co.date, clientName: co.clientName, clientPhone: co.clientPhone,
-          clientEmail: co.clientEmail, clientAddress: co.clientAddress,
-          propertyAddress: co.propertyAddress, projectName: co.projectName,
-          items: co.items, notes: co.notes,
-          paymentStructure: `DATE OF EXISTING CONTRACT: ${co.existingContractDate}\n\nPREVIOUS CONTRACT AMOUNT: $${co.previousContractAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })}\nDEPOSIT: $${co.depositAmount.toLocaleString('en-US', { minimumFractionDigits: 2 })} ${co.depositNote}\n\nCHANGE ORDER TOTAL: $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}\nTOTAL AFTER CHANGE ORDER: $${totalAfterChange.toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
-        }})
-      })
-      const blob = await res.blob()
-      window.open(URL.createObjectURL(blob), '_blank')
-    } catch (err) { console.error('PDF failed:', err) }
+      const res = await adminFetch('/api/admin/generate-pdf', { type: 'change-order', data: pdfData() })
+      window.open(URL.createObjectURL(await res.blob()), '_blank')
+    } catch (err) {
+      console.error('PDF failed:', err)
+      alert(`The PDF could not be created. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
+    }
     setGenerating(false)
   }
 
   const prepareEmail = () => {
     setEmailSubject(`Change Order ${co.number} — ${co.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${co.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Change Order ${co.number} for additional work on your project.\n\nThe change order total is $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+    setEmailBody(`Hi ${co.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Change Order ${co.number} for additional work on your project.\n\nThe change order total is $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     setShowEmailModal(true)
   }
 
   const handleSend = async () => {
     setSending(true)
     try {
+      // Email goes out from the website with the PDF attached; Carlos gets a copy
+      await adminFetch('/api/admin/send-document', {
+        type: 'change-order', data: pdfData(), to: co.clientEmail.trim(), subject: emailSubject, message: emailBody,
+      })
       await handleSave('sent')
-      window.location.href = `mailto:${co.clientEmail}?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`
       setSent(true); setShowEmailModal(false)
-      setTimeout(() => setSent(false), 3000)
-    } catch (err) { console.error('Send failed:', err) }
+      setTimeout(() => setSent(false), 4000)
+    } catch (err) {
+      console.error('Send failed:', err)
+      alert(`The email was not sent.\n\n${err instanceof Error ? err.message : String(err)}`)
+    }
     setSending(false)
   }
 
-  const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+  const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   const ic = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
   const dic = ic + " [color-scheme:dark]"
   const lc = "text-sm font-medium text-slate-300 mb-1.5 block"
@@ -211,7 +221,7 @@ export default function ChangeOrdersPage() {
                   <span className="text-slate-300 text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
                   <div className="flex-1 grid sm:grid-cols-[1fr_120px] gap-3">
                     <input value={item.description} onChange={e => updateItem(item.id, 'description', e.target.value)} placeholder="Power wash garage brick walls and columns" className={ic} />
-                    <input type="number" value={item.unitPrice || ''} onChange={e => updateItem(item.id, 'unitPrice', Number(e.target.value))} className={ic + ' text-right'} placeholder="$ 0.00" step="0.01" />
+                    <input type="number" value={item.unitPrice || ''} onChange={e => updateItem(item.id, 'unitPrice', Math.round(Number(e.target.value) * 100) / 100)} className={ic + ' text-right'} placeholder="$ 0.00" step="0.01" />
                   </div>
                   <button onClick={() => removeItem(item.id)} className="mt-3 text-red-400 hover:text-red-300 p-1" disabled={co.items.length === 1}><Trash2 className="w-4 h-4" /></button>
                 </div>
@@ -291,7 +301,7 @@ export default function ChangeOrdersPage() {
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm">Cancel</button>
-              <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} Open Email</button>
+              <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
             </div>
           </div>
         </div>
