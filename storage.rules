@@ -3,7 +3,8 @@ service firebase.storage {
   match /b/{bucket}/o {
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email.lower() in ['crhomepros@gmail.com', 'crgeneralservicesinc@gmail.com'];
+        && request.auth.token.email.lower() == 'crhomepros@gmail.com'
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
     }
     // Carlos's private files (saved signature, documents): admin only
     match /admin/{allPaths=**} {
@@ -12,21 +13,21 @@ service firebase.storage {
     // Project images and site assets — public read
     match /projects/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
     match /site/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
     // Documents (recommendation letters, etc.)
     match /docs/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
     // Testimonials
     match /testimonials/{allPaths=**} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if isAdmin();
     }
   }
 }

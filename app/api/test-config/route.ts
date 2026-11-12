@@ -102,7 +102,7 @@ export async function GET() {
       database_write_test: databaseWrite,
       storage_bucket: JSON.stringify(bucket) || '(not set)',
       storage_test: storageCheck,
-      admin_login_emails_set: !!env.NEXT_PUBLIC_ADMIN_EMAILS,
+      admin_login: 'Google sign-in, crhomepros@gmail.com only',
     },
     email: {
       provider: 'Resend',

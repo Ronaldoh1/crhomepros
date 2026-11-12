@@ -9,7 +9,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import {
   getAuth,
-  signInWithEmailAndPassword,
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
@@ -112,9 +111,11 @@ function ensureStorage(): FirebaseStorage | null {
 
 const googleProvider = new GoogleAuthProvider()
 
-const ADMIN_EMAILS = (process.env.NEXT_PUBLIC_ADMIN_EMAILS || 'crhomepros@gmail.com,crgeneralservicesinc@gmail.com')
-  .split(',')
-  .map(e => e.trim().toLowerCase())
+// The ONE account allowed into the admin area. Deliberately hard-coded (not a
+// setting) so no other account can be added by mistake. The same address is
+// enforced by the database and storage rules (firestore.rules, storage.rules).
+const ADMIN_EMAILS = ['crhomepros@gmail.com']
+googleProvider.setCustomParameters({ login_hint: ADMIN_EMAILS[0], prompt: 'select_account' })
 
 // Legacy single export for backward compat
 const ADMIN_EMAIL = ADMIN_EMAILS[0]
@@ -145,22 +146,12 @@ function requireStorage(): FirebaseStorage {
 
 // ── Auth Functions ──────────────────────────
 
-export async function loginWithEmail(email: string, password: string) {
-  const auth = requireAuth()
-  const cred = await signInWithEmailAndPassword(auth, email, password)
-  if (!isAdminEmail(cred.user.email)) {
-    await signOut(auth)
-    throw new Error('Unauthorized. This account is not an admin.')
-  }
-  return cred.user
-}
-
 export async function loginWithGoogle() {
   const auth = requireAuth()
   const result = await signInWithPopup(auth, googleProvider)
   if (!isAdminEmail(result.user.email)) {
     await signOut(auth)
-    throw new Error('Unauthorized. This Google account is not an admin.')
+    throw new Error(`This Google account is not authorized. Sign in with ${ADMIN_EMAILS[0]}.`)
   }
   return result.user
 }
@@ -182,7 +173,9 @@ export function onAuthChange(callback: (user: User | null) => void) {
 }
 
 export function isAdmin(user: User | null): boolean {
-  return isAdminEmail(user?.email)
+  // Must be the admin address AND signed in with Google (no password accounts)
+  const viaGoogle = !!user?.providerData.some((p) => p.providerId === 'google.com')
+  return isAdminEmail(user?.email) && viaGoogle
 }
 
 export const isFirebaseConfigured = () => !!firebaseConfig.apiKey

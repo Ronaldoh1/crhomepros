@@ -2,31 +2,14 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { loginWithEmail, loginWithGoogle, isFirebaseConfigured } from '@/lib/firebase-auth'
-import { Lock, Mail, Eye, EyeOff, Loader2, Shield, AlertTriangle } from 'lucide-react'
+import { loginWithGoogle, isFirebaseConfigured } from '@/lib/firebase-auth'
+import { Loader2, Shield, AlertTriangle } from 'lucide-react'
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPw, setShowPw] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
   const configured = isFirebaseConfigured()
-
-  const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-    try {
-      await loginWithEmail(email, password)
-      router.replace('/admin')
-    } catch (err: any) {
-      setError(err.message || 'Login failed. Check your credentials.')
-    } finally {
-      setLoading(false)
-    }
-  }
 
   const handleGoogleLogin = async () => {
     setError('')
@@ -59,7 +42,7 @@ export default function AdminLoginPage() {
               <Shield className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white">CR Home Pros</h1>
-            <p className="text-blue-200/60 text-sm mt-1">Admin Portal</p>
+            <p className="text-blue-100 text-sm mt-1">Admin Portal</p>
           </div>
 
           {/* Form */}
@@ -86,70 +69,17 @@ export default function AdminLoginPage() {
               </div>
             )}
 
-            <form onSubmit={handleEmailLogin} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-blue-200/80 mb-2">Email</label>
-                <div className="relative">
-                  <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/40" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    required
-                    className="w-full pl-11 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
-                    placeholder="Email address"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-blue-200/80 mb-2">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-300/40" />
-                  <input
-                    type={showPw ? 'text' : 'password'}
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    className="w-full pl-11 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all"
-                    placeholder="Password"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/80 transition-colors"
-                  >
-                    {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:from-blue-500 hover:to-indigo-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-                {loading ? 'Signing In...' : 'Sign In'}
-              </button>
-            </form>
-
-            {/* Divider */}
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-white/10" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-3 bg-transparent text-white/30">or</span>
-              </div>
-            </div>
+            <p className="mb-5 text-center text-sm text-blue-100">
+              Sign in with the CR Home Pros Google account.
+            </p>
 
             {/* Google Login */}
             <button
               onClick={handleGoogleLogin}
               disabled={loading}
-              className="w-full py-3 bg-white/5 border border-white/10 rounded-xl text-white/80 font-medium hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-white/20 disabled:opacity-50 transition-all flex items-center justify-center gap-3"
+              className="w-full py-3.5 bg-white text-slate-900 rounded-xl font-semibold hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-white/40 disabled:opacity-50 transition-all flex items-center justify-center gap-3"
             >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
                 <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -162,7 +92,7 @@ export default function AdminLoginPage() {
 
           {/* Footer */}
           <div className="px-8 pb-6 text-center">
-            <p className="text-xs text-white/20">
+            <p className="text-xs text-blue-100/80">
               Authorized personnel only • CRGS, Inc.
             </p>
           </div>

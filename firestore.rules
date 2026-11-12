@@ -4,11 +4,12 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Carlos's admin accounts (same list as NEXT_PUBLIC_ADMIN_EMAILS)
+    // The one admin account, signed in with Google (same as lib/firebase-auth.ts)
     function isAdmin() {
       return request.auth != null
         && request.auth.token.email_verified == true
-        && request.auth.token.email.lower() in ['crhomepros@gmail.com', 'crgeneralservicesinc@gmail.com'];
+        && request.auth.token.email.lower() == 'crhomepros@gmail.com'
+        && request.auth.token.firebase.sign_in_provider == 'google.com';
     }
 
     // Public website content: anyone can read, only admin can change
