@@ -8,9 +8,18 @@ import { GALLERY_PROJECTS as RAW_PROJECTS, GALLERY_CATEGORIES, type GalleryCateg
 import { resolveProjectImages } from '@/lib/resolve-images'
 import { BeforeAfterSlider } from '@/components/ui/BeforeAfterSlider'
 import { resolveImageUrl } from '@/lib/resolve-images'
+import { isCommittedPhoto } from '@/lib/sample-photos'
 
 // Resolve image URLs — uses Firebase Storage when configured, local paths otherwise
-const GALLERY_PROJECTS = RAW_PROJECTS.map(resolveProjectImages)
+// Only jobs with Carlos's real photos are shown. Older jobs whose photos
+// were in the offline storage bucket stay in gallery-data.ts and reappear
+// automatically once their photos are added under public/images/.
+const hasRealPhotos = (p: (typeof RAW_PROJECTS)[number]) => p.images.some(isCommittedPhoto)
+const GALLERY_PROJECTS = RAW_PROJECTS.filter(hasRealPhotos).map(resolveProjectImages)
+// Hide category filters that would be empty
+const VISIBLE_CATEGORIES = GALLERY_CATEGORIES.filter(
+  (c) => c === 'All' || GALLERY_PROJECTS.some((p) => p.category === c)
+)
 
 export default function ProjectsPage() {
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>('All')
@@ -106,7 +115,7 @@ export default function ProjectsPage() {
                   Categories
                 </h3>
                 <nav className="space-y-1">
-                  {GALLERY_CATEGORIES.map((cat) => (
+                  {VISIBLE_CATEGORIES.map((cat) => (
                     <button
                       key={cat}
                       onClick={() => setActiveCategory(cat)}
