@@ -39,13 +39,34 @@ for (const line of readFileSync(tmp, 'utf8').split('\n')) {
 }
 unlinkSync(tmp)
 
+// Web app config straight from Firebase (Vercel hides "Sensitive" values on pull)
+function firebaseJson(args) {
+  const r = spawnSync('npx', ['--yes', 'firebase-tools', ...args, '--project', PROJECT, '--json'], { encoding: 'utf8' })
+  try { return JSON.parse(r.stdout) } catch { return null }
+}
+let web = {}
+const apps = firebaseJson(['apps:list', 'WEB'])?.result || []
+if (apps.length === 0) {
+  console.error('No web app found in Firebase. In Firebase → Project settings → General → Your apps, click Add app → Web (name it "website"), then rerun.')
+  process.exit(1)
+}
+const cfg = firebaseJson(['apps:sdkconfig', 'WEB', apps[0].appId])?.result
+web = cfg?.sdkConfig || {}
+if (!web.apiKey && cfg?.fileContents) {
+  for (const k of ['apiKey', 'appId', 'messagingSenderId']) {
+    const m = cfg.fileContents.match(new RegExp(`"?${k}"?\\s*:\\s*"([^"]+)"`))
+    if (m) web[k] = m[1]
+  }
+}
+console.log(`Using Firebase web app: ${apps[0].displayName || apps[0].appId}`)
+
 const clean = (v) => (v || '').replace(/^"|"$/g, '').replace(/\\n/g, '').replace(/"/g, '').trim()
 
 // 2. Desired values
 const want = {
-  NEXT_PUBLIC_FIREBASE_API_KEY: clean(current.NEXT_PUBLIC_FIREBASE_API_KEY),
-  NEXT_PUBLIC_FIREBASE_APP_ID: clean(current.NEXT_PUBLIC_FIREBASE_APP_ID),
-  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: clean(current.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
+  NEXT_PUBLIC_FIREBASE_API_KEY: web.apiKey || clean(current.NEXT_PUBLIC_FIREBASE_API_KEY),
+  NEXT_PUBLIC_FIREBASE_APP_ID: web.appId || clean(current.NEXT_PUBLIC_FIREBASE_APP_ID),
+  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: web.messagingSenderId || clean(current.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID),
   NEXT_PUBLIC_FIREBASE_PROJECT_ID: PROJECT,
   NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: `${PROJECT}.firebaseapp.com`,
   NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: `${PROJECT}.firebasestorage.app`,
@@ -55,7 +76,7 @@ const want = {
 }
 for (const [k, v] of Object.entries(want)) {
   if (!v) {
-    console.error(`${k} is empty in Vercel. Copy it from Firebase → Project settings → Your apps → Config and add it in the Vercel dashboard, then rerun.`)
+    console.error(`${k} could not be read from Firebase or Vercel. Make sure "npx firebase-tools login:list" shows crhomepros@gmail.com, then rerun.`)
     process.exit(1)
   }
 }
