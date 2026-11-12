@@ -370,6 +370,7 @@ export function ReviewCards() {
   const r = useTranslation().redesign
   const lp = useLocalePath()
   const reviews = TESTIMONIALS.slice(0, 3)
+  const { locale } = useLocale()
   return (
     <section className="bg-white py-20 md:py-28">
       <div className="container-custom">
@@ -378,6 +379,9 @@ export function ReviewCards() {
           title={r.reviews.title}
           action={<ArrowLink href={lp('/reviews')}>{r.reviews.readAll}</ArrowLink>}
         />
+        {locale === 'es' && (
+          <p className="-mt-6 mb-8 text-[15px] text-dark-600">Reseñas originales en inglés, tal como las escribieron nuestros clientes.</p>
+        )}
         <ul className="grid gap-6 md:grid-cols-3">
           {reviews.map((rv) => (
             <li key={rv.id} className="flex flex-col rounded-xl border border-dark-100 p-7">

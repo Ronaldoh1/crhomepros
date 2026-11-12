@@ -33,15 +33,15 @@ export function LanguageSwitcher({ className }: { className?: string }) {
 
   // Get current path without locale prefix
   const getToggleHref = () => {
-    if (typeof window === 'undefined') return locale === 'en' ? '/es' : '/'
+    if (typeof window === 'undefined') return locale === 'en' ? '/es' : '/en'
     const path = window.location.pathname
     const cleanPath = path.replace(/^\/(en|es)/, '') || '/'
-    return locale === 'en' ? `/es${cleanPath}` : cleanPath
+    return locale === 'en' ? `/es${cleanPath === '/' ? '' : cleanPath}` : `/en${cleanPath === '/' ? '' : cleanPath}`
   }
 
   return (
     <a
-      href={locale === 'en' ? '/es' : '/'}
+      href={getToggleHref().replace(/^\/$/, '/en')}
       className={className}
     >
       {locale === 'en' ? '🌐 Español' : '🌐 English'}

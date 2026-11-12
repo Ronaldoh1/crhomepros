@@ -75,7 +75,10 @@ export function Navbar() {
     { key: 'contact', label: r.nav.contact, href: lp('/contact') },
   ]
 
-  const otherLocaleHref = locale === 'en' ? '/es' : '/'
+  // Language switch keeps the visitor on the same page. /en/... is handled
+  // by the middleware, which remembers English and drops the prefix.
+  const barePath = (pathname || '/').replace(/^\/(en|es)(?=\/|$)/, '') || '/'
+  const otherLocaleHref = locale === 'en' ? `/es${barePath === '/' ? '' : barePath}` : `/en${barePath === '/' ? '' : barePath}`
 
   // Publish the header's live height (banner + rows) so pages can sit right under it
   useEffect(() => {

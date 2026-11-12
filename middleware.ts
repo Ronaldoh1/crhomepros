@@ -35,31 +35,38 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // Check if locale prefix exists
-  const pathnameHasLocale = i18n.locales.some(
-    (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
-  )
-
-  if (pathnameHasLocale) {
-    return NextResponse.next()
+  const COOKIE = 'NEXT_LOCALE'
+  const ONE_YEAR = 60 * 60 * 24 * 365
+  const remember = (res: NextResponse, locale: string) => {
+    res.cookies.set(COOKIE, locale, { path: '/', maxAge: ONE_YEAR, sameSite: 'lax' })
+    return res
   }
 
-  // Redirect to locale-prefixed path
-  // Default: English visitors get /en/..., Spanish get /es/...
-  // But for root path, default locale doesn't redirect (keeps clean URLs)
-  const locale = getLocale(request)
+  // /es/... : Spanish. Remember it so the bare site opens in Spanish next time.
+  if (pathname === '/es' || pathname.startsWith('/es/')) {
+    return remember(NextResponse.next(), 'es')
+  }
 
-  // For the default locale (en), rewrite instead of redirect to keep clean URLs
-  if (locale === i18n.defaultLocale) {
+  // /en/... : the "English" switch. Remember English and send the visitor to
+  // the clean URL (English pages have no /en prefix).
+  if (pathname === '/en' || pathname.startsWith('/en/')) {
     const url = request.nextUrl.clone()
-    url.pathname = `/en${pathname}`
-    return NextResponse.rewrite(url)
+    url.pathname = pathname.replace(/^\/en/, '') || '/'
+    return remember(NextResponse.redirect(url), 'en')
   }
 
-  // For non-default locales, redirect so the URL shows /es/...
+  // No prefix: use the saved choice. Spanish visitors go back to /es/...,
+  // everyone else gets English (first-time visitors default to English).
+  const saved = request.cookies.get(COOKIE)?.value
+  if (saved === 'es') {
+    const url = request.nextUrl.clone()
+    url.pathname = `/es${pathname === '/' ? '' : pathname}`
+    return NextResponse.redirect(url)
+  }
+
   const url = request.nextUrl.clone()
-  url.pathname = `/${locale}${pathname}`
-  return NextResponse.redirect(url)
+  url.pathname = `/en${pathname}`
+  return NextResponse.rewrite(url)
 }
 
 export const config = {
