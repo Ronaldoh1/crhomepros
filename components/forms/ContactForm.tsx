@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -9,18 +9,22 @@ import { cn } from '@/lib/utils'
 import { SERVICES, COMPANY } from '@/lib/constants'
 import { formatWhatsAppLink } from '@/lib/utils'
 import { trackFormSubmission } from '@/lib/analytics'
+import { useLocale } from '@/lib/i18n/provider'
 
-const contactSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
-  email: z.string().email('Please enter a valid email'),
-  phone: z.string().min(10, 'Please enter a valid phone number'),
+const makeContactSchema = (es: boolean) => z.object({
+  name: z.string().min(2, es ? 'El nombre debe tener al menos 2 caracteres' : 'Name must be at least 2 characters'),
+  email: z.string().email(es ? 'Por favor, ingrese un correo electrónico válido' : 'Please enter a valid email'),
+  phone: z.string().min(10, es ? 'Por favor, ingrese un número de teléfono válido' : 'Please enter a valid phone number'),
   service: z.string().optional(),
-  message: z.string().min(10, 'Message must be at least 10 characters'),
+  message: z.string().min(10, es ? 'El mensaje debe tener al menos 10 caracteres' : 'Message must be at least 10 characters'),
 })
 
-type ContactFormData = z.infer<typeof contactSchema>
+type ContactFormData = z.infer<ReturnType<typeof makeContactSchema>>
 
 export function ContactForm() {
+  const { locale } = useLocale()
+  const es = locale === 'es'
+  const contactSchema = useMemo(() => makeContactSchema(es), [es])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [error, setError] = useState('')
@@ -56,7 +60,7 @@ export function ContactForm() {
       setTimeout(() => setIsSuccess(false), 10000)
     } catch (err: any) {
       setIsSubmitting(false)
-      setError('Something went wrong. Please try calling us directly.')
+      setError(es ? 'Algo salió mal. Por favor, llámenos directamente.' : 'Something went wrong. Please try calling us directly.')
       console.error('Contact form error:', err)
     }
   }
@@ -67,19 +71,19 @@ export function ContactForm() {
         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
           <CheckCircle className="w-8 h-8 text-green-600" />
         </div>
-        <h3 className="text-xl font-semibold text-green-800 mb-2">Message Sent!</h3>
+        <h3 className="text-xl font-semibold text-green-800 mb-2">{es ? '¡Mensaje Enviado!' : 'Message Sent!'}</h3>
         <p className="text-green-800 mb-4">
-          Thank you for reaching out. We'll get back to you within 24 hours.
+          {es ? 'Gracias por comunicarse con nosotros. Le responderemos en menos de 24 horas.' : "Thank you for reaching out. We'll get back to you within 24 hours."}
         </p>
         <p className="text-sm text-green-600">
-          Need a faster response?{' '}
+          {es ? '¿Necesita una respuesta más rápida?' : 'Need a faster response?'}{' '}
           <a
-            href={formatWhatsAppLink(COMPANY.phone, "Hi! I just submitted a contact form on your website.")}
+            href={formatWhatsAppLink(COMPANY.phone, es ? '¡Hola! Acabo de enviar un formulario de contacto en su sitio web.' : "Hi! I just submitted a contact form on your website.")}
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold underline"
           >
-            Message us on WhatsApp →
+            {es ? 'Escríbanos por WhatsApp →' : 'Message us on WhatsApp →'}
           </a>
         </p>
       </div>
@@ -97,12 +101,12 @@ export function ContactForm() {
       {/* Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-dark-700 mb-1.5">
-          Your Name <span className="text-red-500">*</span>
+          {es ? 'Su Nombre' : 'Your Name'} <span className="text-red-500">*</span>
         </label>
         <input
           id="name"
           type="text"
-          placeholder="John Smith"
+          placeholder={es ? 'Juan Pérez' : 'John Smith'}
           {...register('name')}
           className={cn(
             'w-full px-4 py-3 rounded-xl border bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/20',
@@ -116,12 +120,12 @@ export function ContactForm() {
       <div className="grid md:grid-cols-2 gap-4">
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-dark-700 mb-1.5">
-            Email <span className="text-red-500">*</span>
+            {es ? 'Correo Electrónico' : 'Email'} <span className="text-red-500">*</span>
           </label>
           <input
             id="email"
             type="email"
-            placeholder="john@example.com"
+            placeholder={es ? 'juan@ejemplo.com' : 'john@example.com'}
             {...register('email')}
             className={cn(
               'w-full px-4 py-3 rounded-xl border bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/20',
@@ -132,7 +136,7 @@ export function ContactForm() {
         </div>
         <div>
           <label htmlFor="phone" className="block text-sm font-medium text-dark-700 mb-1.5">
-            Phone <span className="text-red-500">*</span>
+            {es ? 'Teléfono' : 'Phone'} <span className="text-red-500">*</span>
           </label>
           <input
             id="phone"
@@ -151,16 +155,16 @@ export function ContactForm() {
       {/* Service */}
       <div>
         <label htmlFor="service" className="block text-sm font-medium text-dark-700 mb-1.5">
-          Service Interested In
+          {es ? 'Servicio de Interés' : 'Service Interested In'}
         </label>
         <select
           id="service"
           {...register('service')}
           className="w-full px-4 py-3 rounded-xl border border-dark-200 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500"
         >
-          <option value="">Select a service (optional)</option>
+          <option value="">{es ? 'Seleccione un servicio (opcional)' : 'Select a service (optional)'}</option>
           {SERVICES.map((s) => (
-            <option key={s.id} value={s.name}>{s.name}</option>
+            <option key={s.id} value={s.name}>{es ? s.nameEs : s.name}</option>
           ))}
         </select>
       </div>
@@ -168,12 +172,12 @@ export function ContactForm() {
       {/* Message */}
       <div>
         <label htmlFor="message" className="block text-sm font-medium text-dark-700 mb-1.5">
-          Message <span className="text-red-500">*</span>
+          {es ? 'Mensaje' : 'Message'} <span className="text-red-500">*</span>
         </label>
         <textarea
           id="message"
           rows={5}
-          placeholder="Tell us about your project..."
+          placeholder={es ? 'Cuéntenos sobre su proyecto...' : 'Tell us about your project...'}
           {...register('message')}
           className={cn(
             'w-full px-4 py-3 rounded-xl border bg-white transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500/20 resize-y',
@@ -192,18 +196,18 @@ export function ContactForm() {
         {isSubmitting ? (
           <>
             <Loader2 className="w-5 h-5 animate-spin" />
-            Sending...
+            {es ? 'Enviando...' : 'Sending...'}
           </>
         ) : (
           <>
             <Send className="w-5 h-5" />
-            Send Message
+            {es ? 'Enviar Mensaje' : 'Send Message'}
           </>
         )}
       </button>
 
       <p className="text-center text-sm text-dark-600">
-        We typically respond within 24 hours.
+        {es ? 'Normalmente respondemos en menos de 24 horas.' : 'We typically respond within 24 hours.'}
       </p>
     </form>
   )

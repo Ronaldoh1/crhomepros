@@ -4,19 +4,29 @@ import { Shield, Clock, Phone, CheckCircle } from 'lucide-react'
 import { COMPANY } from '@/lib/constants'
 import { IntakeForm } from '@/components/forms/IntakeForm'
 
-export const metadata: Metadata = {
-  title: 'Get Started - Free Estimate',
-  description: 'Request a free home improvement estimate from CR Home Pros. Fill out our simple form and get a consultation within 24 hours.',
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+  if (params.locale === 'es') {
+    return {
+      title: 'Comenzar - Estimado Gratuito',
+      description: 'Solicite un estimado gratuito para mejorar su hogar con CR Home Pros. Llene nuestro sencillo formulario y reciba una consulta en menos de 24 horas.',
+    }
+  }
+  return {
+    title: 'Get Started - Free Estimate',
+    description: 'Request a free home improvement estimate from CR Home Pros. Fill out our simple form and get a consultation within 24 hours.',
+  }
 }
 
-const benefits = [
-  { icon: CheckCircle, text: 'Free, no-obligation estimate' },
-  { icon: Clock, text: 'Response within 24 hours' },
-  { icon: Shield, text: 'Licensed & insured (MHIC #05-132359)' },
-  { icon: Phone, text: 'Bilingual team available' },
+const getBenefits = (es: boolean) => [
+  { icon: CheckCircle, text: es ? 'Estimado gratuito y sin compromiso' : 'Free, no-obligation estimate' },
+  { icon: Clock, text: es ? 'Respuesta en menos de 24 horas' : 'Response within 24 hours' },
+  { icon: Shield, text: es ? 'Con licencia y asegurados (MHIC #05-132359)' : 'Licensed & insured (MHIC #05-132359)' },
+  { icon: Phone, text: es ? 'Equipo bilingüe disponible' : 'Bilingual team available' },
 ]
 
-export default function GetStartedPage() {
+export default function GetStartedPage({ params }: { params: { locale: string } }) {
+  const es = params.locale === 'es'
+  const benefits = getBenefits(es)
   return (
     <>
       {/* Hero */}
@@ -25,17 +35,21 @@ export default function GetStartedPage() {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
-              Free Consultation
+              {es ? 'Consulta Gratuita' : 'Free Consultation'}
             </span>
             <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-6">
-              Let's Start Your{' '}
+              {es ? 'Comencemos Su' : "Let's Start Your"}{' '}
               <span className="text-gold-400">
-                Project
+                {es ? 'Proyecto' : 'Project'}
               </span>
             </h1>
             <p className="text-xl text-white/90 leading-relaxed mb-8">
-              Tell us about your project and we'll provide a free estimate within 24 hours. 
-              No obligation, no pressure—just honest advice.
+              {es ? (
+                <>Cuéntenos sobre su proyecto y le daremos un estimado gratuito en menos de 24 horas. Sin compromiso, sin presión: solo consejos honestos.</>
+              ) : (
+                <>Tell us about your project and we'll provide a free estimate within 24 hours. 
+              No obligation, no pressure—just honest advice.</>
+              )}
             </p>
             
             {/* Trust badges */}
@@ -67,11 +81,11 @@ export default function GetStartedPage() {
         <div className="container-custom">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-center">
             <p className="text-dark-600">
-              <strong className="text-dark-700">{COMPANY.projectsCompleted}</strong> projects completed
+              <strong className="text-dark-700">{COMPANY.projectsCompleted}</strong> {es ? 'proyectos completados' : 'projects completed'}
             </p>
             <span className="hidden md:block text-dark-300">•</span>
             <p className="text-dark-600">
-              <strong className="text-dark-700">{COMPANY.yearsInBusiness}+</strong> years experience
+              <strong className="text-dark-700">{COMPANY.yearsInBusiness}+</strong> {es ? 'años de experiencia' : 'years experience'}
             </p>
             <span className="hidden md:block text-dark-300">•</span>
             <p className="text-dark-600">

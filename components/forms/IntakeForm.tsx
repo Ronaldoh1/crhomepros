@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -11,29 +11,54 @@ import { useSearchParams } from 'next/navigation'
 import { getBannerById, isBundleLead, getServiceDiscount, DEFAULT_BANNERS, type BannerConfig } from '@/lib/banners'
 import { Tag, Package, Sparkles } from 'lucide-react'
 import { SERVICES, BUDGET_RANGES, TIMELINE_OPTIONS, REFERRAL_SOURCES, COMPANY } from '@/lib/constants'
+import { useLocale } from '@/lib/i18n/provider'
 
-const intakeSchema = z.object({
+// Spanish display labels only — submitted values stay in English for the backend/admin
+const TIMELINE_ES: Record<string, string> = {
+  'ASAP - Emergency': 'Lo antes posible - Emergencia',
+  'Within 1-3 months': 'En 1 a 3 meses',
+  '3-6 months': 'En 3 a 6 meses',
+  '6+ months': 'En más de 6 meses',
+  'Just exploring options': 'Solo estoy explorando opciones',
+}
+const BUDGET_ES: Record<string, string> = {
+  'Under $10,000': 'Menos de $10,000',
+  '$100,000+': 'Más de $100,000',
+  'Not sure yet': 'Aún no estoy seguro',
+}
+const REFERRAL_ES: Record<string, string> = {
+  'Google Search': 'Búsqueda en Google',
+  'Friend/Family Referral': 'Recomendación de un amigo o familiar',
+  'Saw Our Truck': 'Vi su camioneta',
+  'Social Media': 'Redes sociales',
+  'Home Advisor': 'Home Advisor',
+  'Drove By a Job Site': 'Pasé por una de sus obras',
+  'Repeat Client': 'Ya soy cliente',
+  'Other': 'Otro',
+}
+
+const makeIntakeSchema = (es: boolean) => z.object({
   // Step 1: Contact
-  firstName: z.string().min(2, 'First name is required'),
-  lastName: z.string().min(2, 'Last name is required'),
-  email: z.string().email('Valid email required'),
-  phone: z.string().min(10, 'Valid phone required'),
+  firstName: z.string().min(2, es ? 'El nombre es obligatorio' : 'First name is required'),
+  lastName: z.string().min(2, es ? 'El apellido es obligatorio' : 'Last name is required'),
+  email: z.string().email(es ? 'Ingrese un correo electrónico válido' : 'Valid email required'),
+  phone: z.string().min(10, es ? 'Ingrese un teléfono válido' : 'Valid phone required'),
   preferredContact: z.enum(['phone', 'email', 'text', 'whatsapp']),
   
   // Step 2: Location
-  address: z.string().min(5, 'Address is required'),
-  city: z.string().min(2, 'City is required'),
-  state: z.string().min(2, 'State is required'),
-  zip: z.string().min(5, 'ZIP code is required'),
+  address: z.string().min(5, es ? 'La dirección es obligatoria' : 'Address is required'),
+  city: z.string().min(2, es ? 'La ciudad es obligatoria' : 'City is required'),
+  state: z.string().min(2, es ? 'El estado es obligatorio' : 'State is required'),
+  zip: z.string().min(5, es ? 'El código postal es obligatorio' : 'ZIP code is required'),
   propertyType: z.enum(['single-family', 'townhouse', 'condo', 'multi-family', 'commercial']),
   
   // Step 3: Project
-  services: z.array(z.string()).min(1, 'Select at least one service'),
-  projectDescription: z.string().min(20, 'Please describe your project'),
+  services: z.array(z.string()).min(1, es ? 'Seleccione al menos un servicio' : 'Select at least one service'),
+  projectDescription: z.string().min(20, es ? 'Por favor, describa su proyecto' : 'Please describe your project'),
   
   // Step 4: Timeline & Budget
-  timeline: z.string().min(1, 'Please select a timeline'),
-  budget: z.string().min(1, 'Please select a budget range'),
+  timeline: z.string().min(1, es ? 'Por favor, seleccione cuándo desea comenzar' : 'Please select a timeline'),
+  budget: z.string().min(1, es ? 'Por favor, seleccione un rango de presupuesto' : 'Please select a budget range'),
   flexibleBudget: z.boolean().optional(),
   
   // Step 5: Additional
@@ -41,9 +66,9 @@ const intakeSchema = z.object({
   additionalNotes: z.string().optional(),
 })
 
-type IntakeFormData = z.infer<typeof intakeSchema>
+type IntakeFormData = z.infer<ReturnType<typeof makeIntakeSchema>>
 
-const steps = [
+const STEPS_EN = [
   { title: 'Contact Info', description: 'How can we reach you?' },
   { title: 'Location', description: 'Where is your project?' },
   { title: 'Project Details', description: 'What do you need done?' },
@@ -51,7 +76,19 @@ const steps = [
   { title: 'Almost Done!', description: 'Just a few more details' },
 ]
 
+const STEPS_ES = [
+  { title: 'Información de Contacto', description: '¿Cómo podemos comunicarnos con usted?' },
+  { title: 'Ubicación', description: '¿Dónde se encuentra su proyecto?' },
+  { title: 'Detalles del Proyecto', description: '¿Qué trabajo necesita?' },
+  { title: 'Plazo y Presupuesto', description: '¿Cuándo y cuánto?' },
+  { title: '¡Casi Listo!', description: 'Solo unos detalles más' },
+]
+
 export function IntakeForm() {
+  const { locale } = useLocale()
+  const es = locale === 'es'
+  const steps = es ? STEPS_ES : STEPS_EN
+  const intakeSchema = useMemo(() => makeIntakeSchema(es), [es])
   // Banner/promo awareness
   const searchParams = useSearchParams()
   const bannerId = searchParams?.get('banner') || null
@@ -199,7 +236,7 @@ export function IntakeForm() {
     } catch (err) {
       console.error('Lead form error:', err)
       setIsSubmitting(false)
-      alert('Something went wrong. Please try calling us directly.')
+      alert(es ? 'Algo salió mal. Por favor, llámenos directamente.' : 'Something went wrong. Please try calling us directly.')
     }
   }
 
@@ -210,11 +247,15 @@ export function IntakeForm() {
           <CheckCircle className="w-10 h-10 text-green-600" />
         </div>
         <h2 className="text-2xl md:text-3xl font-display font-bold text-green-800 mb-4">
-          Request Submitted!
+          {es ? '¡Solicitud Enviada!' : 'Request Submitted!'}
         </h2>
         <p className="text-green-800 text-lg mb-6">
-          Thank you! We've received your project details and will contact you within 24 hours 
-          to schedule your free consultation.
+          {es ? (
+            <>¡Gracias! Hemos recibido los detalles de su proyecto y lo contactaremos en menos de 24 horas para programar su consulta gratuita.</>
+          ) : (
+            <>Thank you! We've received your project details and will contact you within 24 hours 
+          to schedule your free consultation.</>
+          )}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <a
@@ -222,13 +263,13 @@ export function IntakeForm() {
             className="btn bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto px-6 py-3"
           >
             <Phone className="w-5 h-5 mr-2" />
-            Call Us Now
+            {es ? 'Llámenos Ahora' : 'Call Us Now'}
           </a>
           <a
-            href="/projects"
+            href={es ? '/es/projects' : '/projects'}
             className="btn bg-white text-green-800 border border-green-200 hover:bg-green-50 w-full sm:w-auto px-6 py-3"
           >
-            Browse Our Work
+            {es ? 'Vea Nuestros Trabajos' : 'Browse Our Work'}
           </a>
         </div>
       </div>
@@ -241,10 +282,10 @@ export function IntakeForm() {
       <div className="bg-dark-50 px-6 py-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-medium text-dark-600">
-            Step {currentStep + 1} of {steps.length}
+            {es ? 'Paso' : 'Step'} {currentStep + 1} {es ? 'de' : 'of'} {steps.length}
           </span>
           <span className="text-sm text-dark-600">
-            {Math.round(((currentStep + 1) / steps.length) * 100)}% complete
+            {Math.round(((currentStep + 1) / steps.length) * 100)}% {es ? 'completado' : 'complete'}
           </span>
         </div>
         <div className="h-2 bg-dark-200 rounded-full overflow-hidden">
@@ -271,9 +312,9 @@ export function IntakeForm() {
           </div>
           <div className="flex-1">
             <p className="font-semibold text-sm" style={{ color: bannerConfig.accentColor }}>
-              {bannerConfig.emoji} {(discountPercent || bannerConfig.discountPercent) > 0 ? (discountPercent || bannerConfig.discountPercent) + '% discount unlocked' : 'Special offer applied'}
+              {bannerConfig.emoji} {(discountPercent || bannerConfig.discountPercent) > 0 ? (discountPercent || bannerConfig.discountPercent) + (es ? '% de descuento aplicado' : '% discount unlocked') : (es ? 'Oferta especial aplicada' : 'Special offer applied')}
             </p>
-            <p className="text-xs text-dark-600">Promo: {promoCode || bannerConfig.promoCode} — Carlos will review and discuss final details with you</p>
+            <p className="text-xs text-dark-600">{es ? 'Promoción' : 'Promo'}: {promoCode || bannerConfig.promoCode} — {es ? 'Carlos revisará y conversará con usted los detalles finales' : 'Carlos will review and discuss final details with you'}</p>
           </div>
         </div>
       )}
@@ -284,35 +325,35 @@ export function IntakeForm() {
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="label">First Name *</label>
-                <input {...register('firstName')} autoComplete="given-name" className={cn('input', errors.firstName && 'border-red-500')} placeholder="John" />
+                <label className="label">{es ? 'Nombre *' : 'First Name *'}</label>
+                <input {...register('firstName')} autoComplete="given-name" className={cn('input', errors.firstName && 'border-red-500')} placeholder={es ? 'Juan' : 'John'} />
                 {errors.firstName && <p className="mt-1 text-sm text-red-500">{errors.firstName.message}</p>}
               </div>
               <div>
-                <label className="label">Last Name *</label>
-                <input {...register('lastName')} autoComplete="family-name" className={cn('input', errors.lastName && 'border-red-500')} placeholder="Smith" />
+                <label className="label">{es ? 'Apellido *' : 'Last Name *'}</label>
+                <input {...register('lastName')} autoComplete="family-name" className={cn('input', errors.lastName && 'border-red-500')} placeholder={es ? 'Pérez' : 'Smith'} />
                 {errors.lastName && <p className="mt-1 text-sm text-red-500">{errors.lastName.message}</p>}
               </div>
             </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
-                <label className="label">Email *</label>
-                <input {...register('email')} type="email" autoComplete="email" className={cn('input', errors.email && 'border-red-500')} placeholder="john@example.com" />
+                <label className="label">{es ? 'Correo Electrónico *' : 'Email *'}</label>
+                <input {...register('email')} type="email" autoComplete="email" className={cn('input', errors.email && 'border-red-500')} placeholder={es ? 'juan@ejemplo.com' : 'john@example.com'} />
                 {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email.message}</p>}
               </div>
               <div>
-                <label className="label">Phone *</label>
+                <label className="label">{es ? 'Teléfono *' : 'Phone *'}</label>
                 <input {...register('phone')} type="tel" autoComplete="tel" className={cn('input', errors.phone && 'border-red-500')} placeholder="(555) 123-4567" />
                 {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
               </div>
             </div>
             <div>
-              <label className="label">Preferred Contact Method *</label>
+              <label className="label">{es ? 'Método de Contacto Preferido *' : 'Preferred Contact Method *'}</label>
               <div className="grid grid-cols-2 sm:flex gap-3 sm:gap-4">
                 {[
-                  { value: 'phone', icon: <Phone className="w-4 h-4" />, label: 'Phone' },
-                  { value: 'email', icon: <Mail className="w-4 h-4" />, label: 'Email' },
-                  { value: 'text', icon: <MessageSquare className="w-4 h-4" />, label: 'Text' },
+                  { value: 'phone', icon: <Phone className="w-4 h-4" />, label: es ? 'Llamada' : 'Phone' },
+                  { value: 'email', icon: <Mail className="w-4 h-4" />, label: es ? 'Correo' : 'Email' },
+                  { value: 'text', icon: <MessageSquare className="w-4 h-4" />, label: es ? 'Mensaje de texto' : 'Text' },
                   { value: 'whatsapp', icon: <WhatsAppIcon className="w-4 h-4" />, label: 'WhatsApp' },
                 ].map((method) => (
                   <label key={method.value} className="flex items-center gap-2 cursor-pointer bg-white border border-dark-200 rounded-lg px-3 py-2.5 hover:border-primary-400 transition-colors has-[:checked]:border-primary-600 has-[:checked]:bg-primary-50">
@@ -330,20 +371,20 @@ export function IntakeForm() {
         {currentStep === 1 && (
           <div className="space-y-6">
             <div>
-              <label className="label">Street Address *</label>
+              <label className="label">{es ? 'Dirección *' : 'Street Address *'}</label>
               <input {...register('address')} autoComplete="street-address" className={cn('input', errors.address && 'border-red-500')} placeholder="123 Main Street" />
               {errors.address && <p className="mt-1 text-sm text-red-500">{errors.address.message}</p>}
             </div>
             <div className="grid md:grid-cols-3 gap-4">
               <div>
-                <label className="label">City *</label>
+                <label className="label">{es ? 'Ciudad *' : 'City *'}</label>
                 <input {...register('city')} autoComplete="address-level2" className={cn('input', errors.city && 'border-red-500')} placeholder="Bethesda" />
                 {errors.city && <p className="mt-1 text-sm text-red-500">{errors.city.message}</p>}
               </div>
               <div>
-                <label className="label">State *</label>
+                <label className="label">{es ? 'Estado *' : 'State *'}</label>
                 <select {...register('state')} className={cn('input', errors.state && 'border-red-500')}>
-                  <option value="">Select</option>
+                  <option value="">{es ? 'Seleccione' : 'Select'}</option>
                   <option value="DC">Washington DC</option>
                   <option value="MD">Maryland</option>
                   <option value="VA">Virginia</option>
@@ -351,19 +392,19 @@ export function IntakeForm() {
                 {errors.state && <p className="mt-1 text-sm text-red-500">{errors.state.message}</p>}
               </div>
               <div>
-                <label className="label">ZIP Code *</label>
+                <label className="label">{es ? 'Código Postal *' : 'ZIP Code *'}</label>
                 <input {...register('zip')} autoComplete="postal-code" className={cn('input', errors.zip && 'border-red-500')} placeholder="20814" />
                 {errors.zip && <p className="mt-1 text-sm text-red-500">{errors.zip.message}</p>}
               </div>
             </div>
             <div>
-              <label className="label">Property Type *</label>
+              <label className="label">{es ? 'Tipo de Propiedad *' : 'Property Type *'}</label>
               <select {...register('propertyType')} className="input">
-                <option value="single-family">Single Family Home</option>
-                <option value="townhouse">Townhouse</option>
-                <option value="condo">Condo / Apartment</option>
-                <option value="multi-family">Multi-Family</option>
-                <option value="commercial">Commercial</option>
+                <option value="single-family">{es ? 'Casa unifamiliar' : 'Single Family Home'}</option>
+                <option value="townhouse">{es ? 'Casa adosada (townhouse)' : 'Townhouse'}</option>
+                <option value="condo">{es ? 'Condominio / Apartamento' : 'Condo / Apartment'}</option>
+                <option value="multi-family">{es ? 'Multifamiliar' : 'Multi-Family'}</option>
+                <option value="commercial">{es ? 'Comercial' : 'Commercial'}</option>
               </select>
             </div>
           </div>
@@ -373,7 +414,7 @@ export function IntakeForm() {
         {currentStep === 2 && (
           <div className="space-y-6">
             <div>
-              <label className="label">Services Needed * (select all that apply)</label>
+              <label className="label">{es ? 'Servicios Necesarios * (seleccione todos los que apliquen)' : 'Services Needed * (select all that apply)'}</label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-2">
                 {SERVICES.map((service) => (
                   <label
@@ -391,7 +432,7 @@ export function IntakeForm() {
                       value={service.id}
                       className="text-primary-600"
                     />
-                    <span className="text-sm font-medium">{service.name}</span>
+                    <span className="text-sm font-medium">{es ? service.nameEs : service.name}</span>
                   </label>
                 ))}
               </div>
@@ -406,10 +447,10 @@ export function IntakeForm() {
                     </div>
                     <div>
                       <p className="font-semibold text-purple-800 text-sm">
-                        📦 Bundle Deal — {selectedServices.length} services selected
+                        📦 {es ? 'Paquete de Servicios' : 'Bundle Deal'} — {selectedServices.length} {es ? 'servicios seleccionados' : 'services selected'}
                       </p>
                       <p className="text-xs text-purple-600 mt-0.5">
-                        Carlos will provide custom bundle pricing for your combo — save more when you bundle
+                        {es ? 'Carlos le dará un precio especial por combinar servicios: ahorre más al agruparlos' : 'Carlos will provide custom bundle pricing for your combo — save more when you bundle'}
                       </p>
                     </div>
                   </div>
@@ -421,18 +462,22 @@ export function IntakeForm() {
                 <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <p className="text-xs text-amber-800 flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                    <span><strong>Save more:</strong> Add another service to unlock bundle pricing — Carlos will call with a custom combo rate</span>
+                    {es ? (
+                      <span><strong>Ahorre más:</strong> Agregue otro servicio para obtener precio de paquete. Carlos lo llamará con una tarifa especial combinada</span>
+                    ) : (
+                      <span><strong>Save more:</strong> Add another service to unlock bundle pricing — Carlos will call with a custom combo rate</span>
+                    )}
                   </p>
                 </div>
               )}
             </div>
             <div>
-              <label className="label">Tell Us About Your Project *</label>
+              <label className="label">{es ? 'Cuéntenos Sobre Su Proyecto *' : 'Tell Us About Your Project *'}</label>
               <textarea
                 {...register('projectDescription')}
                 rows={5}
                 className={cn('textarea', errors.projectDescription && 'border-red-500')}
-                placeholder="Describe what you'd like done, any specific requirements, challenges, or ideas you have..."
+                placeholder={es ? 'Describa el trabajo que desea, cualquier requisito específico, dificultades o ideas que tenga...' : "Describe what you'd like done, any specific requirements, challenges, or ideas you have..."}
               />
               {errors.projectDescription && <p className="mt-1 text-sm text-red-500">{errors.projectDescription.message}</p>}
             </div>
@@ -443,7 +488,7 @@ export function IntakeForm() {
         {currentStep === 3 && (
           <div className="space-y-6">
             <div>
-              <label className="label">When Would You Like to Start? *</label>
+              <label className="label">{es ? '¿Cuándo Le Gustaría Comenzar? *' : 'When Would You Like to Start? *'}</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {TIMELINE_OPTIONS.map((option) => (
                   <label
@@ -456,14 +501,14 @@ export function IntakeForm() {
                     )}
                   >
                     <input {...register('timeline')} type="radio" value={option} className="text-primary-600" />
-                    <span>{option}</span>
+                    <span>{es ? TIMELINE_ES[option] ?? option : option}</span>
                   </label>
                 ))}
               </div>
               {errors.timeline && <p className="mt-2 text-sm text-red-500">{errors.timeline.message}</p>}
             </div>
             <div>
-              <label className="label">Estimated Budget Range *</label>
+              <label className="label">{es ? 'Rango de Presupuesto Estimado *' : 'Estimated Budget Range *'}</label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {BUDGET_RANGES.map((range) => (
                   <label
@@ -476,7 +521,7 @@ export function IntakeForm() {
                     )}
                   >
                     <input {...register('budget')} type="radio" value={range} className="text-primary-600" />
-                    <span>{range}</span>
+                    <span>{es ? BUDGET_ES[range] ?? range : range}</span>
                   </label>
                 ))}
               </div>
@@ -484,7 +529,7 @@ export function IntakeForm() {
             </div>
             <label className="flex items-center gap-2 cursor-pointer">
               <input {...register('flexibleBudget')} type="checkbox" className="text-primary-600" />
-              <span className="text-dark-600">I'm flexible on budget for the right solution</span>
+              <span className="text-dark-600">{es ? 'Tengo flexibilidad en el presupuesto si es la solución adecuada' : "I'm flexible on budget for the right solution"}</span>
             </label>
           </div>
         )}
@@ -493,24 +538,24 @@ export function IntakeForm() {
         {currentStep === 4 && (
           <div className="space-y-6">
             <div>
-              <label className="label">How Did You Hear About Us?</label>
+              <label className="label">{es ? '¿Cómo Se Enteró de Nosotros?' : 'How Did You Hear About Us?'}</label>
               <select {...register('howDidYouHear')} className="input">
-                <option value="">Select (optional)</option>
+                <option value="">{es ? 'Seleccione (opcional)' : 'Select (optional)'}</option>
                 {REFERRAL_SOURCES.map((source) => (
-                  <option key={source} value={source}>{source}</option>
+                  <option key={source} value={source}>{es ? REFERRAL_ES[source] ?? source : source}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="label">📸 Upload Photos of Your Project (Optional)</label>
-              <p className="text-sm text-dark-600 mb-2">Help us understand your project better — share photos of the area you want renovated.</p>
+              <label className="label">{es ? '📸 Suba Fotos de Su Proyecto (Opcional)' : '📸 Upload Photos of Your Project (Optional)'}</label>
+              <p className="text-sm text-dark-600 mb-2">{es ? 'Ayúdenos a entender mejor su proyecto: comparta fotos del área que desea renovar.' : 'Help us understand your project better — share photos of the area you want renovated.'}</p>
               {uploadedPhotos.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {uploadedPhotos.map((file, i) => (
                     <div key={i} className="relative group">
                       <img
                         src={URL.createObjectURL(file)}
-                        alt={`Photo ${i + 1}`}
+                        alt={`${es ? 'Foto' : 'Photo'} ${i + 1}`}
                         className="w-20 h-20 object-cover rounded-lg border border-dark-200"
                       />
                       <button
@@ -526,8 +571,8 @@ export function IntakeForm() {
               )}
               <label className="flex flex-col items-center justify-center gap-2 p-6 border-2 border-dashed border-dark-300 rounded-xl cursor-pointer hover:border-primary-400 hover:bg-primary-50/30 transition-colors">
                 <Upload className="w-8 h-8 text-dark-600" />
-                <span className="text-sm font-medium text-dark-600">Tap to upload photos</span>
-                <span className="text-xs text-dark-600">JPG, PNG up to 10MB each • Max 5 photos</span>
+                <span className="text-sm font-medium text-dark-600">{es ? 'Toque para subir fotos' : 'Tap to upload photos'}</span>
+                <span className="text-xs text-dark-600">{es ? 'JPG, PNG de hasta 10MB cada una • Máximo 5 fotos' : 'JPG, PNG up to 10MB each • Max 5 photos'}</span>
                 <input
                   type="file"
                   accept="image/*"
@@ -537,12 +582,12 @@ export function IntakeForm() {
                     const files = Array.from(e.target.files || [])
                     const total = uploadedPhotos.length + files.length
                     if (total > 5) {
-                      alert('Maximum 5 photos allowed')
+                      alert(es ? 'Se permite un máximo de 5 fotos' : 'Maximum 5 photos allowed')
                       return
                     }
                     const valid = files.filter(f => f.size <= 10 * 1024 * 1024)
                     if (valid.length < files.length) {
-                      alert('Some files exceeded 10MB and were skipped')
+                      alert(es ? 'Algunos archivos superaban los 10MB y no se incluyeron' : 'Some files exceeded 10MB and were skipped')
                     }
                     setUploadedPhotos(prev => [...prev, ...valid])
                     e.target.value = '' // reset input
@@ -551,18 +596,22 @@ export function IntakeForm() {
               </label>
             </div>
             <div>
-              <label className="label">Anything Else We Should Know?</label>
+              <label className="label">{es ? '¿Algo Más que Debamos Saber?' : 'Anything Else We Should Know?'}</label>
               <textarea
                 {...register('additionalNotes')}
                 rows={4}
                 className="textarea"
-                placeholder="Access instructions, HOA requirements, pets, scheduling preferences, etc."
+                placeholder={es ? 'Instrucciones de acceso, requisitos de la asociación de propietarios (HOA), mascotas, preferencias de horario, etc.' : 'Access instructions, HOA requirements, pets, scheduling preferences, etc.'}
               />
             </div>
             <div className="bg-gold-50 border border-gold-200 rounded-xl p-4">
               <p className="text-gold-900 text-sm">
-                <strong>What happens next?</strong> We'll review your project details and contact you within 
-                24 hours to schedule a free on-site consultation and provide a detailed estimate.
+                {es ? (
+                  <><strong>¿Qué sigue?</strong> Revisaremos los detalles de su proyecto y lo contactaremos en menos de 24 horas para programar una consulta gratuita en su hogar y entregarle un estimado detallado.</>
+                ) : (
+                  <><strong>What happens next?</strong> We'll review your project details and contact you within 
+                24 hours to schedule a free on-site consultation and provide a detailed estimate.</>
+                )}
               </p>
             </div>
           </div>
@@ -578,7 +627,7 @@ export function IntakeForm() {
               className="flex items-center justify-center gap-2 min-h-[48px] px-6 py-3 text-base font-medium text-dark-600 bg-white border-2 border-dark-200 rounded-xl hover:border-primary-400 hover:text-primary-600 active:scale-[0.98] transition-all cursor-pointer select-none"
             >
               <ArrowLeft className="w-5 h-5" />
-              Back
+              {es ? 'Atrás' : 'Back'}
             </button>
           ) : <div />}
 
@@ -589,7 +638,7 @@ export function IntakeForm() {
               style={{ touchAction: 'manipulation' }}
               className="flex items-center justify-center gap-2 min-h-[48px] px-8 py-3 text-base font-semibold text-white bg-primary-600 rounded-xl hover:bg-primary-700 active:scale-[0.98] transition-all cursor-pointer select-none shadow-md"
             >
-              Continue
+              {es ? 'Continuar' : 'Continue'}
               <ArrowRight className="w-5 h-5" />
             </button>
           ) : (
@@ -603,12 +652,12 @@ export function IntakeForm() {
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Submitting...
+                  {es ? 'Enviando...' : 'Submitting...'}
                 </>
               ) : (
                 <>
                   <Calendar className="w-5 h-5" />
-                  Request Free Estimate
+                  {es ? 'Solicitar un Estimado Gratuito' : 'Request Free Estimate'}
                 </>
               )}
             </button>

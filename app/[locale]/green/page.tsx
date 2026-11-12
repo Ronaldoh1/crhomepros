@@ -12,14 +12,16 @@ const greenServices = [
     description: 'LED lighting, smart thermostats, insulation upgrades, and energy-efficient windows that cut utility bills by 20-40%.',
     descriptionEs: 'Iluminación LED, termostatos inteligentes, mejoras de aislamiento y ventanas eficientes que reducen facturas un 20-40%.',
     savings: 'Save $800-2,000/year',
+    savingsEs: 'Ahorre $800-2,000 al año',
   },
   {
     icon: Sun,
     title: 'Solar-Ready Designs',
     titleEs: 'Diseños Preparados para Solar',
     description: 'We design renovations with solar panel readiness — pre-wired electrical, structural reinforcement, and optimal roof angles.',
-    descriptionEs: 'Diseñamos renovaciones listas para paneles solares — cableado pre-instalado, refuerzo estructural y ángulos óptimos.',
+    descriptionEs: 'Diseñamos renovaciones listas para paneles solares: cableado preinstalado, refuerzo estructural y ángulos de techo óptimos.',
     savings: 'Up to 30% tax credit',
+    savingsEs: 'Hasta 30% de crédito fiscal',
   },
   {
     icon: Droplets,
@@ -28,22 +30,25 @@ const greenServices = [
     description: 'Low-flow fixtures, greywater-ready plumbing, rain barrel systems, and drought-resistant landscaping integration.',
     descriptionEs: 'Griferías de bajo flujo, plomería lista para aguas grises, sistemas de recolección de lluvia.',
     savings: 'Save 30-50% on water',
+    savingsEs: 'Ahorre 30-50% en agua',
   },
   {
     icon: Wind,
     title: 'Indoor Air Quality',
     titleEs: 'Calidad del Aire Interior',
     description: 'VOC-free paints, formaldehyde-free materials, HEPA filtration systems, and proper ventilation design.',
-    descriptionEs: 'Pinturas sin VOC, materiales sin formaldehído, sistemas de filtración HEPA y diseño de ventilación.',
+    descriptionEs: 'Pinturas sin COV, materiales sin formaldehído, sistemas de filtración HEPA y diseño de ventilación.',
     savings: 'Healthier living',
+    savingsEs: 'Un hogar más saludable',
   },
   {
     icon: Recycle,
     title: 'Sustainable Materials',
     titleEs: 'Materiales Sostenibles',
     description: 'Reclaimed wood, bamboo flooring, recycled glass countertops, cork insulation, and locally-sourced materials.',
-    descriptionEs: 'Madera recuperada, pisos de bambú, encimeras de vidrio reciclado, aislamiento de corcho.',
+    descriptionEs: 'Madera recuperada, pisos de bambú, mesones de vidrio reciclado, aislamiento de corcho y materiales de origen local.',
     savings: 'Reduced carbon footprint',
+    savingsEs: 'Menor huella de carbono',
   },
   {
     icon: ThermometerSun,
@@ -52,16 +57,17 @@ const greenServices = [
     description: 'Storm-proof roofing, impact-resistant windows, flood-resistant basement finishing, and backup power planning.',
     descriptionEs: 'Techos resistentes a tormentas, ventanas anti-impacto, sótanos resistentes a inundaciones.',
     savings: 'Lower insurance premiums',
+    savingsEs: 'Primas de seguro más bajas',
   },
 ]
 
 const taxCredits = [
-  { item: 'Heat pumps', credit: 'Up to $2,000', itemEs: 'Bombas de calor' },
-  { item: 'Insulation & air sealing', credit: 'Up to $1,200', itemEs: 'Aislamiento' },
-  { item: 'Energy-efficient windows', credit: 'Up to $600', itemEs: 'Ventanas eficientes' },
-  { item: 'Solar panels', credit: '30% of cost', itemEs: 'Paneles solares' },
-  { item: 'Water heaters (heat pump)', credit: 'Up to $2,000', itemEs: 'Calentadores de agua' },
-  { item: 'Electric panel upgrade', credit: 'Up to $600', itemEs: 'Panel eléctrico' },
+  { item: 'Heat pumps', credit: 'Up to $2,000', creditEs: 'Hasta $2,000', itemEs: 'Bombas de calor' },
+  { item: 'Insulation & air sealing', credit: 'Up to $1,200', creditEs: 'Hasta $1,200', itemEs: 'Aislamiento' },
+  { item: 'Energy-efficient windows', credit: 'Up to $600', creditEs: 'Hasta $600', itemEs: 'Ventanas eficientes' },
+  { item: 'Solar panels', credit: '30% of cost', creditEs: '30% del costo', itemEs: 'Paneles solares' },
+  { item: 'Water heaters (heat pump)', credit: 'Up to $2,000', creditEs: 'Hasta $2,000', itemEs: 'Calentadores de agua' },
+  { item: 'Electric panel upgrade', credit: 'Up to $600', creditEs: 'Hasta $600', itemEs: 'Panel eléctrico' },
 ]
 
 export default function GreenPage() {
@@ -85,20 +91,20 @@ export default function GreenPage() {
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold mb-6 leading-tight">
               {isEs ? (
-                <>Renueva Tu Espacio. <span className="text-white">Respeta el Planeta.</span></>
+                <>Renueve Su Espacio. <span className="text-white">Respete el Planeta.</span></>
               ) : (
                 <>Regenerate Your Space. <span className="text-white">Respect the Planet.</span></>
               )}
             </h1>
             <p className="text-lg md:text-xl text-white mb-8 max-w-2xl">
               {isEs
-                ? 'Renovaciones inteligentes que reducen costos de energía, mejoran la calidad del aire y aumentan el valor de tu hogar — todo mientras cuidas el medio ambiente.'
+                ? 'Renovaciones inteligentes que reducen los costos de energía, mejoran la calidad del aire y aumentan el valor de su hogar, todo mientras cuida el medio ambiente.'
                 : "Smart renovations that cut energy costs, improve air quality, and increase your home's value — all while being kind to the earth."
               }
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href={lp('/get-started')} className="btn bg-white text-green-900 hover:bg-green-50 font-bold px-8 py-4 rounded-xl text-lg">
-                {isEs ? 'Auditoría Eco Gratis' : 'Free Eco Audit'}
+                {isEs ? 'Evaluación Ecológica Gratuita' : 'Free Eco Audit'}
                 <ArrowRight className="w-5 h-5 ml-2 inline" />
               </Link>
               <Link href={lp('/projects')} className="btn bg-white/10 text-white border border-white/30 hover:bg-white/20 px-8 py-4 rounded-xl text-lg">
@@ -118,7 +124,7 @@ export default function GreenPage() {
             </h2>
             <p className="text-dark-600 mt-4 max-w-2xl mx-auto">
               {isEs
-                ? 'Cada proyecto incluye opciones sostenibles que protegen tu bolsillo y el planeta.'
+                ? 'Cada proyecto incluye opciones sostenibles que protegen su bolsillo y el planeta.'
                 : 'Every project includes sustainable options that protect your wallet and the planet.'
               }
             </p>
@@ -137,7 +143,7 @@ export default function GreenPage() {
                 </p>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-800 rounded-full text-xs font-semibold">
                   <TreePine className="w-3.5 h-3.5" />
-                  {service.savings}
+                  {isEs ? service.savingsEs : service.savings}
                 </div>
               </div>
             ))}
@@ -156,12 +162,12 @@ export default function GreenPage() {
                 </h2>
                 <p className="text-white mb-6">
                   {isEs
-                    ? 'El gobierno federal ofrece créditos fiscales significativos para mejoras de eficiencia energética. Te ayudamos a maximizar tus ahorros.'
+                    ? 'El gobierno federal ofrece créditos fiscales significativos para mejoras de eficiencia energética. Le ayudamos a aprovechar al máximo sus ahorros.'
                     : 'The federal government offers significant tax credits for energy efficiency upgrades. We help you maximize your savings.'
                   }
                 </p>
                 <Link href={lp('/get-started')} className="inline-flex items-center gap-2 bg-white text-green-800 font-bold px-6 py-3 rounded-xl hover:bg-green-50 transition-colors">
-                  {isEs ? 'Consulta Gratis' : 'Free Consultation'} <ArrowRight className="w-4 h-4" />
+                  {isEs ? 'Consulta Gratuita' : 'Free Consultation'} <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
               <div className="space-y-3">
@@ -171,7 +177,7 @@ export default function GreenPage() {
                       <CheckCircle className="w-4 h-4 text-white flex-shrink-0" />
                       <span className="text-sm font-medium">{isEs ? credit.itemEs : credit.item}</span>
                     </div>
-                    <span className="text-white font-bold text-sm whitespace-nowrap">{credit.credit}</span>
+                    <span className="text-white font-bold text-sm whitespace-nowrap">{isEs ? credit.creditEs : credit.credit}</span>
                   </div>
                 ))}
               </div>
@@ -189,7 +195,7 @@ export default function GreenPage() {
           </h2>
           <p className="text-dark-600 max-w-xl mx-auto mb-8">
             {isEs
-              ? 'Cada proyecto que hacemos considera el impacto ambiental. Tu hogar puede ser hermoso Y responsable.'
+              ? 'Cada proyecto que hacemos considera el impacto ambiental. Su hogar puede ser hermoso Y responsable.'
               : "Every project we take on considers environmental impact. Your home can be beautiful AND responsible."
             }
           </p>
@@ -197,7 +203,7 @@ export default function GreenPage() {
             href={lp('/get-started')}
             className="inline-flex items-center gap-2 bg-green-900 text-white font-bold px-8 py-4 rounded-xl text-lg hover:bg-green-800 transition-colors"
           >
-            {isEs ? 'Solicita Tu Auditoría Eco' : 'Request Your Eco Audit'}
+            {isEs ? 'Solicite Su Evaluación Ecológica' : 'Request Your Eco Audit'}
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>

@@ -159,7 +159,7 @@ export default function ProjectsPage() {
                           {titleOf(project)}
                         </h3>
                         <p className="text-sm text-dark-600 mt-1">
-                          {categoryLabel(project.category)} • {project.images.length} {es ? 'fotos' : 'photos'}
+                          {categoryLabel(project.category)} • {project.images.length} {project.images.length === 1 ? (es ? 'foto' : 'photo') : (es ? 'fotos' : 'photos')}
                         </p>
                         {descriptionOf(project) && (
                           <p className="text-sm text-dark-600 mt-2 leading-relaxed">

@@ -93,7 +93,7 @@ const es: Dictionary = {
       short: 'Trabajo de concreto duradero hecho para durar décadas.',
     },
     deck: {
-      name: 'Decks y Espacios Exteriores',
+      name: 'Terrazas (Decks) y Exteriores',
       description: 'Construcción personalizada de decks, restauración, teñido y espacios al aire libre.',
       short: 'Amplíe su espacio de vida al aire libre.',
     },
@@ -295,7 +295,7 @@ const es: Dictionary = {
   quoteEstimator: {
     title: 'Estimador de Costos',
     subtitle: 'Obtenga un Estimado Aproximado',
-    description: 'Use nuestra calculadora para tener una idea aproximada del costo de su proyecto. Para un presupuesto exacto, contáctenos para un estimado gratis a domicilio.',
+    description: 'Use nuestra calculadora para tener una idea aproximada del costo de su proyecto. Para una cotización exacta, contáctenos para un estimado gratuito a domicilio.',
     selectService: 'Seleccione un Servicio',
     selectSize: 'Tamaño del Proyecto',
     sizes: {
@@ -306,8 +306,8 @@ const es: Dictionary = {
       xl: 'Extra Grande',
     },
     estimatedRange: 'Rango de Costo Estimado',
-    disclaimer: 'Estos son rangos aproximados basados en proyectos típicos en el área de DMV. Los costos reales varían según materiales, alcance y condiciones del sitio. Contáctenos para un presupuesto preciso y gratuito.',
-    getExactQuote: 'Obtenga un Presupuesto Exacto — Gratis',
+    disclaimer: 'Estos son rangos aproximados basados en proyectos típicos en el área de DMV. Los costos reales varían según materiales, alcance y condiciones del sitio. Contáctenos para una cotización precisa y gratuito.',
+    getExactQuote: 'Obtenga una Cotización Exacta — Gratis',
     callForDetails: 'Llame para Hablar de Su Proyecto',
   },
 
@@ -490,7 +490,7 @@ const es: Dictionary = {
     q2: '¿Ayudan con el diseño y la selección de materiales?',
     a2: '¡Por supuesto! Nuestro equipo puede ayudarle a seleccionar los materiales y diseños correctos que se adapten a su gusto y necesidades funcionales. Estamos aquí para guiarle en cada paso del proceso de decisión.',
     q3: '¿Cómo obtengo un presupuesto para mi proyecto?',
-    a3: 'Simplemente use nuestro formulario "Comenzar" o llámenos al (571) 237-7164. Discutiremos las necesidades de su proyecto, preferencias y programaremos una visita si es necesario, para darle un presupuesto preciso y transparente.',
+    a3: 'Simplemente use nuestro formulario "Comenzar" o llámenos al (571) 237-7164. Discutiremos las necesidades de su proyecto, preferencias y programaremos una visita si es necesario, para darle una cotización precisa y transparente.',
     q4: '¿Cuánto tiempo toma un proyecto típico?',
     a4: 'La duración depende de la complejidad y alcance del proyecto. Nos esforzamos por completar todos los proyectos de manera oportuna sin comprometer la calidad. Después de nuestra consulta inicial, le daremos un tiempo estimado para su proyecto específico.',
     q5: '¿Qué medidas toman para mantener el área del proyecto segura y limpia?',

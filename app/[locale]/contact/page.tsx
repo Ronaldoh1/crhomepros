@@ -5,48 +5,59 @@ import { WhatsAppIcon } from '@/components/ui/WhatsAppIcon'
 import { COMPANY, HOURS, SERVICE_AREAS, SOCIAL } from '@/lib/constants'
 import { formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
 
-export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: 'Get in touch with CR Home Pros for a free estimate. Serving Washington DC, Maryland and Virginia.',
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+  if (params.locale === 'es') {
+    return {
+      title: 'Contáctenos',
+      description: 'Comuníquese con CR Home Pros para solicitar un estimado gratuito. Servimos a Washington DC, Maryland y Virginia.',
+    }
+  }
+  return {
+    title: 'Contact Us',
+    description: 'Get in touch with CR Home Pros for a free estimate. Serving Washington DC, Maryland and Virginia.',
+  }
 }
 
-const contactMethods = [
+const getContactMethods = (es: boolean) => [
   {
     icon: Phone,
     label: 'Phone',
     value: COMPANY.phoneFormatted,
     href: formatPhoneLink(COMPANY.phone),
-    description: 'Mon-Sat, 8am-7pm',
+    description: es ? 'Lun-Sáb, 8am-7pm' : 'Mon-Sat, 8am-7pm',
   },
   {
     icon: WhatsAppIcon,
     label: 'WhatsApp',
-    value: 'Message Us',
-    href: formatWhatsAppLink(COMPANY.phone, "Hi! I am interested in your services."),
-    description: 'Quick responses',
+    value: es ? 'Envíenos un mensaje' : 'Message Us',
+    href: formatWhatsAppLink(COMPANY.phone, es ? '¡Hola! Me interesan sus servicios.' : "Hi! I am interested in your services."),
+    description: es ? 'Respuestas rápidas' : 'Quick responses',
   },
   {
     icon: Mail,
     label: 'Email',
     value: COMPANY.email,
     href: `mailto:${COMPANY.email}`,
-    description: 'We reply within 24 hours',
+    description: es ? 'Respondemos en menos de 24 horas' : 'We reply within 24 hours',
   },
 ]
 
-export default function ContactPage() {
+export default function ContactPage({ params }: { params: { locale: string } }) {
+  const es = params.locale === 'es'
+  const lp = (path: string) => (es ? `/es${path}` : path)
+  const contactMethods = getContactMethods(es)
   return (
     <>
       <section className="relative page-top pb-20 bg-dark-900 overflow-hidden">
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
-            <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">Get In Touch</span>
+            <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">{es ? 'Contáctenos' : 'Get In Touch'}</span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
-              {"Let's Talk About "}
-              <span className="text-gold-400">Your Project</span>
+              {es ? 'Hablemos de ' : "Let's Talk About "}
+              <span className="text-gold-400">{es ? 'Su Proyecto' : 'Your Project'}</span>
             </h1>
             <p className="text-xl text-white/90 leading-relaxed">
-              {"Have questions? Ready for an estimate? We'd love to hear from you. Reach out and let's discuss how we can help transform your home."}
+              {es ? '¿Tiene preguntas? ¿Listo para un estimado? Nos encantaría saber de usted. Comuníquese con nosotros y conversemos sobre cómo podemos ayudarle a transformar su hogar.' : "Have questions? Ready for an estimate? We'd love to hear from you. Reach out and let's discuss how we can help transform your home."}
             </p>
           </div>
         </div>
@@ -74,22 +85,22 @@ export default function ContactPage() {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
             <div>
-              <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mb-6">Request a Free Estimate</h2>
-              <p className="text-dark-600 mb-6">Tell us about your project and we will provide a detailed consultation within 24 hours. Our estimate process includes an on-site visit, project planning, and transparent pricing.</p>
+              <h2 className="text-2xl md:text-3xl font-display font-bold text-dark-900 mb-6">{es ? 'Solicite un Estimado Gratuito' : 'Request a Free Estimate'}</h2>
+              <p className="text-dark-600 mb-6">{es ? 'Cuéntenos sobre su proyecto y le daremos una consulta detallada en menos de 24 horas. Nuestro proceso de estimado incluye una visita a su hogar, la planificación del proyecto y precios transparentes.' : 'Tell us about your project and we will provide a detailed consultation within 24 hours. Our estimate process includes an on-site visit, project planning, and transparent pricing.'}</p>
               <div className="bg-primary-50 border border-primary-100 rounded-2xl p-8 mb-8">
-                <h3 className="text-lg font-semibold text-dark-900 mb-4">What to expect:</h3>
+                <h3 className="text-lg font-semibold text-dark-900 mb-4">{es ? 'Qué puede esperar:' : 'What to expect:'}</h3>
                 <ul className="space-y-3 text-dark-600">
-                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">1</span><span>Fill out a quick form about your project</span></li>
-                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">2</span><span>We will contact you within 24 hours to schedule a visit</span></li>
-                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">3</span><span>Receive a detailed, no-obligation estimate</span></li>
+                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">1</span><span>{es ? 'Llene un formulario breve sobre su proyecto' : 'Fill out a quick form about your project'}</span></li>
+                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">2</span><span>{es ? 'Lo contactaremos en menos de 24 horas para programar una visita' : 'We will contact you within 24 hours to schedule a visit'}</span></li>
+                  <li className="flex items-start gap-3"><span className="text-gold-900 font-bold mt-0.5">3</span><span>{es ? 'Reciba un estimado detallado y sin compromiso' : 'Receive a detailed, no-obligation estimate'}</span></li>
                 </ul>
               </div>
-              <Link href="/get-started" className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-dark-900 bg-gold-500 rounded-xl hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/25">
-                {"Request an Estimate"}
+              <Link href={lp('/get-started')} className="inline-flex items-center justify-center w-full px-8 py-4 text-lg font-semibold text-dark-900 bg-gold-500 rounded-xl hover:bg-gold-400 transition-all shadow-lg shadow-gold-500/25">
+                {es ? 'Solicitar un Estimado' : "Request an Estimate"}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <p className="text-center text-sm text-dark-600 mt-4">
-                {"Or call us directly at "}
+                {es ? 'O llámenos directamente al ' : "Or call us directly at "}
                 <a href={formatPhoneLink(COMPANY.phone)} className="text-primary-600 font-medium hover:underline">{COMPANY.phoneFormatted}</a>
               </p>
             </div>
@@ -98,31 +109,31 @@ export default function ContactPage() {
               <div className="bg-dark-50 rounded-2xl p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center"><Clock className="w-5 h-5 text-primary-600" /></div>
-                  <h3 className="text-xl font-display font-semibold text-dark-900">Business Hours</h3>
+                  <h3 className="text-xl font-display font-semibold text-dark-900">{es ? 'Horario de Atención' : 'Business Hours'}</h3>
                 </div>
                 <div className="space-y-3 text-dark-600">
-                  <div className="flex justify-between"><span>Monday - Friday</span><span className="font-medium text-dark-900">{HOURS.weekday}</span></div>
-                  <div className="flex justify-between"><span>Saturday</span><span className="font-medium text-dark-900">{HOURS.saturday}</span></div>
-                  <div className="flex justify-between"><span>Sunday</span><span className="font-medium text-dark-900">{HOURS.sunday}</span></div>
-                  <div className="pt-3 mt-3 border-t border-dark-200"><p className="text-sm text-gold-900 font-medium">{HOURS.emergency}</p></div>
+                  <div className="flex justify-between"><span>{es ? 'Lunes a Viernes' : 'Monday - Friday'}</span><span className="font-medium text-dark-900">{HOURS.weekday}</span></div>
+                  <div className="flex justify-between"><span>{es ? 'Sábado' : 'Saturday'}</span><span className="font-medium text-dark-900">{HOURS.saturday}</span></div>
+                  <div className="flex justify-between"><span>{es ? 'Domingo' : 'Sunday'}</span><span className="font-medium text-dark-900">{es ? 'Con cita previa' : HOURS.sunday}</span></div>
+                  <div className="pt-3 mt-3 border-t border-dark-200"><p className="text-sm text-gold-900 font-medium">{es ? 'Disponibles 24/7 para emergencias' : HOURS.emergency}</p></div>
                 </div>
               </div>
 
               <div className="bg-dark-50 rounded-2xl p-8">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-primary-100 flex items-center justify-center"><MapPin className="w-5 h-5 text-primary-600" /></div>
-                  <h3 className="text-xl font-display font-semibold text-dark-900">Service Area</h3>
+                  <h3 className="text-xl font-display font-semibold text-dark-900">{es ? 'Área de Servicio' : 'Service Area'}</h3>
                 </div>
-                <p className="text-dark-600 mb-4">We proudly serve the entire DMV area including:</p>
+                <p className="text-dark-600 mb-4">{es ? 'Con orgullo servimos a toda el área del DMV, incluyendo:' : 'We proudly serve the entire DMV area including:'}</p>
                 <div className="flex flex-wrap gap-2">
                   {SERVICE_AREAS.slice(0, 8).map((area) => (<span key={area} className="px-3 py-1 bg-white rounded-full text-sm text-dark-600">{area}</span>))}
-                  <span className="px-3 py-1 bg-primary-100 rounded-full text-sm text-primary-700 font-medium">+ more</span>
+                  <span className="px-3 py-1 bg-primary-100 rounded-full text-sm text-primary-700 font-medium">{es ? '+ más' : '+ more'}</span>
                 </div>
               </div>
 
               <div className="bg-dark-50 rounded-2xl p-8">
-                <h3 className="text-xl font-display font-semibold text-dark-900 mb-4">Follow Us</h3>
-                <p className="text-dark-600 mb-6">See our latest projects and updates on social media.</p>
+                <h3 className="text-xl font-display font-semibold text-dark-900 mb-4">{es ? 'Síganos' : 'Follow Us'}</h3>
+                <p className="text-dark-600 mb-6">{es ? 'Vea nuestros proyectos más recientes y novedades en redes sociales.' : 'See our latest projects and updates on social media.'}</p>
                 <div className="flex gap-3">
                   <a href={SOCIAL.facebook} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"><Facebook className="w-5 h-5" /></a>
                   <a href={SOCIAL.instagram} target="_blank" rel="noopener noreferrer" className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-dark-600 hover:text-primary-600 hover:bg-primary-50 transition-colors"><Instagram className="w-5 h-5" /></a>
@@ -133,8 +144,8 @@ export default function ContactPage() {
               </div>
 
               <div className="bg-gold-50 border border-gold-200 rounded-2xl p-6 text-center">
-                <p className="text-lg font-semibold text-gold-900">{"Hablamos Espanol!"}</p>
-                <p className="text-gold-900 text-sm mt-1">We are happy to assist you in Spanish.</p>
+                <p className="text-lg font-semibold text-gold-900">{es ? '¡Hablamos Español!' : "Hablamos Espanol!"}</p>
+                <p className="text-gold-900 text-sm mt-1">{es ? 'Con gusto le atendemos en español.' : 'We are happy to assist you in Spanish.'}</p>
               </div>
             </div>
           </div>
@@ -144,10 +155,10 @@ export default function ContactPage() {
       <section className="section-padding bg-primary-800">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center text-white">
-            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">Ready to Get Started?</h2>
-            <p className="text-primary-200 text-lg mb-8">Request your free estimate today. No obligation, just honest pricing.</p>
-            <Link href="/get-started" className="btn-gold btn-lg">
-              Start Your Project
+            <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">{es ? '¿Listo para Comenzar?' : 'Ready to Get Started?'}</h2>
+            <p className="text-primary-200 text-lg mb-8">{es ? 'Solicite hoy su estimado gratuito. Sin compromiso, solo precios honestos.' : 'Request your free estimate today. No obligation, just honest pricing.'}</p>
+            <Link href={lp('/get-started')} className="btn-gold btn-lg">
+              {es ? 'Comience Su Proyecto' : 'Start Your Project'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </div>

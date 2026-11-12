@@ -35,11 +35,11 @@ export default function EstimateCostPage() {
           {t.quoteEstimator.description}
         </p>
         <div className="flex justify-center gap-3">
-          <a href="/pricing" className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full hover:bg-primary-100 transition-colors">
-            📋 Full Pricing Guide
+          <a href={lp('/pricing')} className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary-600 bg-primary-50 px-3 py-1.5 rounded-full hover:bg-primary-100 transition-colors">
+            📋 {isEs ? 'Guía Completa de Precios' : 'Full Pricing Guide'}
           </a>
-          <a href="/en/green" className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors">
-            🌿 Eco-Friendly Options
+          <a href={isEs ? '/es/green' : '/en/green'} className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-800 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200 hover:bg-emerald-100 transition-colors">
+            🌿 {isEs ? 'Opciones Ecológicas' : 'Eco-Friendly Options'}
           </a>
         </div>
       </section>
@@ -148,7 +148,7 @@ export default function EstimateCostPage() {
           <h2 className="text-3xl font-display font-bold mb-4">{t.quoteEstimator.getExactQuote}</h2>
           <p className="text-dark-100 mb-8 max-w-xl mx-auto">
             {isEs
-              ? 'Cada proyecto es único. Contáctanos para una visita gratis a domicilio y un presupuesto detallado sin compromiso.'
+              ? 'Cada proyecto es único. Contáctenos para una visita gratuita a su hogar y una cotización detallada, sin compromiso.'
               : 'Every project is unique. Contact us for a free in-home visit and a detailed quote — no obligation.'}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -156,7 +156,7 @@ export default function EstimateCostPage() {
               {t.nav.getEstimate}
             </Link>
             <a
-              href={formatWhatsAppLink(COMPANY.phone, isEs ? '¡Hola! Necesito un presupuesto para mi proyecto.' : 'Hi! I need a quote for my project.')}
+              href={formatWhatsAppLink(COMPANY.phone, isEs ? '¡Hola! Necesito una cotización para mi proyecto.' : 'Hi! I need a quote for my project.')}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-[#075E54] text-white font-medium hover:bg-[#054a42] transition-colors"
