@@ -24,7 +24,7 @@ export default function BlogPage() {
       ? localizedPosts.slice(1)
       : localizedPosts.slice(1).filter((post) => post.category === activeCategory);
 
-  const dateFmt = isEs ? "es-ES" : "en-US";
+  const dateFmt = isEs ? "es-US" : "en-US";
 
   return (
     <>
@@ -42,7 +42,7 @@ export default function BlogPage() {
             </h1>
             <p className="text-xl text-white/90 leading-relaxed">
               {isEs
-                ? "Consejos de expertos e inspiración para tus proyectos del hogar."
+                ? "Consejos de expertos, inspiración para proyectos y recomendaciones prácticas de nuestro experimentado equipo."
                 : "Expert advice, project inspiration, and practical tips from our experienced team."}
             </p>
           </div>
@@ -117,10 +117,10 @@ export default function BlogPage() {
       <section className="section-padding bg-primary-800">
         <div className="container-custom">
           <div className="max-w-2xl mx-auto text-center text-white">
-            <h2 className="text-3xl font-display font-bold mb-4">{isEs ? "Recibe Consejos en Tu Email" : "Get Home Improvement Tips in Your Inbox"}</h2>
-            <p className="text-primary-200 mb-8">{isEs ? "Consejos mensuales, ideas de proyectos y ofertas exclusivas." : "Subscribe for monthly tips, project ideas, and exclusive offers."}</p>
+            <h2 className="text-3xl font-display font-bold mb-4">{isEs ? "Reciba Consejos para el Hogar en su Correo" : "Get Home Improvement Tips in Your Inbox"}</h2>
+            <p className="text-primary-200 mb-8">{isEs ? "Suscríbase para recibir consejos mensuales, ideas de proyectos y ofertas exclusivas." : "Subscribe for monthly tips, project ideas, and exclusive offers."}</p>
             <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
-              <input type="email" placeholder={isEs ? "Tu email" : "Enter your email"} className="flex-1 px-4 py-3 rounded-xl text-dark-900 placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-gold-500" />
+              <input type="email" placeholder={isEs ? "Ingrese su correo electrónico" : "Enter your email"} className="flex-1 px-4 py-3 rounded-xl text-dark-900 placeholder:text-dark-400 focus:outline-none focus:ring-2 focus:ring-gold-500" />
               <button type="submit" className="btn-gold">{isEs ? "Suscribirse" : "Subscribe"}<ArrowRight className="w-5 h-5 ml-2" /></button>
             </form>
           </div>

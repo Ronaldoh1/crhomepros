@@ -37,6 +37,41 @@ const serviceIdToKey: Record<string, string> = {
   'insurance-claims': 'insuranceClaims',
 }
 
+// Spanish display labels for payment methods coming from site settings
+const PAYMENT_LABELS_ES: Record<string, string> = {
+  'Cash': 'Efectivo',
+  'Check': 'Cheque',
+  'Zelle': 'Zelle',
+  'Credit Card': 'Tarjeta de Crédito',
+  'Credit Cards': 'Tarjetas de Crédito',
+  'Debit Card': 'Tarjeta de Débito',
+  'Debit Cards': 'Tarjetas de Débito',
+  'Credit & Debit Cards': 'Tarjetas de Crédito y Débito',
+  'Venmo': 'Venmo',
+  'Cash App': 'Cash App',
+  'Klarna': 'Klarna',
+  'Financing Available': 'Financiamiento Disponible',
+  'Financing': 'Financiamiento',
+  'Insurance Claims': 'Reclamaciones de Seguro',
+}
+
+// Spanish day abbreviations for the hours note coming from site settings
+const DAY_LABELS_ES: Record<string, string> = {
+  Mon: 'Lun',
+  Tue: 'Mar',
+  Wed: 'Mié',
+  Thu: 'Jue',
+  Fri: 'Vie',
+  Sat: 'Sáb',
+  Sun: 'Dom',
+}
+
+function localizeHoursNote(note: string, locale: string): string {
+  if (locale !== 'es') return note
+  if (note.trim() === 'By Appointment') return 'Con Cita Previa'
+  return note.replace(/\b(Mon|Tue|Wed|Thu|Fri|Sat|Sun)\b/g, (d) => DAY_LABELS_ES[d] || d)
+}
+
 // Nav link definitions with dictionary key mapping
 const NAV_ITEMS: { key: string; href: string; badge?: string }[] = [
   { key: 'home', href: '/' },
@@ -226,7 +261,7 @@ export function Footer() {
                   <Clock className="w-5 h-5 mt-0.5 text-gold-500" />
                   <div>
                     <p>{hours}</p>
-                    <p className="text-sm">{hoursNote}</p>
+                    <p className="text-sm">{localizeHoursNote(hoursNote, locale)}</p>
                   </div>
                 </div>
               </li>
@@ -282,7 +317,9 @@ export function Footer() {
               {paymentMethods.map((method, idx) => (
                 <span key={method}>
                   {idx > 0 && <span className="text-dark-300 mr-3">•</span>}
-                  <span className={idx === paymentMethods.length - 1 ? "text-gold-400 font-medium" : ""}>{method}</span>
+                  <span className={idx === paymentMethods.length - 1 ? "text-gold-400 font-medium" : ""}>
+                    {locale === 'es' ? PAYMENT_LABELS_ES[method.trim()] || method : method}
+                  </span>
                 </span>
               ))}
             </div>

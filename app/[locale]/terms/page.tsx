@@ -1,12 +1,93 @@
 import { Metadata } from 'next'
 import { COMPANY } from '@/lib/constants'
 
-export const metadata: Metadata = {
-  title: 'Terms of Service',
-  description: 'CR Home Pros terms of service. Terms and conditions for using our website and services.',
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+  if (params?.locale === 'es') {
+    return {
+      title: 'Términos de Servicio',
+      description: 'Términos de servicio de CR Home Pros. Términos y condiciones para el uso de nuestro sitio web y nuestros servicios.',
+    }
+  }
+  return {
+    title: 'Terms of Service',
+    description: 'CR Home Pros terms of service. Terms and conditions for using our website and services.',
+  }
 }
 
-export default function TermsPage() {
+function TermsEs() {
+  return (
+    <div className="page-top pb-20">
+      <div className="container-custom max-w-3xl">
+        <h1 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-2">Términos de Servicio</h1>
+        <p className="text-dark-600 mb-10">Última actualización: 12 de febrero de 2026</p>
+
+        <div className="prose prose-lg max-w-none text-dark-700 space-y-8">
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">1. Acerca de Nuestros Servicios</h2>
+            <p>CR Home Pros es un nombre comercial de C &amp; R General Services Inc, un contratista de mejoras del hogar con licencia que opera en el área del Distrito de Columbia, Maryland y Virginia (DMV). Contamos con las licencias de la Comisión de Mejoras del Hogar de Maryland (Maryland Home Improvement Commission) #05-132359 y #109350.</p>
+            <p>Nuestro sitio web ofrece información sobre nuestros servicios y le permite solicitar presupuestos, enviar reseñas y referir a otras personas a nuestros servicios.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">2. Presupuestos y Precios</h2>
+            <p>Todos los presupuestos proporcionados a través de nuestro sitio web, nuestra herramienta de estimación de costos o nuestra guía de precios son rangos aproximados basados en alcances típicos de proyectos. Los costos reales del proyecto dependen de condiciones específicas, los materiales seleccionados, la complejidad del proyecto y otros factores que solo pueden determinarse mediante una consulta en persona.</p>
+            <p>Los presupuestos en línea no son cotizaciones vinculantes. Se proporcionará un presupuesto formal por escrito después de una evaluación en el sitio. El precio final se acuerda en un contrato separado antes de que comience el trabajo.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">3. Acuerdos de Proyecto</h2>
+            <p>Todos los proyectos de mejoras del hogar se rigen por un contrato escrito separado entre C &amp; R General Services Inc y el propietario de la vivienda. Ese contrato establece el alcance específico del trabajo, los materiales, el cronograma, el calendario de pagos y los términos de la garantía. Los términos de este sitio web no reemplazan ni modifican ningún contrato de proyecto.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">4. Reseñas y Contenido de los Usuarios</h2>
+            <p>Las reseñas enviadas a través de nuestro sitio web están sujetas a moderación. Nos reservamos el derecho de no publicar reseñas que contengan lenguaje inapropiado, información falsa o contenido no relacionado con nuestros servicios. Las reseñas publicadas pueden mostrarse en nuestro sitio web y en nuestros materiales de marketing.</p>
+            <p>Al enviar una reseña, usted confirma que su experiencia es auténtica y nos otorga permiso para mostrar su reseña con su nombre de pila y su ubicación general.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">5. Programa de Referidos</h2>
+            <p>Nuestro programa de referidos recompensa a los clientes existentes que refieren nuevos clientes. Las recompensas por referidos se pagan después de que el proyecto referido se haya completado y pagado en su totalidad. Los montos específicos de las recompensas y los métodos de pago se detallan en nuestra página de referidos. CR Home Pros se reserva el derecho de modificar o suspender el programa de referidos en cualquier momento.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">6. Financiamiento</h2>
+            <p>Las opciones de financiamiento mencionadas en nuestro sitio web, incluida la modalidad de compre ahora y pague después de Klarna, son proporcionadas por servicios financieros de terceros. La aprobación, los términos y las condiciones son determinados por dichos proveedores. CR Home Pros no garantiza la aprobación del financiamiento.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">7. Reclamaciones de Seguro</h2>
+            <p>Trabajamos con los propietarios de viviendas y sus compañías de seguros para facilitar proyectos de mejoras del hogar cubiertos por reclamaciones de seguro. No somos una compañía de seguros y no tomamos determinaciones sobre la cobertura. El propietario de la vivienda es, en última instancia, responsable de la comunicación con su aseguradora y de cualquier deducible o costo no cubierto.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">8. Uso del Sitio Web</h2>
+            <p>Este sitio web se proporciona con fines informativos. Hacemos esfuerzos razonables para mantener la información precisa y actualizada, pero no garantizamos que todo el contenido esté vigente o libre de errores. Las fotos de nuestro sitio web muestran proyectos reales terminados, salvo que se indique lo contrario.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">9. Limitación de Responsabilidad</h2>
+            <p>CR Home Pros no es responsable de ningún daño que surja del uso que usted haga de este sitio web. Nuestra responsabilidad en relación con cualquier proyecto de mejoras del hogar se rige por los términos del contrato de proyecto correspondiente y por la ley aplicable de Maryland, Virginia o DC.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">10. Contacto</h2>
+            <p>Si tiene preguntas sobre estos términos, comuníquese con nosotros en:</p>
+            <p>
+              <strong>C &amp; R General Services Inc (CR Home Pros)</strong><br />
+              Correo electrónico: {COMPANY.email}<br />
+              Teléfono: {COMPANY.phoneFormatted}<br />
+              Ubicación: Hyattsville, MD
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function TermsPage({ params }: { params: { locale: string } }) {
+  if (params?.locale === 'es') return <TermsEs />
   return (
     <div className="page-top pb-20">
       <div className="container-custom max-w-3xl">

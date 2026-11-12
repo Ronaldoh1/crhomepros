@@ -1,12 +1,97 @@
 import { Metadata } from 'next'
 import { COMPANY } from '@/lib/constants'
 
-export const metadata: Metadata = {
-  title: 'Privacy Policy',
-  description: 'CR Home Pros privacy policy. How we collect, use, and protect your personal information.',
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+  if (params?.locale === 'es') {
+    return {
+      title: 'Política de Privacidad',
+      description: 'Política de privacidad de CR Home Pros. Cómo recopilamos, usamos y protegemos su información personal.',
+    }
+  }
+  return {
+    title: 'Privacy Policy',
+    description: 'CR Home Pros privacy policy. How we collect, use, and protect your personal information.',
+  }
 }
 
-export default function PrivacyPolicyPage() {
+function PrivacyPolicyEs() {
+  return (
+    <div className="page-top pb-20">
+      <div className="container-custom max-w-3xl">
+        <h1 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-2">Política de Privacidad</h1>
+        <p className="text-dark-600 mb-10">Última actualización: 12 de febrero de 2026</p>
+
+        <div className="prose prose-lg max-w-none text-dark-700 space-y-8">
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">1. Información que Recopilamos</h2>
+            <p>Cuando usted utiliza nuestro sitio web, se comunica con nosotros o solicita un presupuesto, podemos recopilar la siguiente información:</p>
+            <p><strong>Información de Contacto:</strong> Nombre, dirección de correo electrónico, número de teléfono y dirección postal que usted proporciona al completar formularios, solicitar presupuestos o comunicarse con nosotros.</p>
+            <p><strong>Información del Proyecto:</strong> Detalles sobre su proyecto de mejoras del hogar, incluidos el tipo de servicio, el rango de presupuesto, el cronograma y la descripción del proyecto.</p>
+            <p><strong>Datos de Uso:</strong> Utilizamos Google Analytics para recopilar datos anonimizados sobre cómo los visitantes interactúan con nuestro sitio web, incluidas las páginas visitadas, el tiempo de permanencia y la información del dispositivo. Estos datos no lo identifican a usted personalmente.</p>
+            <p><strong>Fotos:</strong> Si usted envía fotos de proyectos a través de nuestros formularios o herramientas de administración, esas imágenes se almacenan de forma segura en Firebase Storage.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">2. Cómo Usamos su Información</h2>
+            <p>Utilizamos la información que recopilamos para:</p>
+            <p>Responder a sus consultas y proporcionar presupuestos para proyectos de mejoras del hogar. Programar consultas y coordinar los detalles del proyecto. Enviar actualizaciones del proyecto y comunicarnos sobre los trabajos en curso. Mejorar nuestro sitio web y nuestros servicios según la forma en que los visitantes usan el sitio. Procesar las recompensas de nuestro programa de referidos.</p>
+            <p>No vendemos, alquilamos ni compartimos su información personal con terceros con fines de marketing.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">3. Almacenamiento y Seguridad de los Datos</h2>
+            <p>Su información se almacena de forma segura mediante los servicios de Google Firebase (base de datos Firestore y Firebase Storage). Implementamos medidas de seguridad estándar de la industria para proteger sus datos, incluidas conexiones cifradas (HTTPS), autenticación segura para el acceso administrativo y controles de acceso sobre los datos almacenados.</p>
+            <p>Aunque tomamos precauciones razonables para proteger su información, ningún método de transmisión por internet es completamente seguro.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">4. Servicios de Terceros</h2>
+            <p>Nuestro sitio web utiliza los siguientes servicios de terceros:</p>
+            <p><strong>Google Firebase:</strong> Para almacenamiento de datos, alojamiento de imágenes y análisis. Sujeto a la política de privacidad de Google.</p>
+            <p><strong>Google Analytics:</strong> Para estadísticas anónimas de uso del sitio web.</p>
+            <p><strong>Vercel:</strong> Para el alojamiento del sitio web. Sujeto a la política de privacidad de Vercel.</p>
+            <p><strong>Klarna:</strong> Si usted elige la opción de compre ahora y pague después. Sujeto a la política de privacidad de Klarna.</p>
+            <p>No nos integramos con redes publicitarias ni vendemos datos a anunciantes.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">5. Cookies</h2>
+            <p>Nuestro sitio web utiliza cookies esenciales para su funcionamiento básico y cookies de análisis a través de Google Analytics. Usted puede desactivar las cookies en la configuración de su navegador, aunque esto puede afectar algunas funciones del sitio web.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">6. Sus Derechos</h2>
+            <p>Usted tiene derecho a solicitar acceso a la información personal que tenemos sobre usted, solicitar la corrección de información inexacta, solicitar la eliminación de su información y optar por no recibir ninguna comunicación de nuestra parte. Para ejercer estos derechos, comuníquese con nosotros en {COMPANY.email} o llame al {COMPANY.phoneFormatted}.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">7. Privacidad de los Menores</h2>
+            <p>Nuestro sitio web no está dirigido a menores de 13 años. No recopilamos a sabiendas información personal de menores.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">8. Cambios a esta Política</h2>
+            <p>Podemos actualizar esta política de privacidad periódicamente. Los cambios se publicarán en esta página con una fecha de revisión actualizada.</p>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">9. Contáctenos</h2>
+            <p>Si tiene preguntas sobre esta política de privacidad, comuníquese con nosotros en:</p>
+            <p>
+              <strong>C &amp; R General Services Inc (CR Home Pros)</strong><br />
+              Correo electrónico: {COMPANY.email}<br />
+              Teléfono: {COMPANY.phoneFormatted}<br />
+              Ubicación: Hyattsville, MD
+            </p>
+          </section>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function PrivacyPolicyPage({ params }: { params: { locale: string } }) {
+  if (params?.locale === 'es') return <PrivacyPolicyEs />
   return (
     <div className="page-top pb-20">
       <div className="container-custom max-w-3xl">

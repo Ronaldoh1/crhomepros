@@ -16,7 +16,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
   const post = getPostBySlug(params.slug)
-  if (!post) return { title: 'Post Not Found' }
+  if (!post) return { title: params.locale === 'es' ? 'Artículo No Encontrado' : 'Post Not Found' }
   const localized = getLocalizedPost(post, params.locale || 'en')
   return { title: localized.title + ' | CR Home Pros', description: localized.excerpt }
 }
@@ -28,7 +28,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const locale = params.locale || 'en'
   const isEs = locale === 'es'
   const post = getLocalizedPost(rawPost, locale)
-  const dateFmt = isEs ? 'es-ES' : 'en-US'
+  const dateFmt = isEs ? 'es-US' : 'en-US'
 
   const currentIndex = BLOG_POSTS.findIndex((p) => p.slug === params.slug)
   const prevPost = currentIndex > 0 ? getLocalizedPost(BLOG_POSTS[currentIndex - 1], locale) : null
@@ -73,13 +73,13 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           <div className="max-w-3xl mx-auto grid grid-cols-2 gap-6">
             {prevPost ? (
               <Link href={"/" + locale + "/blog/" + prevPost.slug} className="group p-6 bg-white rounded-xl hover:shadow-md transition-shadow">
-                <span className="text-sm text-dark-600 mb-2 block">{isEs ? 'Anterior' : 'Previous Post'}</span>
+                <span className="text-sm text-dark-600 mb-2 block">{isEs ? 'Artículo Anterior' : 'Previous Post'}</span>
                 <span className="font-display font-semibold text-dark-900 group-hover:text-primary-800 transition-colors line-clamp-2">{prevPost.title}</span>
               </Link>
             ) : <div />}
             {nextPost ? (
               <Link href={"/" + locale + "/blog/" + nextPost.slug} className="group p-6 bg-white rounded-xl hover:shadow-md transition-shadow text-right">
-                <span className="text-sm text-dark-600 mb-2 block">{isEs ? 'Siguiente' : 'Next Post'}</span>
+                <span className="text-sm text-dark-600 mb-2 block">{isEs ? 'Artículo Siguiente' : 'Next Post'}</span>
                 <span className="font-display font-semibold text-dark-900 group-hover:text-primary-800 transition-colors line-clamp-2">{nextPost.title}</span>
               </Link>
             ) : <div />}
@@ -89,8 +89,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
       <section className="section-padding bg-primary-800">
         <div className="container-custom text-center text-white max-w-2xl mx-auto">
-          <h2 className="text-3xl font-display font-bold mb-4">{isEs ? '¿Listo Para Tu Proyecto?' : 'Ready to Start Your Project?'}</h2>
-          <p className="text-primary-200 mb-8">{isEs ? 'Contáctenos para una consulta gratuita.' : 'Contact us for a free consultation and detailed estimate.'}</p>
+          <h2 className="text-3xl font-display font-bold mb-4">{isEs ? '¿Listo para Comenzar su Proyecto?' : 'Ready to Start Your Project?'}</h2>
+          <p className="text-primary-200 mb-8">{isEs ? 'Contáctenos para una consulta gratis y un presupuesto detallado.' : 'Contact us for a free consultation and detailed estimate.'}</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href={"/" + locale + "/get-started"} className="btn-gold">{isEs ? 'Solicitar un Estimado' : 'Request an Estimate'} <ArrowRight className="w-5 h-5 ml-2" /></Link>
             <Link href={"/" + locale + "/contact"} className="px-6 py-3 border-2 border-white text-white rounded-xl font-semibold hover:bg-white/10 transition-colors">{isEs ? 'Contactar' : 'Contact Us'}</Link>

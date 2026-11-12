@@ -5,12 +5,29 @@ import { COMPANY } from '@/lib/constants'
 import { formatPhoneLink } from '@/lib/utils'
 import { ReferralForm } from '@/components/forms/ReferralForm'
 
-export const metadata: Metadata = {
-  title: 'Referral Program',
-  description: 'Earn rewards for referring friends and family to CR Home Pros. Get $75-$750+ for every successful referral. Share the quality, share the rewards.',
+export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
+  if (params?.locale === 'es') {
+    return {
+      title: 'Programa de Referidos',
+      description: 'Gane recompensas por recomendar a amigos y familiares a CR Home Pros. Reciba de $75 a $750+ por cada referido exitoso. Comparta la calidad, comparta las recompensas.',
+    }
+  }
+  return {
+    title: 'Referral Program',
+    description: 'Earn rewards for referring friends and family to CR Home Pros. Get $75-$750+ for every successful referral. Share the quality, share the rewards.',
+  }
 }
 
-const tiers = [
+type Tier = {
+  project: string
+  range: string
+  reward: string
+  examples: string
+  rewardType?: string
+  highlight?: boolean
+}
+
+const tiersEn: Tier[] = [
   {
     project: 'Starter Projects',
     range: 'Under $2,500',
@@ -45,34 +62,82 @@ const tiers = [
   },
 ]
 
-const howItWorks = [
+const tiersEs: Tier[] = [
   {
-    step: 1,
-    title: 'Share Our Info',
-    description: 'Tell your friends, family, or neighbors about CR Home Pros. Share your unique referral link or just give them our number.',
-    icon: Users,
+    project: 'Proyectos Iniciales',
+    range: 'Menos de $2,500',
+    reward: '$75',
+    examples: 'Reparaciones menores, retoques de pintura, arreglos pequeños',
+    rewardType: 'Tarjeta de Regalo',
   },
   {
-    step: 2,
-    title: 'They Get a Quote',
-    description: 'Your referral contacts us and mentions your name. They receive a free consultation and estimate.',
-    icon: Phone,
+    project: 'Proyectos Pequeños',
+    range: '$2,500 - $5,000',
+    reward: '$100',
+    examples: 'Pintura, trabajos de azulejos, remodelaciones menores',
   },
   {
-    step: 3,
-    title: 'Project Completed',
-    description: 'Once we complete their project, you earn your referral reward. It\'s that simple!',
-    icon: CheckCircle,
+    project: 'Proyectos Medianos',
+    range: '$5,000 - $15,000',
+    reward: '$250',
+    examples: 'Remodelación de baño, instalación de deck, pisos',
   },
   {
-    step: 4,
-    title: 'Get Paid',
-    description: 'Receive your reward via check, Venmo, Zelle, gift card, or credit toward your next project.',
-    icon: DollarSign,
+    project: 'Proyectos Grandes',
+    range: '$15,000 - $50,000',
+    reward: '$500',
+    examples: 'Remodelación de cocina, terminación de sótano',
+  },
+  {
+    project: 'Proyectos Mayores',
+    range: '$50,000+',
+    reward: '$750+',
+    examples: 'Renovaciones completas, ampliaciones',
+    highlight: true,
   },
 ]
 
-const faqs = [
+const stepIcons = [Users, Phone, CheckCircle, DollarSign]
+
+const howItWorksEn = [
+  {
+    title: 'Share Our Info',
+    description: 'Tell your friends, family, or neighbors about CR Home Pros. Share your unique referral link or just give them our number.',
+  },
+  {
+    title: 'They Get a Quote',
+    description: 'Your referral contacts us and mentions your name. They receive a free consultation and estimate.',
+  },
+  {
+    title: 'Project Completed',
+    description: 'Once we complete their project, you earn your referral reward. It\'s that simple!',
+  },
+  {
+    title: 'Get Paid',
+    description: 'Receive your reward via check, Venmo, Zelle, gift card, or credit toward your next project.',
+  },
+]
+
+const howItWorksEs = [
+  {
+    title: 'Comparta Nuestra Información',
+    description: 'Hábleles de CR Home Pros a sus amigos, familiares o vecinos. Comparta su enlace de referido único o simplemente deles nuestro número.',
+  },
+  {
+    title: 'Reciben un Presupuesto',
+    description: 'Su referido se comunica con nosotros y menciona su nombre. Recibe una consulta y un presupuesto gratis.',
+  },
+  {
+    title: 'Proyecto Terminado',
+    description: 'Una vez que terminemos su proyecto, usted gana su recompensa por referido. ¡Así de fácil!',
+  },
+  {
+    title: 'Reciba su Pago',
+    description: 'Reciba su recompensa por cheque, Venmo, Zelle, tarjeta de regalo o como crédito para su próximo proyecto.',
+  },
+]
+
+const faqsEn = [
   {
     q: 'Who can participate in the referral program?',
     a: 'Anyone! You don\'t have to be a previous customer. Friends, family, real estate agents, property managers - everyone is welcome.',
@@ -95,7 +160,99 @@ const faqs = [
   },
 ]
 
-export default function ReferralsPage() {
+const faqsEs = [
+  {
+    q: '¿Quién puede participar en el programa de referidos?',
+    a: '¡Cualquier persona! No necesita haber sido cliente antes. Amigos, familiares, agentes de bienes raíces, administradores de propiedades: todos son bienvenidos.',
+  },
+  {
+    q: '¿Hay un límite de personas que puedo referir?',
+    a: '¡No hay límite! Refiera a todas las personas que desee. Algunos de nuestros mejores referidores ganan miles de dólares al año.',
+  },
+  {
+    q: '¿Cuándo recibo mi recompensa?',
+    a: 'Las recompensas se pagan dentro de los 7 días posteriores a la terminación del proyecto y al pago final.',
+  },
+  {
+    q: '¿Qué pasa si refiero a alguien para varios proyectos?',
+    a: '¡Usted gana una recompensa por cada proyecto! Si su referido regresa para un segundo proyecto, usted vuelve a ganar.',
+  },
+  {
+    q: '¿Puedo usar mi recompensa para mi propio proyecto?',
+    a: '¡Por supuesto! Muchos clientes usan sus créditos por referidos para financiar su próximo proyecto de mejoras del hogar con nosotros.',
+  },
+]
+
+const copy = {
+  en: {
+    badge: 'Referral Program',
+    heroTitle: 'Share the Quality,',
+    heroHighlight: 'Share the Rewards',
+    heroTextBefore: 'Know someone who needs home improvement? Refer them to CR Home Pros and earn up to ',
+    heroTextAfter: 'for every completed project!',
+    referNow: 'Refer Someone Now',
+    howItWorks: 'How It Works',
+    rewardStructure: 'Reward Structure',
+    tiersTitle: 'Earn More for Bigger Projects',
+    tiersText: 'The bigger the project your referral completes, the bigger your reward.',
+    bestValue: 'BEST VALUE',
+    bonusLabel: 'Bonus:',
+    bonusText: 'Refer 3+ people in a year and earn an extra $200!',
+    simpleProcess: 'Simple Process',
+    stepsText: 'Four easy steps to earning referral rewards.',
+    submitReferral: 'Submit a Referral',
+    formText: "Fill out the form below and we'll reach out to your referral within 24 hours.",
+    statPaid: 'Paid in referral rewards',
+    statReferrers: 'Happy referrers',
+    statDaysValue: '7 Days',
+    statDays: 'Average payout time',
+    questions: 'Questions?',
+    faqTitle: 'Frequently Asked Questions',
+    ctaTitle: 'Your Recommendation Matters',
+    ctaText: "When you refer someone to CR Home Pros, you're not just earning a reward—you're helping a friend or neighbor get quality work they can trust.",
+    ctaButton: 'Start Earning Today',
+  },
+  es: {
+    badge: 'Programa de Referidos',
+    heroTitle: 'Comparta la Calidad,',
+    heroHighlight: 'Comparta las Recompensas',
+    heroTextBefore: '¿Conoce a alguien que necesite mejoras en su hogar? Refiéralo a CR Home Pros y gane hasta ',
+    heroTextAfter: 'por cada proyecto terminado.',
+    referNow: 'Referir a Alguien Ahora',
+    howItWorks: 'Cómo Funciona',
+    rewardStructure: 'Estructura de Recompensas',
+    tiersTitle: 'Gane Más con Proyectos Más Grandes',
+    tiersText: 'Mientras más grande sea el proyecto que complete su referido, mayor será su recompensa.',
+    bestValue: 'MEJOR VALOR',
+    bonusLabel: 'Bono:',
+    bonusText: '¡Refiera a 3 o más personas en un año y gane $200 adicionales!',
+    simpleProcess: 'Proceso Sencillo',
+    stepsText: 'Cuatro pasos sencillos para ganar recompensas por referidos.',
+    submitReferral: 'Envíe un Referido',
+    formText: 'Complete el siguiente formulario y nos comunicaremos con su referido dentro de 24 horas.',
+    statPaid: 'Pagados en recompensas por referidos',
+    statReferrers: 'Referidores satisfechos',
+    statDaysValue: '7 Días',
+    statDays: 'Tiempo promedio de pago',
+    questions: '¿Preguntas?',
+    faqTitle: 'Preguntas Frecuentes',
+    ctaTitle: 'Su Recomendación Importa',
+    ctaText: 'Cuando refiere a alguien a CR Home Pros, no solo gana una recompensa: también ayuda a un amigo o vecino a obtener un trabajo de calidad en el que puede confiar.',
+    ctaButton: 'Empiece a Ganar Hoy',
+  },
+}
+
+export default function ReferralsPage({ params }: { params: { locale: string } }) {
+  const locale = params?.locale === 'es' ? 'es' : 'en'
+  const t = copy[locale]
+  const tiers = locale === 'es' ? tiersEs : tiersEn
+  const howItWorks = (locale === 'es' ? howItWorksEs : howItWorksEn).map((s, i) => ({
+    ...s,
+    step: i + 1,
+    icon: stepIcons[i],
+  }))
+  const faqs = locale === 'es' ? faqsEs : faqsEn
+
   return (
     <>
       {/* Hero */}
@@ -105,26 +262,26 @@ export default function ReferralsPage() {
           <div className="max-w-3xl mx-auto text-center">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gold-500/20 border border-gold-500/30 mb-6">
               <Gift className="w-5 h-5 text-gold-400" />
-              <span className="text-gold-300 font-medium">Referral Program</span>
+              <span className="text-gold-300 font-medium">{t.badge}</span>
             </div>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
-              Share the Quality,{' '}
+              {t.heroTitle}{' '}
               <span className="text-gold-400">
-                Share the Rewards
+                {t.heroHighlight}
               </span>
             </h1>
             <p className="text-xl text-white/90 leading-relaxed mb-8">
-              Know someone who needs home improvement? Refer them to CR Home Pros and earn up to 
-              <span className="text-gold-400 font-bold"> $750+ </span> 
-              for every completed project!
+              {t.heroTextBefore}
+              <span className="text-gold-400 font-bold"> $750+ </span>
+              {t.heroTextAfter}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <a href="#refer-form" className="btn-gold btn-lg">
-                Refer Someone Now
+                {t.referNow}
                 <ArrowRight className="w-5 h-5 ml-2" />
               </a>
               <a href="#how-it-works" className="btn-outline-white btn-lg">
-                How It Works
+                {t.howItWorks}
               </a>
             </div>
           </div>
@@ -136,13 +293,13 @@ export default function ReferralsPage() {
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
-              Reward Structure
+              {t.rewardStructure}
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-              Earn More for Bigger Projects
+              {t.tiersTitle}
             </h2>
             <p className="text-lg text-dark-600">
-              The bigger the project your referral completes, the bigger your reward.
+              {t.tiersText}
             </p>
           </div>
 
@@ -158,7 +315,7 @@ export default function ReferralsPage() {
               >
                 {tier.highlight && (
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-gold-500 rounded-full text-xs font-bold text-dark-900">
-                    BEST VALUE
+                    {t.bestValue}
                   </div>
                 )}
                 <div className="text-center">
@@ -184,7 +341,7 @@ export default function ReferralsPage() {
           <div className="mt-8 text-center">
             <p className="text-dark-600">
               <Zap className="w-5 h-5 inline text-gold-500 mr-1" />
-              <strong>Bonus:</strong> Refer 3+ people in a year and earn an extra $200!
+              <strong>{t.bonusLabel}</strong> {t.bonusText}
             </p>
           </div>
         </div>
@@ -195,13 +352,13 @@ export default function ReferralsPage() {
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
-              Simple Process
+              {t.simpleProcess}
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-              How It Works
+              {t.howItWorks}
             </h2>
             <p className="text-lg text-dark-600">
-              Four easy steps to earning referral rewards.
+              {t.stepsText}
             </p>
           </div>
 
@@ -242,18 +399,18 @@ export default function ReferralsPage() {
           <div className="max-w-2xl mx-auto">
             <div className="text-center mb-12">
               <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
-                Submit a Referral
+                {t.submitReferral}
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-                Refer Someone Now
+                {t.referNow}
               </h2>
               <p className="text-lg text-dark-600">
-                Fill out the form below and we'll reach out to your referral within 24 hours.
+                {t.formText}
               </p>
             </div>
 
             <div className="bg-dark-50 rounded-2xl p-8">
-              <ReferralForm />
+              <ReferralForm locale={locale} />
             </div>
           </div>
         </div>
@@ -265,15 +422,15 @@ export default function ReferralsPage() {
           <div className="grid md:grid-cols-3 gap-8 text-center text-white">
             <div>
               <div className="text-4xl font-bold mb-2">$50K+</div>
-              <p className="text-primary-200">Paid in referral rewards</p>
+              <p className="text-primary-200">{t.statPaid}</p>
             </div>
             <div>
               <div className="text-4xl font-bold mb-2">150+</div>
-              <p className="text-primary-200">Happy referrers</p>
+              <p className="text-primary-200">{t.statReferrers}</p>
             </div>
             <div>
-              <div className="text-4xl font-bold mb-2">7 Days</div>
-              <p className="text-primary-200">Average payout time</p>
+              <div className="text-4xl font-bold mb-2">{t.statDaysValue}</div>
+              <p className="text-primary-200">{t.statDays}</p>
             </div>
           </div>
         </div>
@@ -285,10 +442,10 @@ export default function ReferralsPage() {
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
               <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
-                Questions?
+                {t.questions}
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">
-                Frequently Asked Questions
+                {t.faqTitle}
               </h2>
             </div>
 
@@ -310,14 +467,13 @@ export default function ReferralsPage() {
           <div className="max-w-3xl mx-auto text-center">
             <Heart className="w-12 h-12 text-dark-900/20 mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-              Your Recommendation Matters
+              {t.ctaTitle}
             </h2>
             <p className="text-lg text-dark-700 mb-8">
-              When you refer someone to CR Home Pros, you're not just earning a reward—you're 
-              helping a friend or neighbor get quality work they can trust.
+              {t.ctaText}
             </p>
             <a href="#refer-form" className="btn bg-dark-900 text-white hover:bg-dark-800 btn-lg">
-              Start Earning Today
+              {t.ctaButton}
               <ArrowRight className="w-5 h-5 ml-2" />
             </a>
           </div>
