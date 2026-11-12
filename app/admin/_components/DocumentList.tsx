@@ -6,7 +6,7 @@ import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, Dol
 import Link from 'next/link'
 
 const STATUS_STYLES: Record<string, string> = {
-  draft: 'bg-slate-500/20 text-slate-400',
+  draft: 'bg-amber-500/20 text-amber-300',
   sent: 'bg-blue-500/20 text-blue-400',
   signed: 'bg-green-500/20 text-green-400',
   paid: 'bg-emerald-500/20 text-emerald-400',
@@ -24,12 +24,20 @@ interface DocumentListProps {
   title: string
   createHref: string
   createLabel: string
+  /** 'drafts' = saved but not sent; 'sent' = sent, signed or paid */
+  view?: 'drafts' | 'sent'
+  /** Link to the other list (shown as a tab) */
+  otherHref?: string
 }
 
-export function DocumentList({ type, title, createHref, createLabel }: DocumentListProps) {
-  const [docs, setDocs] = useState<DocumentRecord[]>([])
+export function DocumentList({ type, title, createHref, createLabel, view = 'sent', otherHref }: DocumentListProps) {
+  const [allDocs, setDocs] = useState<DocumentRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const isDraft = (d: DocumentRecord) => (d.status || 'draft') === 'draft'
+  const docs = allDocs.filter(d => (view === 'drafts' ? isDraft(d) : !isDraft(d)))
+  const draftCount = allDocs.filter(isDraft).length
+  const sentCount = allDocs.length - draftCount
 
   useEffect(() => {
     loadDocs()
@@ -91,11 +99,23 @@ export function DocumentList({ type, title, createHref, createLabel }: DocumentL
         </Link>
       </div>
 
+      {otherHref && (
+        <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
+          {([['drafts', `Drafts (${draftCount})`], ['sent', `Sent (${sentCount})`]] as const).map(([v, label]) =>
+            v === view ? (
+              <span key={v} className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white">{label}</span>
+            ) : (
+              <Link key={v} href={otherHref} className="px-4 py-2 rounded-lg text-sm font-medium text-slate-300 hover:text-white">{label}</Link>
+            )
+          )}
+        </div>
+      )}
+
       {docs.length === 0 ? (
         <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-12 text-center">
           <FileText className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-          <p className="text-slate-300 text-lg mb-2">No {type.replace('-', ' ')}s yet</p>
-          <p className="text-slate-400 text-sm mb-6">Create your first {type.replace('-', ' ')} to get started.</p>
+          <p className="text-slate-300 text-lg mb-2">{view === 'drafts' ? `No draft ${type.replace('-', ' ')}s` : `No sent ${type.replace('-', ' ')}s yet`}</p>
+          <p className="text-slate-300 text-sm mb-6">{view === 'drafts' ? 'Drafts you save appear here until you send them.' : `A ${type.replace('-', ' ')} moves here once you send it.`}</p>
           <Link
             href={createHref}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700"
@@ -116,7 +136,7 @@ export function DocumentList({ type, title, createHref, createLabel }: DocumentL
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-3 mb-1.5">
                       <h3 className="font-semibold text-white truncate">{doc.number}</h3>
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[doc.status]}`}>
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[doc.status] || STATUS_STYLES.draft}`}>
                         <StatusIcon className="w-3 h-3" />
                         {doc.status}
                       </span>
@@ -152,6 +172,14 @@ export function DocumentList({ type, title, createHref, createLabel }: DocumentL
                     >
                       <Download className="w-3 h-3" /> Download Signed
                     </a>
+                  )}
+                  {doc.id && (
+                    <Link
+                      href={`${createHref}?id=${doc.id}`}
+                      className="text-xs px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 flex items-center gap-1.5"
+                    >
+                      <Eye className="w-3 h-3" /> {view === 'drafts' ? 'Continue editing' : 'Open'}
+                    </Link>
                   )}
                   <button
                     onClick={() => doc.id && handleDelete(doc.id)}

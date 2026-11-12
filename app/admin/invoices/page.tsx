@@ -7,7 +7,7 @@ import {
   AlertTriangle, Mail
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
-import { saveDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
+import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
 
 import Link from 'next/link'
 
@@ -50,6 +50,30 @@ export default function InvoicesPage() {
     getSavedSignatureUrl().then(url => { if (url) setSavedSigUrl(url) })
   }, [])
 
+  // Reopen a saved draft: /admin/...?id=<document id>
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('id')
+    if (!id) return
+    getDocument(id).then(d => {
+      if (!d) return
+      setSavedId(id)
+      setInv(prev => ({
+        ...prev,
+        ...(d.formData || {
+          number: (d.number || prev.number).replace(/-CORRECTED$/, ''),
+          date: d.date || prev.date, clientName: d.clientName || '', clientEmail: d.clientEmail || '',
+          clientPhone: d.clientPhone || '', clientAddress: d.clientAddress || '',
+          projectName: d.projectName || '', notes: d.notes ?? prev.notes,
+          // older drafts saved before formData existed: restore what was stored
+          ...('items' in prev && d.items?.length ? { items: d.items } : {}),
+          ...('dueDate' in prev && d.dueDate ? { dueDate: d.dueDate } : {}),
+          ...('taxRate' in prev && d.taxRate != null ? { taxRate: d.taxRate } : {}),
+        }),
+        signatureData: d.signatureData ?? null,
+      }))
+    }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
+  }, [])
+
   const updateField = (field: keyof InvoiceData, value: any) => setInv(prev => ({ ...prev, [field]: value }))
   const addItem = () => setInv(prev => ({ ...prev, items: [...prev.items, { id: String(Date.now()), description: '', quantity: 1, unitPrice: 0 }] }))
   const removeItem = (id: string) => { if (inv.items.length > 1) setInv(prev => ({ ...prev, items: prev.items.filter(i => i.id !== id) })) }
@@ -65,6 +89,7 @@ export default function InvoicesPage() {
         clientAddress: inv.clientAddress, projectName: inv.projectName, date: inv.date, dueDate: inv.dueDate,
         items: inv.items, notes: inv.notes, subtotal, tax, taxRate: inv.taxRate, total,
         signatureData: inv.signatureData, status,
+        formData: { ...inv, signatureData: null },
       }
       const id = await saveDocument(docData)
       setSavedId(id)
@@ -133,6 +158,9 @@ export default function InvoicesPage() {
           <p className="text-slate-300 text-sm mt-1">Generate professional invoices for your clients</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
+          <Link href="/admin/invoices/drafts" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2">
+            <Pencil className="w-4 h-4" /> Drafts
+          </Link>
           <Link href="/admin/invoices/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2">
             <FileText className="w-4 h-4" /> Sent
           </Link>

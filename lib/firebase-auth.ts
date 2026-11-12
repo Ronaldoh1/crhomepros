@@ -214,6 +214,8 @@ export interface DocumentRecord {
   signedFileName?: string
   emailSubject?: string
   emailBody?: string
+  /** Full editor form, so a draft reopens exactly as it was left */
+  formData?: Record<string, any>
   createdAt?: Timestamp | any
   updatedAt?: Timestamp | any
 }

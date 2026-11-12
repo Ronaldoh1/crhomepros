@@ -81,6 +81,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
           {expandedSections.invoices && (
             <div className="space-y-0.5 mt-0.5">
               {navLink('/admin/invoices', <FilePlus className="w-4 h-4" />, 'Generate Invoice', true)}
+              {navLink('/admin/invoices/drafts', <FileText className="w-4 h-4" />, 'Drafts', true)}
               {navLink('/admin/invoices/sent', <FolderOpen className="w-4 h-4" />, 'Sent Invoices', true)}
             </div>
           )}
@@ -91,6 +92,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
           {expandedSections.changeOrders && (
             <div className="space-y-0.5 mt-0.5">
               {navLink('/admin/change-orders', <FilePlus className="w-4 h-4" />, 'Generate Change Order', true)}
+              {navLink('/admin/change-orders/drafts', <FileText className="w-4 h-4" />, 'Drafts', true)}
               {navLink('/admin/change-orders/sent', <FolderOpen className="w-4 h-4" />, 'Sent Change Orders', true)}
             </div>
           )}
@@ -101,6 +103,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
           {expandedSections.contracts && (
             <div className="space-y-0.5 mt-0.5">
               {navLink('/admin/contracts', <FilePlus className="w-4 h-4" />, 'Generate Contract', true)}
+              {navLink('/admin/contracts/drafts', <FileText className="w-4 h-4" />, 'Drafts', true)}
               {navLink('/admin/contracts/sent', <FolderOpen className="w-4 h-4" />, 'Sent Contracts', true)}
             </div>
           )}

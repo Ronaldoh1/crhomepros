@@ -6,7 +6,7 @@ import {
   Briefcase, User, Calendar, FileText, Pencil, AlertTriangle, Mail
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
-import { saveDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
+import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
 
 import Link from 'next/link'
 
@@ -59,6 +59,30 @@ export default function ContractsPage() {
     getSavedSignatureUrl().then(url => { if (url) setSavedSigUrl(url) })
   }, [])
 
+  // Reopen a saved draft: /admin/...?id=<document id>
+  useEffect(() => {
+    const id = new URLSearchParams(window.location.search).get('id')
+    if (!id) return
+    getDocument(id).then(d => {
+      if (!d) return
+      setSavedId(id)
+      setCt(prev => ({
+        ...prev,
+        ...(d.formData || {
+          number: (d.number || prev.number).replace(/-CORRECTED$/, ''),
+          date: d.date || prev.date, clientName: d.clientName || '', clientEmail: d.clientEmail || '',
+          clientPhone: d.clientPhone || '', clientAddress: d.clientAddress || '',
+          projectName: d.projectName || '', notes: d.notes ?? prev.notes,
+          // older drafts saved before formData existed: restore what was stored
+          ...('items' in prev && d.items?.length ? { items: d.items } : {}),
+          ...('dueDate' in prev && d.dueDate ? { dueDate: d.dueDate } : {}),
+          ...('taxRate' in prev && d.taxRate != null ? { taxRate: d.taxRate } : {}),
+        }),
+        signatureData: d.signatureData ?? null,
+      }))
+    }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
+  }, [])
+
   // Auto-generate payment structure when total changes
   useEffect(() => {
     if (ct.totalAmount > 0 && !ct.paymentStructure) {
@@ -89,10 +113,16 @@ export default function ContractsPage() {
         paymentStructure: ct.paymentStructure, contractTerms: ct.contractTerms,
         notes: ct.notes, subtotal: ct.totalAmount, tax: 0, taxRate: 0, total: ct.totalAmount,
         signatureData: ct.signatureData, status,
+        formData: { ...ct, signatureData: null },
       }
       const id = await saveDocument(docData)
       setSavedId(id)
-    } catch (err) { console.error('Save failed:', err) }
+    } catch (err) {
+      console.error('Save failed:', err)
+      alert(`This could not be saved. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
+      setSaving(false)
+      throw err
+    }
     setSaving(false)
   }
 
