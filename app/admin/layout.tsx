@@ -7,8 +7,9 @@ import { useState } from 'react'
 import {
   LayoutDashboard, FileText, FilePlus, FileSignature,
   FolderOpen, LogOut, Menu, X, ChevronDown, ChevronRight,
-  Receipt, ClipboardList, Briefcase, Home, Loader2
+  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle
 } from 'lucide-react'
+import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
 
 function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
   const pathname = usePathname()
@@ -126,6 +127,13 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
           Back to Site
         </Link>
         <button
+          onClick={() => { onClose?.(); window.dispatchEvent(new Event(TOUR_EVENT)) }}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:text-white hover:bg-white/5 transition-all"
+        >
+          <HelpCircle className="w-4 h-4" />
+          Show walkthrough
+        </button>
+        <button
           onClick={signOut}
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all"
         >
@@ -164,6 +172,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-950 flex">
+      <AdminTour />
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <div className="fixed inset-y-0 left-0 w-64 z-30">

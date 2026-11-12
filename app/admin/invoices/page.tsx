@@ -10,6 +10,7 @@ import { SignaturePad } from '../_components/SignaturePad'
 import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
+import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
 import Link from 'next/link'
 
 interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
@@ -42,6 +43,9 @@ export default function InvoicesPage() {
   const [emailBody, setEmailBody] = useState('')
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [tab, setTab] = useState<'edit' | 'preview'>('edit')
+  const [wasSent, setWasSent] = useState(false) // already emailed to the client
+  const [confirmCorrection, setConfirmCorrection] = useState(false)
+  const markSaved = useUnsavedWarning(inv)
 
   const subtotal = Math.round(inv.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0) * 100) / 100
   const tax = Math.round(subtotal * inv.taxRate) / 100 // rounded to the cent
@@ -58,6 +62,9 @@ export default function InvoicesPage() {
     getDocument(id).then(d => {
       if (!d) return
       setSavedId(id)
+      const alreadySent = !!d.status && d.status !== 'draft'
+      setWasSent(alreadySent)
+      markSaved()
       setInv(prev => ({
         ...prev,
         ...(d.formData || {
@@ -71,6 +78,7 @@ export default function InvoicesPage() {
           ...('taxRate' in prev && d.taxRate != null ? { taxRate: d.taxRate } : {}),
         }),
         signatureData: d.signatureData ?? null,
+        ...(alreadySent ? { isCorrection: true } : {}),
       }))
     }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
   }, [])
@@ -94,6 +102,8 @@ export default function InvoicesPage() {
       }
       const id = await saveDocument(docData)
       setSavedId(id)
+      markSaved()
+      if (status !== 'draft') { setWasSent(true); setInv(prev => ({ ...prev, isCorrection: true })) }
     } catch (err) {
       console.error('Save failed:', err)
       alert(`The invoice could not be saved. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -126,8 +136,9 @@ export default function InvoicesPage() {
   }
 
   const prepareEmail = () => {
-    setEmailSubject(`Invoice ${inv.number} — ${inv.projectName || 'CR Home Pros'}`)
+    setEmailSubject(`${inv.isCorrection ? 'Corrected ' : ''}Invoice ${inv.number} — ${inv.projectName || 'CR Home Pros'}`)
     setEmailBody(`Hi ${inv.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Invoice ${inv.number} for ${inv.projectName || 'your project'} in the amount of $${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPayment is due by ${new Date(inv.dueDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.\n\nIf you have any questions, please don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+    if (inv.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
   }
 
@@ -170,12 +181,14 @@ export default function InvoicesPage() {
           <Link href="/admin/invoices/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2">
             <FileText className="w-4 h-4" /> Sent
           </Link>
-          <label className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-400 text-sm cursor-pointer">
-            <input type="checkbox" checked={inv.isCorrection} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
+          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-300 text-sm ${wasSent ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
+            <input type="checkbox" checked={inv.isCorrection || wasSent} disabled={wasSent} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
             <AlertTriangle className="w-3.5 h-3.5" /> Correction
           </label>
         </div>
       </div>
+
+      {wasSent && <SentNotice what="invoice" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
         <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
@@ -238,10 +251,10 @@ export default function InvoicesPage() {
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>
+            {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
             <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600/30 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
-            <button onClick={prepareEmail} disabled={!inv.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : 'Send to Client'}</button>
+            <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!inv.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
           </div>
         </div>
       ) : (
@@ -294,6 +307,7 @@ export default function InvoicesPage() {
               <div><label className={lc}>To</label><input value={inv.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
               <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
               <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
+              <SendChecks items={[!inv.signatureData && 'There is no signature on this invoice.', total <= 0 && 'The total is $0.00.', inv.isCorrection && 'This goes out marked as a CORRECTION.']} />
               <p className="text-xs text-slate-300">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
             </div>
             <div className="flex gap-3 mt-6">
@@ -303,6 +317,17 @@ export default function InvoicesPage() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmCorrection}
+        title="This invoice was already sent"
+        confirmLabel="Yes, write the correction email"
+        onCancel={() => setConfirmCorrection(false)}
+        onConfirm={() => { setConfirmCorrection(false); prepareEmail() }}
+      >
+        <p>{inv.clientName || 'The client'} already received this invoice by email.</p>
+        <p>If you continue, the client gets a <strong>second email</strong> with a new PDF marked as a correction. It cannot be taken back once it is sent.</p>
+        <p>Only continue if something in the first one was wrong.</p>
+      </ConfirmDialog>
     </div>
   )
 }

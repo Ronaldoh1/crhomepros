@@ -63,7 +63,10 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   const pdf = await PDFDocument.create()
   const font = await pdf.embedFont(StandardFonts.Helvetica)
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold)
-  const label = { invoice: 'INVOICE', 'change-order': 'CHANGE ORDER', contract: 'CONTRACT' }[type] || 'DOCUMENT'
+  const baseLabel = { invoice: 'INVOICE', 'change-order': 'CHANGE ORDER', contract: 'CONTRACT' }[type] || 'DOCUMENT'
+  // A document sent again after a fix carries a number ending in -CORRECTED
+  const corrected = /-CORRECTED$/i.test(String(d.number || ''))
+  const label = corrected ? `CORRECTED ${baseLabel}` : baseLabel
   pdf.setTitle(`${label} ${clean(d.number)}`)
   pdf.setAuthor('CR Home Pros')
 
@@ -130,7 +133,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   text('General Services Inc.', M, H - 72, 11, font, WHITE)
   text('Licensed  |  Insured  |  Bonded', M, H - 86, 8, font, GOLD)
   text('www.crgenserv.com  |  (571) 237-7164  |  crhomepros@gmail.com', M, H - 100, 7, font, LIGHT)
-  right(label, W - M, H - 55, 18, bold, GOLD)
+  right(label, W - M, H - 55, corrected ? 15 : 18, bold, GOLD)
   right(`#${d.number || ''}`, W - M, H - 75, 10, font, WHITE)
   page.drawRectangle({ x: 0, y: H - 124, width: W, height: 4, color: GOLD })
 

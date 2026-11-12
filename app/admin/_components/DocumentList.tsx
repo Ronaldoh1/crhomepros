@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { getDocumentsByType, deleteDocument, type DocumentRecord } from '@/lib/firebase-auth'
 import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, DollarSign, Upload } from 'lucide-react'
 import Link from 'next/link'
+import { ConfirmDialog } from './DocumentGuards'
 
 const STATUS_STYLES: Record<string, string> = {
   draft: 'bg-amber-500/20 text-amber-300',
@@ -34,6 +35,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
   const [allDocs, setDocs] = useState<DocumentRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
+  const [toDelete, setToDelete] = useState<DocumentRecord | null>(null)
   const isDraft = (d: DocumentRecord) => (d.status || 'draft') === 'draft'
   const docs = allDocs.filter(d => (view === 'drafts' ? isDraft(d) : !isDraft(d)))
   const draftCount = allDocs.filter(isDraft).length
@@ -54,13 +56,14 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
   }
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this document?')) return
+    setToDelete(null)
     setDeleting(id)
     try {
       await deleteDocument(id)
       setDocs(prev => prev.filter(d => d.id !== id))
     } catch (err) {
       console.error('Failed to delete:', err)
+      alert(`This could not be deleted. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
     }
     setDeleting(null)
   }
@@ -178,11 +181,11 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                       href={`${createHref}?id=${doc.id}`}
                       className="text-xs px-3 py-1.5 rounded-lg bg-blue-600/20 text-blue-300 hover:bg-blue-600/30 flex items-center gap-1.5"
                     >
-                      <Eye className="w-3 h-3" /> {view === 'drafts' ? 'Continue editing' : 'Open'}
+                      <Eye className="w-3 h-3" /> {view === 'drafts' ? 'Continue editing' : 'Open / correct'}
                     </Link>
                   )}
                   <button
-                    onClick={() => doc.id && handleDelete(doc.id)}
+                    onClick={() => doc.id && setToDelete(doc)}
                     disabled={deleting === doc.id}
                     className="text-xs px-3 py-1.5 rounded-lg bg-red-600/10 text-red-400 hover:bg-red-600/20 flex items-center gap-1.5 ml-auto"
                   >
@@ -195,6 +198,24 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
           })}
         </div>
       )}
+      <ConfirmDialog
+        open={!!toDelete}
+        danger
+        title={`Delete ${toDelete?.number || 'this document'}?`}
+        confirmLabel="Yes, delete it"
+        cancelLabel="Keep it"
+        onCancel={() => setToDelete(null)}
+        onConfirm={() => toDelete?.id && handleDelete(toDelete.id)}
+      >
+        {toDelete && (toDelete.status || 'draft') === 'draft' ? (
+          <p>This draft for {toDelete.clientName || 'this client'} will be gone for good. It was never sent.</p>
+        ) : (
+          <>
+            <p>This was already sent to {toDelete?.clientName || 'the client'}. Deleting it removes <strong>your record</strong> of it from the portal. The client still has their copy.</p>
+            <p>This cannot be undone.</p>
+          </>
+        )}
+      </ConfirmDialog>
     </div>
   )
 }

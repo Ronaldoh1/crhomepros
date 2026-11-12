@@ -9,6 +9,7 @@ import { SignaturePad } from '../_components/SignaturePad'
 import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
+import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
 import Link from 'next/link'
 
 interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
@@ -44,6 +45,9 @@ export default function ChangeOrdersPage() {
   const [emailSubject, setEmailSubject] = useState('')
   const [emailBody, setEmailBody] = useState('')
   const [tab, setTab] = useState<'edit' | 'preview'>('edit')
+  const [wasSent, setWasSent] = useState(false) // already emailed to the client
+  const [confirmCorrection, setConfirmCorrection] = useState(false)
+  const markSaved = useUnsavedWarning(co)
 
   const changeTotal = Math.round(co.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0) * 100) / 100
   const totalAfterChange = Math.round((co.previousContractAmount + changeTotal - co.depositAmount) * 100) / 100
@@ -59,6 +63,9 @@ export default function ChangeOrdersPage() {
     getDocument(id).then(d => {
       if (!d) return
       setSavedId(id)
+      const alreadySent = !!d.status && d.status !== 'draft'
+      setWasSent(alreadySent)
+      markSaved()
       setCo(prev => ({
         ...prev,
         ...(d.formData || {
@@ -72,6 +79,7 @@ export default function ChangeOrdersPage() {
           ...('taxRate' in prev && d.taxRate != null ? { taxRate: d.taxRate } : {}),
         }),
         signatureData: d.signatureData ?? null,
+        ...(alreadySent ? { isCorrection: true } : {}),
       }))
     }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
   }, [])
@@ -97,6 +105,8 @@ export default function ChangeOrdersPage() {
       }
       const id = await saveDocument(docData)
       setSavedId(id)
+      markSaved()
+      if (status !== 'draft') { setWasSent(true); setCo(prev => ({ ...prev, isCorrection: true })) }
     } catch (err) {
       console.error('Save failed:', err)
       alert(`This could not be saved. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -130,8 +140,9 @@ export default function ChangeOrdersPage() {
   }
 
   const prepareEmail = () => {
-    setEmailSubject(`Change Order ${co.number} — ${co.projectName || 'CR Home Pros'}`)
+    setEmailSubject(`${co.isCorrection ? 'Corrected ' : ''}Change Order ${co.number} — ${co.projectName || 'CR Home Pros'}`)
     setEmailBody(`Hi ${co.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Change Order ${co.number} for additional work on your project.\n\nThe change order total is $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+    if (co.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
   }
 
@@ -169,12 +180,14 @@ export default function ChangeOrdersPage() {
         </div>
         <div className="flex items-center gap-2 flex-wrap">
           <Link href="/admin/change-orders/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2"><FileText className="w-4 h-4" /> Sent</Link>
-          <label className="flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-400 text-sm cursor-pointer">
-            <input type="checkbox" checked={co.isCorrection} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
+          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-300 text-sm ${wasSent ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
+            <input type="checkbox" checked={co.isCorrection || wasSent} disabled={wasSent} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
             <AlertTriangle className="w-3.5 h-3.5" /> Correction
           </label>
         </div>
       </div>
+
+      {wasSent && <SentNotice what="change order" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
         <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
@@ -244,10 +257,10 @@ export default function ChangeOrdersPage() {
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
-            <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>
+            {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
             <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600/30 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
-            <button onClick={prepareEmail} disabled={!co.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : 'Send to Client'}</button>
+            <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!co.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
           </div>
         </div>
       ) : (
@@ -298,6 +311,8 @@ export default function ChangeOrdersPage() {
               <div><label className={lc}>To</label><input value={co.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
               <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
               <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
+              <SendChecks items={[!co.signatureData && 'There is no signature on this change order.', changeTotal <= 0 && 'The total is $0.00.', co.isCorrection && 'This goes out marked as a CORRECTION.']} />
+              <p className="text-xs text-slate-200">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
             </div>
             <div className="flex gap-3 mt-6">
               <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm">Cancel</button>
@@ -306,6 +321,17 @@ export default function ChangeOrdersPage() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        open={confirmCorrection}
+        title="This change order was already sent"
+        confirmLabel="Yes, write the correction email"
+        onCancel={() => setConfirmCorrection(false)}
+        onConfirm={() => { setConfirmCorrection(false); prepareEmail() }}
+      >
+        <p>{co.clientName || 'The client'} already received this change order by email.</p>
+        <p>If you continue, the client gets a <strong>second email</strong> with a new PDF marked as a correction. It cannot be taken back once it is sent.</p>
+        <p>Only continue if something in the first one was wrong.</p>
+      </ConfirmDialog>
     </div>
   )
 }
