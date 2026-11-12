@@ -439,6 +439,21 @@ export const GALLERY_PROJECTS: GalleryProject[] = [
     ],
   },
   {
+    id: 'painting-kitchen-washington-dc',
+    title: 'Interior Painting & Kitchen — Washington, DC',
+    category: 'Painting',
+    description: 'Interior painting and kitchen in Washington, DC — walls and ceilings painted throughout an open living area with a panel-molding stair wall, and a kitchen with white shaker cabinets, subway tile backsplash, quartz counters and a waterfall island.',
+    featured: true,
+    images: [
+      '/images/recent-projects/painting-kitchen-washington-dc/after-kitchen-pendants.jpg',
+      '/images/recent-projects/painting-kitchen-washington-dc/after-kitchen-waterfall-island.jpg',
+      '/images/recent-projects/painting-kitchen-washington-dc/after-kitchen-cabinets-range.jpg',
+      '/images/recent-projects/painting-kitchen-washington-dc/during-living-room-to-kitchen.jpg',
+      '/images/recent-projects/painting-kitchen-washington-dc/during-stairs-panel-wall.jpg',
+      '/images/recent-projects/painting-kitchen-washington-dc/during-living-room-bay-windows.jpg',
+    ],
+  },
+  {
     id: 'waterproofing-washington-dc',
     title: 'Basement Waterproofing & Finish — Washington, DC',
     category: 'Basement',

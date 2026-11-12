@@ -405,6 +405,36 @@
       "file": "recent-projects/power-washing-painting-maryland/during-bay-window-rear.jpg",
       "project": "power-washing-painting-maryland",
       "role": "during"
+    },
+    {
+      "file": "recent-projects/painting-kitchen-washington-dc/after-kitchen-pendants.jpg",
+      "project": "painting-kitchen-washington-dc",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/painting-kitchen-washington-dc/after-kitchen-waterfall-island.jpg",
+      "project": "painting-kitchen-washington-dc",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/painting-kitchen-washington-dc/after-kitchen-cabinets-range.jpg",
+      "project": "painting-kitchen-washington-dc",
+      "role": "after"
+    },
+    {
+      "file": "recent-projects/painting-kitchen-washington-dc/during-living-room-to-kitchen.jpg",
+      "project": "painting-kitchen-washington-dc",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/painting-kitchen-washington-dc/during-stairs-panel-wall.jpg",
+      "project": "painting-kitchen-washington-dc",
+      "role": "during"
+    },
+    {
+      "file": "recent-projects/painting-kitchen-washington-dc/during-living-room-bay-windows.jpg",
+      "project": "painting-kitchen-washington-dc",
+      "role": "during"
     }
   ]
 }
