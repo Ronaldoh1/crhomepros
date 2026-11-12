@@ -11,12 +11,14 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ChefHat, Bath, Home, Warehouse, Hammer, Grid3X3, Paintbrush, Wrench, TreeDeciduous, Shield, Building, FileText,
 }
 
-const serviceContent: Record<string, {
+type ServiceContent = {
   heroImage: string
   benefits: string[]
   process: { title: string; description: string }[]
   faqs: { q: string; a: string }[]
-}> = {
+}
+
+const serviceContent: Record<string, ServiceContent> = {
   'kitchen-remodeling': {
     heroImage: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=80',
     benefits: [
@@ -63,7 +65,7 @@ const serviceContent: Record<string, {
   },
 }
 
-const defaultContent = {
+const defaultContent: ServiceContent = {
   heroImage: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1200&q=80',
   benefits: [
     'Professional, licensed contractors',
@@ -86,59 +88,135 @@ const defaultContent = {
   ],
 }
 
+// Spanish (Latin American) versions of the text fields above. heroImage comes from the English entry.
+const serviceContentEs: Record<string, Omit<ServiceContent, 'heroImage'>> = {
+  'kitchen-remodeling': {
+    benefits: [
+      'Diseño e instalación de gabinetes a medida',
+      'Encimeras de primera calidad (cuarzo, granito, mármol)',
+      'Integración de electrodomésticos modernos',
+      'Distribución optimizada y funcional',
+      'Pisos y backsplash de calidad',
+      'Plomería y electricidad actualizadas',
+    ],
+    process: [
+      { title: 'Consulta', description: 'Conversamos sobre su visión, sus necesidades y su presupuesto' },
+      { title: 'Diseño', description: 'Creamos planos detallados y renders en 3D' },
+      { title: 'Selección', description: 'Usted elige materiales, acabados y accesorios' },
+      { title: 'Construcción', description: 'Demolición e instalación a cargo de expertos' },
+    ],
+    faqs: [
+      { q: '¿Cuánto tarda una remodelación de cocina?', a: 'La mayoría de las remodelaciones de cocina toman de 4 a 8 semanas, según el alcance.' },
+      { q: '¿Puedo seguir viviendo en mi casa durante la remodelación?', a: '¡Sí! Reducimos al mínimo las molestias en su vida diaria.' },
+      { q: '¿Ustedes se encargan de los permisos?', a: 'Por supuesto. Tramitamos todos los permisos e inspecciones necesarios.' },
+    ],
+  },
+  'bathroom-renovation': {
+    benefits: [
+      'Duchas de entrada a ras de piso (walk-in) y tinas de remojo',
+      'Opciones de piso radiante (con calefacción)',
+      'Muebles de lavamanos y almacenamiento a medida',
+      'Diseño de iluminación moderno',
+      'Accesorios de bajo consumo de agua',
+      'Adaptaciones de accesibilidad disponibles',
+    ],
+    process: [
+      { title: 'Evaluación', description: 'Revisamos el espacio y los requisitos de plomería' },
+      { title: 'Diseño', description: 'Creamos el plan de su baño con estilo de spa' },
+      { title: 'Demolición', description: 'Retiro cuidadoso de los accesorios existentes' },
+      { title: 'Instalación', description: 'Plomería, azulejos y accesorios instalados por expertos' },
+    ],
+    faqs: [
+      { q: '¿Cuánto tarda una renovación de baño?', a: 'Una renovación de baño típica toma de 2 a 4 semanas.' },
+      { q: '¿Pueden trabajar con la distribución que ya tengo?', a: 'Sí, aunque reubicar algunos accesorios puede mejorar el espacio.' },
+      { q: '¿Ofrecen opciones de accesibilidad?', a: 'Sí, incluyendo barras de apoyo, tinas con puerta y más.' },
+    ],
+  },
+}
+
+const defaultContentEs: Omit<ServiceContent, 'heroImage'> = {
+  benefits: [
+    'Contratistas profesionales con licencia',
+    'Materiales y mano de obra de calidad',
+    'Precios transparentes',
+    'Áreas de trabajo limpias',
+    'Garantía en todo nuestro trabajo',
+    'Proyectos terminados a tiempo',
+  ],
+  process: [
+    { title: 'Consulta', description: 'Evaluación y estimado gratis en su propiedad' },
+    { title: 'Planificación', description: 'Alcance y cronograma detallados del proyecto' },
+    { title: 'Ejecución', description: 'Instalación profesional a cargo de nuestro equipo' },
+    { title: 'Entrega', description: 'Recorrido final y garantía de satisfacción' },
+  ],
+  faqs: [
+    { q: '¿Ofrecen estimados gratis?', a: '¡Sí! Ofrecemos estimados gratis y sin compromiso.' },
+    { q: '¿Tienen licencia y seguro?', a: 'Sí, contamos con licencia (MHIC #05-132359) y seguro completo.' },
+    { q: '¿Qué áreas atienden?', a: 'Atendemos DC, Maryland y el norte de Virginia.' },
+  ],
+}
+
 export async function generateStaticParams() {
   return SERVICES.map((service) => ({ slug: service.id }))
 }
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string; locale: string } }): Promise<Metadata> {
+  const es = params.locale === 'es'
   const service = SERVICES.find((s) => s.id === params.slug)
-  if (!service) return { title: 'Service Not Found' }
+  if (!service) return { title: es ? 'Servicio No Encontrado' : 'Service Not Found' }
+  if (es) return { title: service.nameEs, description: service.shortDescriptionEs }
   return { title: service.name, description: service.shortDescription }
 }
 
-export default function ServicePage({ params }: { params: { slug: string } }) {
+export default function ServicePage({ params }: { params: { slug: string; locale: string } }) {
+  const es = params.locale === 'es'
   const service = SERVICES.find((s) => s.id === params.slug)
   if (!service) notFound()
 
   const baseContent = serviceContent[params.slug] || defaultContent
-  const content = { ...baseContent, heroImage: SERVICE_IMAGES[params.slug]?.src ?? baseContent.heroImage }
+  const textEs = es ? (serviceContentEs[params.slug] || defaultContentEs) : null
+  const content = { ...baseContent, ...(textEs ?? {}), heroImage: SERVICE_IMAGES[params.slug]?.src ?? baseContent.heroImage }
   const IconComponent = iconMap[service.icon] || Home
   const relatedTestimonial = TESTIMONIALS[0]
+  const serviceName: string = es ? service.nameEs : service.name
+  const shortDescription: string = es ? service.shortDescriptionEs : service.shortDescription
+  const priceRange: string = es && 'priceRangeEs' in service ? service.priceRangeEs : service.priceRange
+  const duration: string = es ? service.durationEs : service.duration
 
   return (
     <>
       {/* Hero */}
       <section className="relative page-top pb-20 bg-dark-900 overflow-hidden">
         <div className="absolute inset-0">
-          <Image src={content.heroImage} alt={service.name} fill className="object-cover opacity-20" />
+          <Image src={content.heroImage} alt={serviceName} fill className="object-cover opacity-20" />
           <div className="absolute inset-0 bg-gradient-to-r from-dark-900/90 to-dark-900/70" />
         </div>
         
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <Link href="/services" className="inline-flex items-center text-primary-100 hover:text-white mb-6">
-              ← Back to Services
+              {es ? '← Volver a Servicios' : '← Back to Services'}
             </Link>
             <div className="flex items-center gap-4 mb-6">
               <div className="w-16 h-16 rounded-2xl bg-gold-500/20 flex items-center justify-center">
                 <IconComponent className="w-8 h-8 text-gold-400" />
               </div>
             </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">{service.name}</h1>
-            <p className="text-xl text-white/90 leading-relaxed mb-8">{service.shortDescription}</p>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">{serviceName}</h1>
+            <p className="text-xl text-white/90 leading-relaxed mb-8">{shortDescription}</p>
             <div className="flex flex-wrap gap-6 text-white/90 mb-8">
               <div className="flex items-center gap-2">
                 <DollarSign className="w-5 h-5 text-gold-400" />
-                <span>{service.priceRange}</span>
+                <span>{priceRange}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock className="w-5 h-5 text-gold-400" />
-                <span>{service.duration}</span>
+                <span>{duration}</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/get-started" className="btn-gold btn-lg">
-                Request an Estimate <ArrowRight className="w-5 h-5 ml-2" />
+                {es ? 'Solicitar un Estimado' : 'Request an Estimate'} <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <a href={formatPhoneLink(COMPANY.phone)} className="btn-outline-white btn-lg">
                 <Phone className="w-5 h-5 mr-2" /> {COMPANY.phoneFormatted}
@@ -153,8 +231,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         <div className="container-custom">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">What's Included</span>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">Our {service.name} Services</h2>
+              <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">{es ? 'Qué Incluye' : "What's Included"}</span>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">{es ? `Nuestros Servicios de ${serviceName}` : <>Our {service.name} Services</>}</h2>
               <div className="space-y-4">
                 {content.benefits.map((benefit) => (
                   <div key={benefit} className="flex items-start gap-3">
@@ -165,7 +243,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
               </div>
             </div>
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden">
-              <Image src={content.heroImage} alt={service.name} fill className="object-cover" />
+              <Image src={content.heroImage} alt={serviceName} fill className="object-cover" />
             </div>
           </div>
         </div>
@@ -175,8 +253,8 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
       <section className="section-padding bg-dark-50">
         <div className="container-custom">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">Our Process</span>
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">How We Work</h2>
+            <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">{es ? 'Nuestro Proceso' : 'Our Process'}</span>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">{es ? 'Cómo Trabajamos' : 'How We Work'}</h2>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {content.process.map((step, index) => (
@@ -207,7 +285,7 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">FAQs About {service.name}</h2>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900">{es ? `Preguntas Frecuentes sobre ${serviceName}` : <>FAQs About {service.name}</>}</h2>
             </div>
             <div className="space-y-4">
               {content.faqs.map((faq, i) => (
@@ -225,10 +303,10 @@ export default function ServicePage({ params }: { params: { slug: string } }) {
       <section className="section-padding bg-gradient-to-br from-gold-500 to-gold-600">
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">Ready to Get Started?</h2>
-            <p className="text-lg text-dark-700 mb-8">Let's discuss your {service.name.toLowerCase()} project.</p>
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">{es ? '¿Listo para Comenzar?' : 'Ready to Get Started?'}</h2>
+            <p className="text-lg text-dark-700 mb-8">{es ? `Hablemos de su proyecto de ${serviceName.toLowerCase()}.` : <>Let's discuss your {service.name.toLowerCase()} project.</>}</p>
             <Link href="/get-started" className="btn bg-dark-900 text-white hover:bg-dark-800 btn-lg">
-              Request Free Estimate <ArrowRight className="w-5 h-5 ml-2" />
+              {es ? 'Solicitar Estimado Gratis' : 'Request Free Estimate'} <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </div>
         </div>

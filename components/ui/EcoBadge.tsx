@@ -4,9 +4,11 @@ interface EcoBadgeProps {
   size?: 'sm' | 'md' | 'lg'
   showLink?: boolean
   className?: string
+  locale?: string
 }
 
-export function EcoBadge({ size = 'md', showLink = true, className = '' }: EcoBadgeProps) {
+export function EcoBadge({ size = 'md', showLink = true, className = '', locale = 'en' }: EcoBadgeProps) {
+  const es = locale === 'es'
   const sizes = {
     sm: 'text-xs px-2 py-1 gap-1',
     md: 'text-sm px-3 py-1.5 gap-1.5',
@@ -18,13 +20,13 @@ export function EcoBadge({ size = 'md', showLink = true, className = '' }: EcoBa
       className={`inline-flex items-center font-semibold rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 ${sizes[size]} ${className}`}
     >
       <span className="text-emerald-500">🌿</span>
-      Eco-Friendly Options
+      {es ? 'Opciones Ecológicas' : 'Eco-Friendly Options'}
     </span>
   )
 
   if (showLink) {
     return (
-      <Link href="/en/green" className="hover:opacity-80 transition-opacity">
+      <Link href={es ? '/es/green' : '/green'} className="hover:opacity-80 transition-opacity">
         {badge}
       </Link>
     )
@@ -33,7 +35,8 @@ export function EcoBadge({ size = 'md', showLink = true, className = '' }: EcoBa
   return badge
 }
 
-export function EcoBanner() {
+export function EcoBanner({ locale = 'en' }: { locale?: string }) {
+  const es = locale === 'es'
   return (
     <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 border border-emerald-200 rounded-xl p-6">
       <div className="flex items-start gap-4">
@@ -42,17 +45,18 @@ export function EcoBanner() {
         </div>
         <div>
           <h3 className="text-lg font-display font-bold text-emerald-800 mb-1">
-            Green & Sustainable Options Available
+            {es ? 'Opciones Ecológicas y Sostenibles Disponibles' : 'Green & Sustainable Options Available'}
           </h3>
           <p className="text-emerald-800 text-sm mb-3">
-            We offer eco-friendly materials, energy-efficient upgrades, and sustainable practices on every project.
-            Ask about low-VOC paints, Energy Star appliances, LED lighting, and reclaimed materials.
+            {es
+              ? 'Ofrecemos materiales ecológicos, mejoras de eficiencia energética y prácticas sostenibles en cada proyecto. Pregunte por pinturas bajas en COV, electrodomésticos Energy Star, iluminación LED y materiales recuperados.'
+              : 'We offer eco-friendly materials, energy-efficient upgrades, and sustainable practices on every project. Ask about low-VOC paints, Energy Star appliances, LED lighting, and reclaimed materials.'}
           </p>
           <Link
-            href="/en/green"
+            href={es ? '/es/green' : '/green'}
             className="text-emerald-800 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1"
           >
-            Learn about our green approach →
+            {es ? 'Conozca nuestro enfoque ecológico →' : 'Learn about our green approach →'}
           </Link>
         </div>
       </div>

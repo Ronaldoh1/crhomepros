@@ -5,16 +5,25 @@ import { SERVICES, COMPANY } from '@/lib/constants'
 import { formatPhoneLink } from '@/lib/utils'
 import { EcoBanner } from '@/components/ui/EcoBadge'
 
-export const metadata: Metadata = {
-  title: 'Our Services',
-  description: 'Complete home improvement services in DC, Maryland & Virginia. Kitchen remodeling, bathroom renovation, roofing, concrete, painting & more. Licensed & insured.',
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  if (params.locale === 'es') {
+    return {
+      title: 'Nuestros Servicios',
+      description: 'Servicios completos de mejoras para el hogar en DC, Maryland y Virginia. Remodelación de cocinas, renovación de baños, techos, concreto, pintura y más. Con licencia y seguro.',
+    }
+  }
+  return {
+    title: 'Our Services',
+    description: 'Complete home improvement services in DC, Maryland & Virginia. Kitchen remodeling, bathroom renovation, roofing, concrete, painting & more. Licensed & insured.',
+  }
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   ChefHat, Bath, Home, Warehouse, Hammer, Grid3X3, Paintbrush, Wrench, TreeDeciduous, Shield, Building, FileText,
 }
 
-export default function ServicesPage() {
+export default function ServicesPage({ params }: { params: { locale: string } }) {
+  const es = params.locale === 'es'
   return (
     <>
       {/* Hero */}
@@ -23,17 +32,21 @@ export default function ServicesPage() {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
-              What We Do
+              {es ? 'Lo Que Hacemos' : 'What We Do'}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
-              Complete Home{' '}
+              {es ? 'Servicios Completos' : 'Complete Home'}{' '}
               <span className="text-gold-400">
-                Services
+                {es ? 'para su Hogar' : 'Services'}
               </span>
             </h1>
             <p className="text-xl text-white/90 leading-relaxed">
+              {es ? (
+                <>Desde reparaciones menores hasta grandes remodelaciones, nuestro equipo calificado se encarga de cada aspecto de su proyecto de mejoras para el hogar con precisión y cuidado.</>
+              ) : (<>
               From minor repairs to major renovations, our skilled team handles every aspect of your 
               home improvement project with precision and care.
+              </>)}
             </p>
           </div>
         </div>
@@ -55,12 +68,12 @@ export default function ServicesPage() {
                     <IconComponent className="w-7 h-7 text-primary-600" />
                   </div>
                   <h3 className="text-xl font-display font-semibold text-dark-900 mb-3 group-hover:text-primary-800 transition-colors">
-                    {service.name}
+                    {es ? service.nameEs : service.name}
                   </h3>
-                  <p className="text-dark-600 mb-4">{service.shortDescription}</p>
+                  <p className="text-dark-600 mb-4">{es ? service.shortDescriptionEs : service.shortDescription}</p>
                   <div className="flex items-center justify-between text-sm text-dark-600 pt-4 border-t border-dark-100">
-                    <span>{service.priceRange}</span>
-                    <span>{service.duration}</span>
+                    <span>{es && 'priceRangeEs' in service ? service.priceRangeEs : service.priceRange}</span>
+                    <span>{es ? service.durationEs : service.duration}</span>
                   </div>
                   <div className="absolute top-8 right-8 opacity-0 group-hover:opacity-100 transition-opacity">
                     <ArrowRight className="w-5 h-5 text-primary-500" />
@@ -75,7 +88,7 @@ export default function ServicesPage() {
       {/* Green Options Banner */}
       <section className="py-8">
         <div className="container-custom">
-          <EcoBanner />
+          <EcoBanner locale={params.locale} />
         </div>
       </section>
 
@@ -85,20 +98,27 @@ export default function ServicesPage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
               <span className="inline-block text-sm font-semibold text-gold-900 tracking-wider uppercase mb-4">
-                Why CR Home Pros?
+                {es ? '¿Por Qué CR Home Pros?' : 'Why CR Home Pros?'}
               </span>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-                Quality Work, Every Time
+                {es ? 'Trabajo de Calidad, Siempre' : 'Quality Work, Every Time'}
               </h2>
               <div className="space-y-4">
-                {[
+                {(es ? [
+                  'Con licencia (MHIC #05-132359) y totalmente asegurados',
+                  'Estimados gratis y sin compromiso',
+                  'Precios transparentes, sin cargos ocultos',
+                  'Equipo bilingüe (inglés y español)',
+                  'Áreas de trabajo limpias y respeto por su hogar',
+                  'Garantías por escrito en nuestro trabajo',
+                ] : [
                   'Licensed (MHIC #05-132359) and fully insured',
                   'Free, no-obligation estimates',
                   'Transparent pricing with no hidden fees',
                   'Bilingual team (English & Spanish)',
                   'Clean job sites and respectful of your home',
                   'Written warranties on our work',
-                ].map((item) => (
+                ]).map((item) => (
                   <div key={item} className="flex items-start gap-3">
                     <div className="w-6 h-6 rounded-full bg-gold-500 flex items-center justify-center flex-shrink-0 mt-0.5">
                       <svg className="w-3 h-3 text-dark-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,13 +131,13 @@ export default function ServicesPage() {
               </div>
             </div>
             <div className="bg-primary-800 rounded-2xl p-8 text-white">
-              <h3 className="text-2xl font-display font-semibold mb-4">Not Sure Where to Start?</h3>
+              <h3 className="text-2xl font-display font-semibold mb-4">{es ? '¿No Sabe por Dónde Empezar?' : 'Not Sure Where to Start?'}</h3>
               <p className="text-primary-200 mb-6">
-                Schedule a free consultation and we'll help you prioritize your home improvement needs.
+                {es ? 'Programe una consulta gratis y le ayudaremos a definir las prioridades de su hogar.' : 'Schedule a free consultation and we\'ll help you prioritize your home improvement needs.'}
               </p>
               <div className="space-y-3">
                 <Link href="/get-started" className="btn-gold w-full justify-center">
-                  Request Free Consultation
+                  {es ? 'Solicitar Consulta Gratis' : 'Request Free Consultation'}
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </Link>
                 <a href={formatPhoneLink(COMPANY.phone)} className="btn-outline-white w-full justify-center">
@@ -138,12 +158,12 @@ export default function ServicesPage() {
               <span className="text-3xl">🌿</span>
             </div>
             <div>
-              <h3 className="text-xl font-display font-bold text-emerald-800 mb-1">Eco-Friendly Options on Every Project</h3>
+              <h3 className="text-xl font-display font-bold text-emerald-800 mb-1">{es ? 'Opciones Ecológicas en Cada Proyecto' : 'Eco-Friendly Options on Every Project'}</h3>
               <p className="text-emerald-800 text-sm mb-2">
-                Low-VOC paints, Energy Star appliances, LED lighting, sustainable materials, and responsible waste handling are standard.
+                {es ? 'Pinturas bajas en COV, electrodomésticos Energy Star, iluminación LED, materiales sostenibles y manejo responsable de desechos son parte de nuestro estándar.' : 'Low-VOC paints, Energy Star appliances, LED lighting, sustainable materials, and responsible waste handling are standard.'}
               </p>
-              <Link href="/en/green" className="text-emerald-800 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1">
-                Read our sustainability approach →
+              <Link href={es ? '/es/green' : "/en/green"} className="text-emerald-800 font-semibold text-sm hover:text-emerald-700 inline-flex items-center gap-1">
+                {es ? 'Conozca nuestro enfoque de sostenibilidad →' : 'Read our sustainability approach →'}
               </Link>
             </div>
           </div>
@@ -155,12 +175,12 @@ export default function ServicesPage() {
         <div className="container-custom">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-white">
             <div>
-              <h3 className="text-2xl font-display font-semibold mb-2">🚨 Emergency Repairs Available</h3>
-              <p className="text-white">Water damage, roof leaks, or urgent repairs? We're on call 24/7.</p>
+              <h3 className="text-2xl font-display font-semibold mb-2">{es ? '🚨 Reparaciones de Emergencia Disponibles' : '🚨 Emergency Repairs Available'}</h3>
+              <p className="text-white">{es ? '¿Daños por agua, filtraciones en el techo o reparaciones urgentes? Estamos disponibles 24/7.' : 'Water damage, roof leaks, or urgent repairs? We\'re on call 24/7.'}</p>
             </div>
             <a href={formatPhoneLink(COMPANY.phone)} className="flex items-center gap-2 bg-white text-red-800 px-6 py-3 rounded-xl font-semibold hover:bg-red-50 transition-colors">
               <Phone className="w-5 h-5" />
-              Call Now: {COMPANY.phoneFormatted}
+              {es ? 'Llame Ahora: ' : 'Call Now: '}{COMPANY.phoneFormatted}
             </a>
           </div>
         </div>

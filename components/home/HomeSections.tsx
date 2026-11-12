@@ -399,7 +399,7 @@ export function ReviewCards() {
               </blockquote>
               <p className="mt-6 font-semibold text-dark-900">{rv.name}</p>
               <p className="text-[15px] text-dark-600">
-                {rv.location} · {rv.service}
+                {rv.location} · {locale === 'es' && 'serviceEs' in rv ? (rv as { serviceEs: string }).serviceEs : rv.service}
               </p>
             </li>
           ))}
