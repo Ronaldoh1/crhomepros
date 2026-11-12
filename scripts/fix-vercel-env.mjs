@@ -81,15 +81,26 @@ for (const [k, v] of Object.entries(want)) {
   }
 }
 
-// 3. Replace each one (no trailing newline is ever sent)
+// 3. Set each one. --force overwrites in place (nothing is removed first),
+// the value goes in through stdin so no trailing newline is ever sent.
+let failed = 0
 for (const [name, value] of Object.entries(want)) {
-  spawnSync('vercel', ['env', 'rm', name, TARGET, '--yes'], { stdio: 'ignore' })
-  const add = spawnSync('vercel', ['env', 'add', name, TARGET], { input: value, stdio: ['pipe', 'ignore', 'pipe'] })
+  const type = name.startsWith('NEXT_PUBLIC_') ? 'config' : 'secret'
+  const base = ['env', 'add', name, '--environment', TARGET, '--type', type, '--force', '--yes']
+  let add = spawnSync('vercel', base, { input: value, encoding: 'utf8' })
   if (add.status !== 0) {
-    console.error(`✗ ${name}: ${add.stderr?.toString().trim()}`)
-    process.exit(1)
+    // Fallback: pass the value as an option instead of stdin
+    add = spawnSync('vercel', [...base, `--value=${value}`], { encoding: 'utf8' })
   }
-  console.log(`✓ ${name}`)
+  if (add.status !== 0) {
+    failed++
+    console.error(`✗ ${name}: ${(add.stderr || add.stdout || '').trim().split('\n').slice(-3).join(' | ')}`)
+  } else {
+    console.log(`✓ ${name}`)
+  }
+}
+if (failed) {
+  console.error(`\n${failed} setting(s) failed. Paste this output to Claude.`)
+  process.exit(1)
 }
 console.log('\nDone. Now run: vercel --prod   and open https://www.crhomepros.com/api/test-config')
-console.log('Then delete the key file from your Downloads folder.')
