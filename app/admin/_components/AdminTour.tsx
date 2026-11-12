@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Receipt, FileText, Send, AlertTriangle, LayoutDashboard, X } from 'lucide-react'
+import { Receipt, FileText, Send, AlertTriangle, LayoutDashboard, Camera, X } from 'lucide-react'
 
 const COUNT_KEY = 'crhp_admin_tour_count'
 const SESSION_KEY = 'crhp_admin_tour_seen_this_visit'
@@ -18,6 +18,11 @@ const STEPS = [
     icon: Receipt,
     title: 'Making a document',
     body: 'Pick "Generate Invoice", "Generate Change Order" or "Generate Contract". Fill in the client, the work and the prices. "Preview" shows how it will look, and "Generate PDF" opens the PDF so you can check it or print it.',
+  },
+  {
+    icon: Camera,
+    title: 'Estimates at the job site',
+    body: 'On your phone, open "Field Estimates" and press New. Take photos with the camera, then write the measurements, materials and your price. When you save, everything is kept here and a folder with the photos and notes is made in your Google Drive, ready when you get home.',
   },
   {
     icon: FileText,

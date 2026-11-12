@@ -36,6 +36,7 @@ import {
   ref,
   uploadBytes,
   getDownloadURL,
+  deleteObject,
   type FirebaseStorage,
 } from 'firebase/storage'
 
@@ -402,6 +403,8 @@ export interface FieldNoteRecord {
   id?: string
   projectName: string
   clientName: string
+  clientPhone?: string
+  clientEmail?: string
   address: string
   serviceType: string
   notes: string
@@ -409,7 +412,13 @@ export interface FieldNoteRecord {
   materialsNeeded?: string
   estimatedCost?: string
   nextSteps?: string
+  /** Photo links (Firebase Storage). Very old notes may hold inline image data instead. */
   photos: string[]
+  /** Storage paths of the photos, same order as `photos`, so they can be deleted */
+  photoPaths?: string[]
+  /** Google Drive copy of this estimate */
+  driveFolderId?: string
+  driveFolderUrl?: string
   status: 'draft' | 'complete'
   createdAt?: any
   updatedAt?: any
@@ -417,7 +426,12 @@ export interface FieldNoteRecord {
 
 const FIELD_NOTES_COLLECTION = 'field_notes'
 
-export async function saveFieldNote(noteData: FieldNoteRecord): Promise<string> {
+/** Reserve an id first, so photos can be uploaded under it before the note is saved */
+export function newFieldNoteId(): string {
+  return doc(collection(requireDb(), FIELD_NOTES_COLLECTION)).id
+}
+
+export async function saveFieldNote(noteData: FieldNoteRecord, isNew = !noteData.id): Promise<string> {
   const db = requireDb()
   const docRef = noteData.id
     ? doc(db, FIELD_NOTES_COLLECTION, noteData.id)
@@ -427,9 +441,24 @@ export async function saveFieldNote(noteData: FieldNoteRecord): Promise<string> 
     ...noteData,
     id: docRef.id,
     updatedAt: serverTimestamp(),
-    ...(noteData.id ? {} : { createdAt: serverTimestamp() }),
+    ...(isNew ? { createdAt: serverTimestamp() } : {}),
   }, { merge: true })
   return docRef.id
+}
+
+/** Upload one (already shrunk) field photo. Stored privately: admin only. */
+export async function uploadFieldPhoto(noteId: string, photo: Blob): Promise<{ url: string; path: string }> {
+  const s = requireStorage()
+  const path = `admin/field-notes/${noteId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+  const storageRef = ref(s, path)
+  await uploadBytes(storageRef, photo, { contentType: 'image/jpeg' })
+  return { url: await getDownloadURL(storageRef), path }
+}
+
+export async function deleteFieldPhoto(path: string): Promise<void> {
+  const s = ensureStorage()
+  if (!s || !path) return
+  try { await deleteObject(ref(s, path)) } catch { /* already gone */ }
 }
 
 export async function getFieldNotes(): Promise<FieldNoteRecord[]> {

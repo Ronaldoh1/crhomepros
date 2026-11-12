@@ -69,12 +69,12 @@ export function SendChecks({ items }: { items: Array<string | false | null | und
  * while the form has changes that were not saved.
  * Call the returned function right after loading or saving.
  */
-export function useUnsavedWarning(value: Record<string, any>) {
+export function useUnsavedWarning(value: Record<string, any>, enabled = true) {
   const key = JSON.stringify({ ...value, signatureData: undefined })
   const clean = useRef(key)
   const pending = useRef(false)
   if (pending.current) { clean.current = key; pending.current = false }
-  const dirty = key !== clean.current
+  const dirty = enabled && key !== clean.current
   const dirtyRef = useRef(dirty)
   dirtyRef.current = dirty
 
@@ -105,5 +105,8 @@ export function useUnsavedWarning(value: Record<string, any>) {
     }
   }, [key])
 
-  return () => { pending.current = true }
+  const markSaved = () => { pending.current = true }
+  /** true while there are changes that were not saved */
+  markSaved.isDirty = () => dirtyRef.current
+  return markSaved
 }

@@ -7,7 +7,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard, FileText, FilePlus, FileSignature,
   FolderOpen, LogOut, Menu, X, ChevronDown, ChevronRight,
-  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle
+  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera
 } from 'lucide-react'
 import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
 
@@ -76,6 +76,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navLink('/admin', <LayoutDashboard className="w-4 h-4" />, 'Dashboard')}
+        {navLink('/admin/field-notes', <Camera className="w-4 h-4" />, 'Field Estimates')}
 
         <div className="pt-3">
           {sectionHeader('invoices', <Receipt className="w-4 h-4" />, 'Invoices')}

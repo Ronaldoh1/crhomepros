@@ -10,6 +10,10 @@ service firebase.storage {
     match /admin/{allPaths=**} {
       allow read, write: if isAdmin();
     }
+    // Signed contracts and change orders uploaded by Carlos: admin only
+    match /signed-documents/{allPaths=**} {
+      allow read, write: if isAdmin();
+    }
     // Project images and site assets — public read
     match /projects/{allPaths=**} {
       allow read: if true;

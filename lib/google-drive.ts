@@ -88,7 +88,8 @@ async function findOrCreateFolder(name: string, parentId?: string): Promise<stri
   const drive = getDrive()
 
   // Search for existing folder
-  let query = `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`
+  const safeName = name.replace(/\\/g, '\\\\').replace(/'/g, "\\'") // names like O'Brien
+  let query = `name='${safeName}' and mimeType='application/vnd.google-apps.folder' and trashed=false`
   if (parentId) {
     query += ` and '${parentId}' in parents`
   }
@@ -367,6 +368,97 @@ export async function logContactInDrive(contact: {
     },
     fields: 'id',
   })
+}
+
+// ============================================
+// Field Estimates (Carlos's on-site notes and photos)
+// ============================================
+
+export interface FieldEstimateData {
+  clientName: string
+  clientPhone?: string
+  clientEmail?: string
+  address?: string
+  projectName?: string
+  serviceType?: string
+  notes?: string
+  measurements?: string
+  materialsNeeded?: string
+  estimatedCost?: string
+  nextSteps?: string
+  date?: string
+}
+
+/**
+ * Saves a field estimate to Drive:
+ *   CR Home Pros / Field Estimates / [date] Client - Project /
+ *     Estimate-Details.txt  +  photo-01.jpg, photo-02.jpg, ...
+ * Saving the same estimate again refreshes the same folder.
+ */
+export async function saveFieldEstimateToDrive(
+  est: FieldEstimateData,
+  photos: Buffer[],
+  existingFolderId?: string,
+): Promise<{ folderId: string; folderUrl: string }> {
+  const drive = getDrive()
+  const { rootId } = await initializeFolderStructure()
+  const estimatesId = await findOrCreateFolder('Field Estimates', rootId)
+
+  const date = est.date || new Date().toISOString().split('T')[0]
+  const clean = (v?: string) => (v || '').replace(/[\\/\n\r]+/g, ' ').trim()
+  const folderName = `[${date}] ${clean(est.clientName) || 'Client'}${est.projectName ? ` - ${clean(est.projectName)}` : ''}`.slice(0, 120)
+
+  let folderId = ''
+  if (existingFolderId) {
+    try {
+      const f = await drive.files.get({ fileId: existingFolderId, fields: 'id, trashed' })
+      if (f.data.id && !f.data.trashed) {
+        folderId = existingFolderId
+        await drive.files.update({ fileId: folderId, requestBody: { name: folderName } })
+        // clear the old copy so the folder always matches the latest save
+        const old = await drive.files.list({ q: `'${folderId}' in parents and trashed=false`, fields: 'files(id)', pageSize: 200 })
+        for (const file of old.data.files || []) {
+          if (file.id) await drive.files.update({ fileId: file.id, requestBody: { trashed: true } })
+        }
+      }
+    } catch { /* folder was deleted in Drive: make a new one */ }
+  }
+  if (!folderId) folderId = await findOrCreateFolder(folderName, estimatesId)
+
+  const line = (label: string, value?: string) => (value && value.trim() ? `${label}\n${value.trim()}\n\n` : '')
+  const body = [
+    '========================================',
+    '   CR HOME PROS - FIELD ESTIMATE',
+    `   ${date}`,
+    '========================================',
+    '',
+    `Client:   ${est.clientName || ''}`,
+    `Phone:    ${est.clientPhone || ''}`,
+    `Email:    ${est.clientEmail || ''}`,
+    `Address:  ${est.address || ''}`,
+    `Project:  ${est.projectName || ''}`,
+    `Service:  ${est.serviceType || ''}`,
+    `Photos:   ${photos.length}`,
+    '',
+    '----------------------------------------',
+    '',
+    line('SITE NOTES', est.notes) + line('MEASUREMENTS', est.measurements) + line('MATERIALS NEEDED', est.materialsNeeded)
+      + line('ESTIMATED COST', est.estimatedCost) + line('NEXT STEPS', est.nextSteps),
+  ].join('\n')
+
+  await drive.files.create({
+    requestBody: { name: 'Estimate-Details.txt', parents: [folderId], mimeType: 'text/plain' },
+    media: { mimeType: 'text/plain', body },
+    fields: 'id',
+  })
+  for (let i = 0; i < photos.length; i++) {
+    await drive.files.create({
+      requestBody: { name: `photo-${String(i + 1).padStart(2, '0')}.jpg`, parents: [folderId] },
+      media: { mimeType: 'image/jpeg', body: Readable.from(photos[i]) },
+      fields: 'id',
+    })
+  }
+  return { folderId, folderUrl: `https://drive.google.com/drive/folders/${folderId}` }
 }
 
 /**
