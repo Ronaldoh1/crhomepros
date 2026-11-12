@@ -4,11 +4,12 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { ChevronDown, ChevronUp, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { GALLERY_PROJECTS as RAW_PROJECTS, GALLERY_CATEGORIES, type GalleryCategory } from '@/lib/gallery-data'
+import { GALLERY_PROJECTS as RAW_PROJECTS, GALLERY_CATEGORIES, getGalleryCategoryLabel, type GalleryCategory } from '@/lib/gallery-data'
 import { resolveProjectImages } from '@/lib/resolve-images'
 import { BeforeAfterSlider } from '@/components/ui/BeforeAfterSlider'
 import { resolveImageUrl } from '@/lib/resolve-images'
 import { isCommittedPhoto } from '@/lib/sample-photos'
+import { useLocale } from '@/lib/i18n/provider'
 
 // Resolve image URLs — uses Firebase Storage when configured, local paths otherwise
 // Only jobs with Carlos's real photos are shown. Older jobs whose photos
@@ -22,6 +23,11 @@ const VISIBLE_CATEGORIES = GALLERY_CATEGORIES.filter(
 )
 
 export default function ProjectsPage() {
+  const { locale } = useLocale()
+  const es = locale === 'es'
+  const titleOf = (p: (typeof GALLERY_PROJECTS)[number]) => (es && p.titleEs) || p.title
+  const descriptionOf = (p: (typeof GALLERY_PROJECTS)[number]) => (es && p.descriptionEs) || p.description
+  const categoryLabel = (c: string) => getGalleryCategoryLabel(c, locale)
   const [activeCategory, setActiveCategory] = useState<GalleryCategory>('All')
   const [expandedProjects, setExpandedProjects] = useState<Set<string>>(new Set())
   const [lightboxImage, setLightboxImage] = useState<{ src: string; projectId: string; index: number } | null>(null)
@@ -89,16 +95,18 @@ export default function ProjectsPage() {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
-              Our Portfolio
+              {es ? 'Nuestro Portafolio' : 'Our Portfolio'}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
-              Project{' '}
+              {es ? 'Galería de' : 'Project'}{' '}
               <span className="text-gold-400">
-                Gallery
+                {es ? 'Proyectos' : 'Gallery'}
               </span>
             </h1>
             <p className="text-xl text-white/90">
-              Browse our completed projects and see the quality craftsmanship we bring to every home.
+              {es
+                ? 'Explore nuestros proyectos terminados y vea la calidad del trabajo que ofrecemos en cada hogar.'
+                : 'Browse our completed projects and see the quality craftsmanship we bring to every home.'}
             </p>
           </div>
         </div>
@@ -112,7 +120,7 @@ export default function ProjectsPage() {
             <aside className="lg:w-64 flex-shrink-0">
               <div className="sticky top-24">
                 <h3 className="text-sm font-semibold text-dark-600 uppercase tracking-wider mb-4">
-                  Categories
+                  {es ? 'Categorías' : 'Categories'}
                 </h3>
                 <nav className="space-y-1">
                   {VISIBLE_CATEGORIES.map((cat) => (
@@ -126,7 +134,7 @@ export default function ProjectsPage() {
                           : 'text-dark-600 hover:bg-dark-50 hover:text-dark-900'
                       )}
                     >
-                      {cat}
+                      {categoryLabel(cat)}
                     </button>
                   ))}
                 </nav>
@@ -148,14 +156,14 @@ export default function ProjectsPage() {
                     >
                       <div className="text-left">
                         <h3 className="text-lg md:text-xl font-display font-semibold text-dark-900">
-                          {project.title}
+                          {titleOf(project)}
                         </h3>
                         <p className="text-sm text-dark-600 mt-1">
-                          {project.category} • {project.images.length} photos
+                          {categoryLabel(project.category)} • {project.images.length} {es ? 'fotos' : 'photos'}
                         </p>
-                        {project.description && (
+                        {descriptionOf(project) && (
                           <p className="text-sm text-dark-600 mt-2 leading-relaxed">
-                            {project.description}
+                            {descriptionOf(project)}
                           </p>
                         )}
                       </div>
@@ -172,10 +180,11 @@ export default function ProjectsPage() {
                         {/* Before/After Slider (if project has before images) */}
                         {project.beforeImages && project.beforeImages.length > 0 && (
                           <div className="mb-6">
-                            <div className="text-sm font-semibold text-dark-600 uppercase tracking-wider mb-3">Before &amp; After</div>
+                            <div className="text-sm font-semibold text-dark-600 uppercase tracking-wider mb-3">{es ? 'Antes y Después' : <>Before &amp; After</>}</div>
                             <BeforeAfterSlider
                               beforeImage={project.beforeImages[0]}
                               afterImage={project.images[0]}
+                              locale={locale}
                               className="shadow-md"
                             />
                           </div>
@@ -191,14 +200,14 @@ export default function ProjectsPage() {
                             >
                               <Image
                                 src={resolveImageUrl(img)}
-                                alt={`${project.title} - Image ${idx + 1}`}
+                                alt={`${titleOf(project)} - ${es ? 'Imagen' : 'Image'} ${idx + 1}`}
                                 fill
                                 className="object-cover transition-transform duration-300 group-hover:scale-110"
                                 unoptimized={img.includes('firebasestorage')}
                                 onError={(e) => {
                                   const target = e.target as HTMLImageElement
                                   target.style.display = 'none'
-                                  target.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-dark-600 text-xs">Photo unavailable</div>'
+                                  target.parentElement!.innerHTML = `<div class="flex items-center justify-center h-full text-dark-600 text-xs">${es ? 'Foto no disponible' : 'Photo unavailable'}</div>`
                                 }}
                               />
                               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
@@ -213,7 +222,7 @@ export default function ProjectsPage() {
                         >
                           <Image
                             src={resolveImageUrl(project.images[0])}
-                            alt={`${project.title} - Featured`}
+                            alt={`${titleOf(project)} - ${es ? 'Destacada' : 'Featured'}`}
                             fill
                             className="object-cover"
                             unoptimized={project.images[0].includes('firebasestorage')}
@@ -231,7 +240,7 @@ export default function ProjectsPage() {
 
               {filteredProjects.length === 0 && (
                 <div className="text-center py-12 bg-dark-50 rounded-xl">
-                  <p className="text-dark-600">No projects found in this category.</p>
+                  <p className="text-dark-600">{es ? 'No se encontraron proyectos en esta categoría.' : 'No projects found in this category.'}</p>
                 </div>
               )}
             </div>
@@ -274,7 +283,7 @@ export default function ProjectsPage() {
           >
             <Image
               src={lightboxImage.src}
-              alt="Gallery image"
+              alt={es ? 'Imagen de la galería' : 'Gallery image'}
               fill
               className="object-contain"
             />

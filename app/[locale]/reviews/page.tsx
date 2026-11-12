@@ -5,9 +5,17 @@ import { TESTIMONIALS, COMPANY } from '@/lib/constants'
 import { RECOMMENDATION_LETTERS } from '@/lib/recommendations-data'
 import { cn, getInitials } from '@/lib/utils'
 
-export const metadata: Metadata = {
-  title: 'Customer Reviews',
-  description: `Read what our customers say about CR Home Pros. ${COMPANY.projectsCompleted} satisfied customers across DC, Maryland & Virginia.`,
+export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  if (params.locale === 'es') {
+    return {
+      title: 'Reseñas de Clientes',
+      description: `Lea lo que nuestros clientes dicen de CR Home Pros. ${COMPANY.projectsCompleted} clientes satisfechos en DC, Maryland y Virginia.`,
+    }
+  }
+  return {
+    title: 'Customer Reviews',
+    description: `Read what our customers say about CR Home Pros. ${COMPANY.projectsCompleted} satisfied customers across DC, Maryland & Virginia.`,
+  }
 }
 
 // Extended testimonials with more detail
@@ -20,6 +28,7 @@ const allReviews = [
     rating: 5,
     text: 'We hired CR for a complete bathroom renovation and couldn\'t be happier. Carlos and his team were professional, punctual, and the quality of work exceeded our expectations. The attention to detail was remarkable.',
     service: 'Bathroom Renovation',
+    serviceEs: 'Renovación de Baño',
   },
   {
     id: 8,
@@ -28,6 +37,7 @@ const allReviews = [
     rating: 5,
     text: 'After getting quotes from several contractors, we chose CR because of their transparent pricing and professionalism. They delivered exactly what they promised, on time and on budget. Will definitely use them again.',
     service: 'Kitchen Remodel',
+    serviceEs: 'Remodelación de Cocina',
   },
   {
     id: 9,
@@ -36,17 +46,21 @@ const allReviews = [
     rating: 5,
     text: 'Excelente trabajo! Carlos habla español lo cual fue muy útil para comunicarnos. The roof replacement was done quickly and professionally. They cleaned up everything when finished. Highly recommend!',
     service: 'Roofing',
+    serviceEs: 'Techos',
   },
 ]
 
 const stats = [
-  { value: '500+', label: 'Happy Clients' },
-  { value: '4.9', label: 'Average Rating' },
-  { value: '98%', label: 'Would Recommend' },
-  { value: '15+', label: 'Years of Reviews' },
+  { value: '500+', label: 'Happy Clients', labelEs: 'Clientes Satisfechos' },
+  { value: '4.9', label: 'Average Rating', labelEs: 'Calificación Promedio' },
+  { value: '98%', label: 'Would Recommend', labelEs: 'Nos Recomendarían' },
+  { value: '15+', label: 'Years of Reviews', labelEs: 'Años de Reseñas' },
 ]
 
-export default function ReviewsPage() {
+export default function ReviewsPage({ params }: { params: { locale: string } }) {
+  const es = params.locale === 'es'
+  const href = (path: string) => (es ? `/es${path}` : path)
+  const serviceLabel = (r: { service: string; serviceEs?: string }) => (es && r.serviceEs) || r.service
   return (
     <>
       {/* Hero */}
@@ -55,17 +69,23 @@ export default function ReviewsPage() {
         <div className="container-custom relative z-10">
           <div className="max-w-3xl">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-4">
-              Testimonials
+              {es ? 'Testimonios' : 'Testimonials'}
             </span>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white mb-6">
-              What Our Clients{' '}
+              {es ? 'Lo Que Nuestros Clientes' : 'What Our Clients'}{' '}
               <span className="text-gold-400">
-                Say About Us
+                {es ? 'Dicen de Nosotros' : 'Say About Us'}
               </span>
             </h1>
             <p className="text-xl text-white/90 leading-relaxed">
-              Don't take our word for it—read real reviews from homeowners across the DMV who've 
-              experienced the CR Home Pros difference.
+              {es ? (
+                'No se quede solo con nuestra palabra: lea reseñas reales de propietarios de todo el DMV que han vivido la diferencia de CR Home Pros.'
+              ) : (
+                <>
+                  Don't take our word for it—read real reviews from homeowners across the DMV who've 
+                  experienced the CR Home Pros difference.
+                </>
+              )}
             </p>
           </div>
         </div>
@@ -78,7 +98,7 @@ export default function ReviewsPage() {
             {stats.map((stat) => (
               <div key={stat.label} className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-primary-700">{stat.value}</div>
-                <div className="text-dark-600">{stat.label}</div>
+                <div className="text-dark-600">{es ? stat.labelEs : stat.label}</div>
               </div>
             ))}
           </div>
@@ -88,6 +108,11 @@ export default function ReviewsPage() {
       {/* Reviews Grid */}
       <section className="section-padding bg-white">
         <div className="container-custom">
+          {es && (
+            <p className="text-sm text-dark-500 italic text-center mb-6">
+              Reseñas originales en inglés
+            </p>
+          )}
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {allReviews.map((review) => (
               <div
@@ -131,7 +156,7 @@ export default function ReviewsPage() {
                 {/* Service Badge */}
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium px-3 py-1 bg-primary-50 text-primary-700 rounded-full">
-                    {review.service}
+                    {serviceLabel(review)}
                   </span>
                   <CheckCircle className="w-5 h-5 text-green-500" />
                 </div>
@@ -146,14 +171,21 @@ export default function ReviewsPage() {
         <div className="container-custom">
           <div className="text-center mb-12">
             <span className="inline-block text-sm font-semibold text-gold-400 tracking-wider uppercase mb-3">
-              Letters of Recommendation
+              {es ? 'Cartas de Recomendación' : 'Letters of Recommendation'}
             </span>
             <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-4">
-              In Their Own Words
+              {es ? 'En Sus Propias Palabras' : 'In Their Own Words'}
             </h2>
             <p className="text-lg text-primary-200 max-w-xl mx-auto">
-              Real letters from real clients who trusted us with their homes.
+              {es
+                ? 'Cartas reales de clientes reales que nos confiaron sus hogares.'
+                : 'Real letters from real clients who trusted us with their homes.'}
             </p>
+            {es && (
+              <p className="text-sm text-primary-200/80 italic mt-3">
+                Cartas originales en inglés
+              </p>
+            )}
           </div>
           <div className="max-w-3xl mx-auto space-y-8">
             {RECOMMENDATION_LETTERS.map((letter) => (
@@ -168,7 +200,7 @@ export default function ReviewsPage() {
                 <div className="flex items-center justify-between flex-wrap gap-4">
                   <div>
                     <p className="font-display font-semibold text-white">{letter.author}</p>
-                    <p className="text-sm text-primary-100">{letter.service}</p>
+                    <p className="text-sm text-primary-100">{es ? letter.serviceEs : letter.service}</p>
                   </div>
                   {letter.pdfPath && (
                     <a
@@ -178,7 +210,7 @@ export default function ReviewsPage() {
                       className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"
                     >
                       <FileText className="w-4 h-4" />
-                      View Original Letter
+                      {es ? 'Ver Carta Original' : 'View Original Letter'}
                     </a>
                   )}
                 </div>
@@ -193,10 +225,12 @@ export default function ReviewsPage() {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center mb-10">
             <h2 className="text-3xl font-display font-bold text-dark-900 mb-4">
-              Find Us On
+              {es ? 'Encuéntrenos En' : 'Find Us On'}
             </h2>
             <p className="text-lg text-dark-600">
-              See what our clients are saying across the web.
+              {es
+                ? 'Vea lo que dicen nuestros clientes en internet.'
+                : 'See what our clients are saying across the web.'}
             </p>
           </div>
           <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
@@ -217,9 +251,9 @@ export default function ReviewsPage() {
               </div>
               <div className="text-left">
                 <h3 className="font-display font-semibold text-dark-900 group-hover:text-blue-600 transition-colors">
-                  Google Reviews
+                  {es ? 'Reseñas en Google' : 'Google Reviews'}
                 </h3>
-                <p className="text-sm text-dark-600">Read reviews on Google</p>
+                <p className="text-sm text-dark-600">{es ? 'Lea las reseñas en Google' : 'Read reviews on Google'}</p>
               </div>
               <ArrowRight className="w-5 h-5 text-dark-300 ml-auto group-hover:translate-x-1 transition-transform" />
             </a>
@@ -238,9 +272,9 @@ export default function ReviewsPage() {
               </div>
               <div className="text-left">
                 <h3 className="font-display font-semibold text-dark-900 group-hover:text-red-600 transition-colors">
-                  Yelp Reviews
+                  {es ? 'Reseñas en Yelp' : 'Yelp Reviews'}
                 </h3>
-                <p className="text-sm text-dark-600">Read reviews on Yelp</p>
+                <p className="text-sm text-dark-600">{es ? 'Lea las reseñas en Yelp' : 'Read reviews on Yelp'}</p>
               </div>
               <ArrowRight className="w-5 h-5 text-dark-300 ml-auto group-hover:translate-x-1 transition-transform" />
             </a>
@@ -271,14 +305,20 @@ export default function ReviewsPage() {
           <div className="max-w-3xl mx-auto text-center">
             <Quote className="w-12 h-12 text-dark-200 mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-              Had a Great Experience?
+              {es ? '¿Tuvo una Gran Experiencia?' : 'Had a Great Experience?'}
             </h2>
             <p className="text-lg text-dark-600 mb-8">
-              We'd love to hear about your project! Share your experience and help other homeowners 
-              find quality contractors they can trust.
+              {es ? (
+                '¡Nos encantaría saber de su proyecto! Comparta su experiencia y ayude a otros propietarios a encontrar contratistas de calidad en los que puedan confiar.'
+              ) : (
+                <>
+                  We'd love to hear about your project! Share your experience and help other homeowners 
+                  find quality contractors they can trust.
+                </>
+              )}
             </p>
-            <Link href="/reviews/submit" className="btn-primary btn-lg">
-              Leave a Review
+            <Link href={href('/reviews/submit')} className="btn-primary btn-lg">
+              {es ? 'Dejar una Reseña' : 'Leave a Review'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </div>
@@ -290,13 +330,15 @@ export default function ReviewsPage() {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center text-white">
             <h2 className="text-3xl md:text-4xl font-display font-bold mb-6">
-              Ready to Join Our Happy Clients?
+              {es ? '¿Listo para Unirse a Nuestros Clientes Satisfechos?' : 'Ready to Join Our Happy Clients?'}
             </h2>
             <p className="text-primary-200 text-lg mb-8">
-              Get a free estimate and see why hundreds of homeowners trust CR Home Pros.
+              {es
+                ? 'Obtenga un estimado gratis y descubra por qué cientos de propietarios confían en CR Home Pros.'
+                : 'Get a free estimate and see why hundreds of homeowners trust CR Home Pros.'}
             </p>
-            <Link href="/get-started" className="btn-gold btn-lg">
-              Request an Estimate
+            <Link href={href('/get-started')} className="btn-gold btn-lg">
+              {es ? 'Solicitar un Estimado' : 'Request an Estimate'}
               <ArrowRight className="w-5 h-5 ml-2" />
             </Link>
           </div>

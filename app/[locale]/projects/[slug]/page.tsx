@@ -1,15 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, MapPin, Clock, Calendar, ChevronLeft, ChevronRight, Phone } from 'lucide-react'
 import { cn, formatPhoneLink } from '@/lib/utils'
 import { COMPANY } from '@/lib/constants'
 import { resolveImageUrl } from '@/lib/resolve-images'
+import { useLocale } from '@/lib/i18n/provider'
+import { LocaleLink as Link } from '@/lib/i18n/link'
 
 // Sample project data - will come from Firebase
-const projectsData: Record<string, {
+type ProjectDetail = {
   title: string
   location: string
   type: string
@@ -19,7 +20,9 @@ const projectsData: Record<string, {
   challenge: string
   solution: string
   images: { url: string; caption: string }[]
-}> = {
+}
+
+const projectsData: Record<string, ProjectDetail> = {
   'bethesda-kitchen-2024': {
     title: 'Modern Kitchen Transformation',
     location: 'Bethesda, MD',
@@ -51,7 +54,7 @@ const projectsData: Record<string, {
   },
 }
 
-const defaultProject = {
+const defaultProject: ProjectDetail = {
   title: 'Project Details',
   location: 'DMV Area',
   type: 'Renovation',
@@ -65,8 +68,55 @@ const defaultProject = {
   ],
 }
 
+// Spanish versions of the sample project text (same projects, same images)
+const projectsDataEs: Record<string, Partial<ProjectDetail>> = {
+  'bethesda-kitchen-2024': {
+    title: 'Transformación Moderna de Cocina',
+    type: 'Cocina',
+    duration: '6 semanas',
+    description: 'Remodelación completa de cocina con gabinetes a medida, mesones de cuarzo y electrodomésticos modernos. Los propietarios querían un espacio luminoso y abierto para las reuniones familiares.',
+    challenge: 'La cocina existente tenía una distribución cerrada con poca luz natural y accesorios anticuados.',
+    solution: 'Retiramos una pared no estructural para abrir el espacio, instalamos ventanas grandes y elegimos gabinetes y mesones de colores claros para aprovechar al máximo la luz.',
+    images: [
+      { url: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1200&q=80', caption: 'Después: Cocina de concepto abierto' },
+      { url: 'https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=1200&q=80', caption: 'Isla a medida con asientos' },
+      { url: 'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=1200&q=80', caption: 'Electrodomésticos modernos' },
+    ],
+  },
+  'silver-spring-bathroom': {
+    title: 'Baño Principal Inspirado en un Spa',
+    type: 'Baño',
+    duration: '4 semanas',
+    description: 'Lujosa renovación del baño principal con ducha de acceso directo, tina independiente y pisos con calefacción.',
+    challenge: 'Espacio reducido con plomería anticuada y mala ventilación.',
+    solution: 'Reorganizamos la distribución para aprovechar al máximo el espacio, actualizamos toda la plomería y agregamos una ventilación adecuada con un extractor moderno.',
+    images: [
+      { url: 'https://images.unsplash.com/photo-1552321554-5fefe8c9ef14?w=1200&q=80', caption: 'Baño principal terminado' },
+      { url: 'https://images.unsplash.com/photo-1620626011761-996317b8d101?w=1200&q=80', caption: 'Detalle de la ducha de acceso directo' },
+    ],
+  },
+}
+
+const defaultProjectEs: Partial<ProjectDetail> = {
+  title: 'Detalles del Proyecto',
+  location: 'Área DMV',
+  type: 'Renovación',
+  duration: '4 semanas',
+  description: 'Un hermoso proyecto de mejoras para el hogar realizado por CR Home Pros.',
+  challenge: 'El cliente necesitaba una actualización fresca y moderna.',
+  solution: 'Entregamos un trabajo de calidad a tiempo y dentro del presupuesto.',
+  images: [
+    { url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80', caption: 'Resultado del proyecto' },
+  ],
+}
+
 export default function ProjectPage({ params }: { params: { slug: string } }) {
-  const project = projectsData[params.slug] || defaultProject
+  const { locale } = useLocale()
+  const es = locale === 'es'
+  const baseProject = projectsData[params.slug] || defaultProject
+  const project: ProjectDetail = es
+    ? { ...baseProject, ...(projectsData[params.slug] ? projectsDataEs[params.slug] : defaultProjectEs) }
+    : baseProject
   const [currentImage, setCurrentImage] = useState(0)
 
   const nextImage = () => {
@@ -83,7 +133,7 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
       <section className="relative page-top pb-12 bg-dark-900">
         <div className="container-custom relative z-10">
           <Link href="/projects" className="inline-flex items-center text-primary-100 hover:text-white mb-6">
-            ← Back to Projects
+            ← {es ? 'Volver a Proyectos' : 'Back to Projects'}
           </Link>
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span className="px-3 py-1 bg-gold-500 text-dark-900 rounded-full text-sm font-semibold">
@@ -171,17 +221,17 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
             <div className="grid md:grid-cols-3 gap-8">
               <div className="md:col-span-2 space-y-8">
                 <div>
-                  <h2 className="text-2xl font-display font-bold text-dark-900 mb-4">About This Project</h2>
+                  <h2 className="text-2xl font-display font-bold text-dark-900 mb-4">{es ? 'Acerca de Este Proyecto' : 'About This Project'}</h2>
                   <p className="text-dark-600 leading-relaxed">{project.description}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-display font-semibold text-dark-900 mb-3">The Challenge</h3>
+                  <h3 className="text-xl font-display font-semibold text-dark-900 mb-3">{es ? 'El Reto' : 'The Challenge'}</h3>
                   <p className="text-dark-600 leading-relaxed">{project.challenge}</p>
                 </div>
 
                 <div>
-                  <h3 className="text-xl font-display font-semibold text-dark-900 mb-3">Our Solution</h3>
+                  <h3 className="text-xl font-display font-semibold text-dark-900 mb-3">{es ? 'Nuestra Solución' : 'Our Solution'}</h3>
                   <p className="text-dark-600 leading-relaxed">{project.solution}</p>
                 </div>
               </div>
@@ -189,34 +239,36 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
               {/* Sidebar */}
               <div className="space-y-6">
                 <div className="bg-dark-50 rounded-xl p-6">
-                  <h3 className="font-semibold text-dark-900 mb-4">Project Details</h3>
+                  <h3 className="font-semibold text-dark-900 mb-4">{es ? 'Detalles del Proyecto' : 'Project Details'}</h3>
                   <dl className="space-y-3 text-sm">
                     <div className="flex justify-between">
-                      <dt className="text-dark-600">Type</dt>
+                      <dt className="text-dark-600">{es ? 'Tipo' : 'Type'}</dt>
                       <dd className="font-medium text-dark-900">{project.type}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-dark-600">Location</dt>
+                      <dt className="text-dark-600">{es ? 'Ubicación' : 'Location'}</dt>
                       <dd className="font-medium text-dark-900">{project.location}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-dark-600">Duration</dt>
+                      <dt className="text-dark-600">{es ? 'Duración' : 'Duration'}</dt>
                       <dd className="font-medium text-dark-900">{project.duration}</dd>
                     </div>
                     <div className="flex justify-between">
-                      <dt className="text-dark-600">Year</dt>
+                      <dt className="text-dark-600">{es ? 'Año' : 'Year'}</dt>
                       <dd className="font-medium text-dark-900">{project.year}</dd>
                     </div>
                   </dl>
                 </div>
 
                 <div className="bg-primary-800 rounded-xl p-6 text-white">
-                  <h3 className="font-semibold mb-3">Want Similar Results?</h3>
+                  <h3 className="font-semibold mb-3">{es ? '¿Quiere Resultados Similares?' : 'Want Similar Results?'}</h3>
                   <p className="text-primary-200 text-sm mb-4">
-                    Let's discuss your project and bring your vision to life.
+                    {es
+                      ? 'Hablemos de su proyecto y hagamos realidad su visión.'
+                      : "Let's discuss your project and bring your vision to life."}
                   </p>
                   <Link href="/get-started" className="btn-gold w-full justify-center text-sm">
-                    Request an Estimate
+                    {es ? 'Solicitar un Estimado' : 'Request an Estimate'}
                   </Link>
                 </div>
               </div>
@@ -230,17 +282,19 @@ export default function ProjectPage({ params }: { params: { slug: string } }) {
         <div className="container-custom">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-dark-900 mb-6">
-              Ready to Transform Your Space?
+              {es ? '¿Listo para Transformar Su Espacio?' : 'Ready to Transform Your Space?'}
             </h2>
             <p className="text-lg text-dark-600 mb-8">
-              Get a free consultation and see what's possible for your home.
+              {es
+                ? 'Obtenga una consulta gratis y descubra lo que es posible para su hogar.'
+                : "Get a free consultation and see what's possible for your home."}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/get-started" className="btn-gold btn-lg">
-                Start Your Project <ArrowRight className="w-5 h-5 ml-2" />
+                {es ? 'Comience Su Proyecto' : 'Start Your Project'} <ArrowRight className="w-5 h-5 ml-2" />
               </Link>
               <a href={formatPhoneLink(COMPANY.phone)} className="btn-outline btn-lg">
-                <Phone className="w-5 h-5 mr-2" /> Call Us
+                <Phone className="w-5 h-5 mr-2" /> {es ? 'Llámenos' : 'Call Us'}
               </a>
             </div>
           </div>

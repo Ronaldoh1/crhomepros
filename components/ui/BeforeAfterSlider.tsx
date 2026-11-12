@@ -8,16 +8,22 @@ interface BeforeAfterSliderProps {
   afterImage: string
   beforeLabel?: string
   afterLabel?: string
+  /** 'es' switches the default labels to Spanish */
+  locale?: string
   className?: string
 }
 
 export function BeforeAfterSlider({
   beforeImage,
   afterImage,
-  beforeLabel = 'Before',
-  afterLabel = 'After',
+  beforeLabel,
+  afterLabel,
+  locale = 'en',
   className = '',
 }: BeforeAfterSliderProps) {
+  const es = locale === 'es'
+  const beforeText = beforeLabel ?? (es ? 'Antes' : 'Before')
+  const afterText = afterLabel ?? (es ? 'Después' : 'After')
   const [position, setPosition] = useState(50)
   const [isDragging, setIsDragging] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -67,7 +73,7 @@ export function BeforeAfterSlider({
     >
       {/* After Image (full background) */}
       <div className="relative w-full aspect-[4/3]">
-        <Image src={afterImage} alt="After" fill className="object-cover" />
+        <Image src={afterImage} alt={afterText} fill className="object-cover" />
       </div>
 
       {/* Before Image (clipped) */}
@@ -76,7 +82,7 @@ export function BeforeAfterSlider({
         style={{ width: `${position}%` }}
       >
         <div className="relative w-full h-full" style={{ width: `${100 / (position / 100)}%` }}>
-          <Image src={beforeImage} alt="Before" fill className="object-cover" />
+          <Image src={beforeImage} alt={beforeText} fill className="object-cover" />
         </div>
       </div>
 
@@ -95,10 +101,10 @@ export function BeforeAfterSlider({
 
       {/* Labels */}
       <div className="absolute top-4 left-4 px-3 py-1.5 bg-dark-900/80 backdrop-blur-sm rounded-full text-sm font-semibold text-white z-20">
-        {beforeLabel}
+        {beforeText}
       </div>
       <div className="absolute top-4 right-4 px-3 py-1.5 bg-gold-500/90 backdrop-blur-sm rounded-full text-sm font-semibold text-dark-900 z-20">
-        {afterLabel}
+        {afterText}
       </div>
     </div>
   )
