@@ -3,21 +3,46 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   Camera, ImagePlus, MapPin, Save, ArrowLeft, Plus, X, CheckCircle, Loader2, Trash2,
-  Pencil, FolderOpen, AlertTriangle, ClipboardList, Phone, RefreshCw,
+  Pencil, FolderOpen, AlertTriangle, ClipboardList, Phone, RefreshCw, Search, Receipt, MessageSquare, Navigation, CalendarClock, Lock,
 } from 'lucide-react'
 import { SERVICES } from '@/lib/constants'
 import {
-  saveFieldNote, getFieldNotes, deleteFieldNote, newFieldNoteId, uploadFieldPhoto, deleteFieldPhoto,
-  type FieldNoteRecord,
+  saveFieldNote, getFieldNotes, deleteFieldNote, newFieldNoteId, uploadFieldPhoto, deleteFieldPhoto, updateFieldNote,
+  type FieldNoteRecord, type EstimateStatus,
 } from '@/lib/firebase-auth'
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, useUnsavedWarning } from '../_components/DocumentGuards'
 
 const emptyForm = {
   projectName: '', clientName: '', clientPhone: '', clientEmail: '', address: '', serviceType: '',
-  notes: '', measurements: '', materialsNeeded: '', estimatedCost: '', nextSteps: '',
+  notes: '', measurements: '', materialsNeeded: '', estimatedCost: '', nextSteps: '', followUpDate: '',
 }
 type Form = typeof emptyForm
+
+// ── Status of an estimate ────────────────────
+const STATUS: Record<EstimateStatus, { label: string; hint: string; chip: string }> = {
+  new:       { label: 'New',       hint: 'Just created at the visit',               chip: 'bg-blue-500/25 text-blue-100 border-blue-400/40' },
+  quoted:    { label: 'Price given', hint: 'You told the client the price',         chip: 'bg-indigo-500/25 text-indigo-100 border-indigo-400/40' },
+  accepted:  { label: 'Accepted',  hint: 'The client said yes',                     chip: 'bg-green-500/25 text-green-100 border-green-400/40' },
+  invoiced:  { label: 'Invoiced',  hint: 'An invoice was made from it',             chip: 'bg-emerald-600/40 text-white border-emerald-300/50' },
+  declined:  { label: 'Declined',  hint: 'The client said no, for now',             chip: 'bg-orange-500/25 text-orange-100 border-orange-400/40' },
+  reopened:  { label: 'Reopened',  hint: 'The client said no, then came back',      chip: 'bg-amber-500/25 text-amber-100 border-amber-400/40' },
+  discarded: { label: 'Discarded', hint: 'Closed for good',                         chip: 'bg-slate-600/60 text-white border-slate-400/40' },
+}
+/** What each status can change to by hand. "Invoiced" is set by creating the invoice. */
+const NEXT: Record<EstimateStatus, EstimateStatus[]> = {
+  new: ['quoted', 'accepted', 'declined', 'discarded'],
+  quoted: ['accepted', 'declined', 'discarded'],
+  accepted: ['quoted', 'declined', 'discarded'],
+  reopened: ['quoted', 'accepted', 'declined', 'discarded'],
+  declined: ['reopened', 'discarded'],
+  invoiced: [],
+  discarded: [],
+}
+const OPEN: EstimateStatus[] = ['new', 'quoted', 'accepted', 'reopened']
+const statusOf = (n: FieldNoteRecord): EstimateStatus => (n.status in STATUS ? (n.status as EstimateStatus) : 'new')
+const today = () => new Date().toISOString().split('T')[0]
+const shortDay = (d?: string) => (d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '')
 
 /** A photo in the editor: already saved (url) or new from the camera (blob) */
 interface Photo { key: string; preview: string; url?: string; path?: string; blob?: Blob }
@@ -63,6 +88,9 @@ export default function FieldEstimatesPage() {
   const [result, setResult] = useState<{ driveUrl?: string; driveError?: string; note: FieldNoteRecord } | null>(null)
   const [retrying, setRetrying] = useState(false)
   const [toDelete, setToDelete] = useState<FieldNoteRecord | null>(null)
+  const [toDiscard, setToDiscard] = useState<FieldNoteRecord | null>(null)
+  const [filter, setFilter] = useState<'open' | 'all' | EstimateStatus>('open')
+  const [search, setSearch] = useState('')
   const cameraRef = useRef<HTMLInputElement>(null)
   const libraryRef = useRef<HTMLInputElement>(null)
   const markSaved = useUnsavedWarning({ ...form, photoKeys: photos.map(p => p.key).join(',') }, !!editing)
@@ -86,7 +114,7 @@ export default function FieldEstimatesPage() {
       projectName: n.projectName || '', clientName: n.clientName || '', clientPhone: n.clientPhone || '',
       clientEmail: n.clientEmail || '', address: n.address || '', serviceType: n.serviceType || '',
       notes: n.notes || '', measurements: n.measurements || '', materialsNeeded: n.materialsNeeded || '',
-      estimatedCost: n.estimatedCost || '', nextSteps: n.nextSteps || '',
+      estimatedCost: n.estimatedCost || '', nextSteps: n.nextSteps || '', followUpDate: n.followUpDate || '',
     })
     setPhotos((n.photos || []).map((url, i) => ({ key: `saved-${i}`, preview: url, url, path: n.photoPaths?.[i] })))
     setRemovedPaths([]); setResult(null); setEditing(n)
@@ -152,7 +180,9 @@ export default function FieldEstimatesPage() {
         photos: saved.map(p => p.url!).filter(Boolean),
         photoPaths: saved.map(p => p.path || ''),
         driveFolderId: existing?.driveFolderId, driveFolderUrl: existing?.driveFolderUrl,
-        status: 'complete',
+        // a new estimate starts as "New"; editing never changes the status
+        status: existing ? statusOf(existing) : 'new',
+        ...(existing ? {} : { statusChangedAt: today() }),
       }
       // Firestore rejects "undefined": drop empty optional fields
       Object.keys(note).forEach(k => (note as any)[k] === undefined && delete (note as any)[k])
@@ -179,6 +209,17 @@ export default function FieldEstimatesPage() {
     if (!result && r.driveError) alert(r.driveError)
     await loadNotes()
     setRetrying(false)
+  }
+
+  const changeStatus = async (n: FieldNoteRecord, to: EstimateStatus) => {
+    setToDiscard(null)
+    const patch = { status: to, statusChangedAt: today(), ...(to === 'reopened' ? { wasReopened: true } : {}) }
+    try {
+      await updateFieldNote(n.id!, patch)
+      setNotes(prev => prev.map(x => (x.id === n.id ? { ...x, ...patch } : x)))
+    } catch (err) {
+      alert(`The status was not changed.\n\n${err instanceof Error ? err.message : String(err)}`)
+    }
   }
 
   const handleDelete = async (n: FieldNoteRecord) => {
@@ -287,6 +328,7 @@ export default function FieldEstimatesPage() {
           <div className="space-y-4">
             <div><label className={lc}>Estimated cost</label><input value={form.estimatedCost} onChange={e => set('estimatedCost', e.target.value)} placeholder="Example: $15,000 to $20,000" className={ic} /></div>
             <div><label className={lc}>Next steps</label><textarea value={form.nextSteps} onChange={e => set('nextSteps', e.target.value)} rows={2} className={ic} /></div>
+            <div><label className={lc}>Follow up with the client on</label><input type="date" value={form.followUpDate} onChange={e => set('followUpDate', e.target.value)} className={ic} /><p className="text-sm text-slate-100 mt-1.5">Optional. The list reminds you when this day arrives.</p></div>
           </div>
         </div>
       </div>
@@ -302,15 +344,47 @@ export default function FieldEstimatesPage() {
   )
 
   // ── List ──────────────────────────────────
+  const count = (f: 'open' | 'all' | EstimateStatus) =>
+    notes.filter(n => (f === 'all' ? true : f === 'open' ? OPEN.includes(statusOf(n)) : statusOf(n) === f)).length
+  const isDue = (n: FieldNoteRecord) => !!n.followUpDate && n.followUpDate <= today() && OPEN.includes(statusOf(n))
+  const dueCount = notes.filter(isDue).length
+  const q = search.trim().toLowerCase()
+  const shown = notes
+    .filter(n => (filter === 'all' ? true : filter === 'open' ? OPEN.includes(statusOf(n)) : statusOf(n) === filter))
+    .filter(n => !q || [n.clientName, n.projectName, n.address, n.clientPhone, n.invoiceNumber].some(v => (v || '').toLowerCase().includes(q)))
+    .sort((a, b) => Number(isDue(b)) - Number(isDue(a)))
+  const filters: Array<'open' | 'all' | EstimateStatus> = ['open', 'new', 'quoted', 'accepted', 'reopened', 'invoiced', 'declined', 'discarded', 'all']
+
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto">
-      <div className="flex items-center justify-between gap-4 mb-6">
+      <div className="flex items-center justify-between gap-4 mb-5">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3"><ClipboardList className="w-6 h-6 text-blue-300" /> Field Estimates</h1>
           <p className="text-slate-100 text-sm mt-1">Photos and notes from a job visit. Each one is also saved to your Google Drive.</p>
         </div>
         <button onClick={startNew} className="flex-shrink-0 px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 flex items-center gap-2"><Plus className="w-5 h-5" /> New</button>
       </div>
+
+      {!loading && !loadError && notes.length > 0 && (
+        <>
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <button onClick={() => setFilter('open')} className="rounded-xl bg-slate-800/70 border border-white/10 p-3 text-left"><span className="block text-2xl font-bold text-white">{count('open')}</span><span className="text-xs text-slate-100">Open</span></button>
+            <button onClick={() => setFilter('open')} className={`rounded-xl border p-3 text-left ${dueCount ? 'bg-amber-500/15 border-amber-400/50' : 'bg-slate-800/70 border-white/10'}`}><span className="block text-2xl font-bold text-white">{dueCount}</span><span className="text-xs text-slate-100">Follow-ups due</span></button>
+            <button onClick={() => setFilter('invoiced')} className="rounded-xl bg-slate-800/70 border border-white/10 p-3 text-left"><span className="block text-2xl font-bold text-white">{count('invoiced')}</span><span className="text-xs text-slate-100">Invoiced</span></button>
+          </div>
+          <div className="relative mb-3">
+            <Search className="w-5 h-5 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by client, job, address or phone" className={ic + ' pl-11'} />
+          </div>
+          <div className="flex gap-2 overflow-x-auto pb-2 mb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+            {filters.filter(f => f === 'open' || f === 'all' || count(f) > 0).map(f => (
+              <button key={f} onClick={() => setFilter(f)} className={`flex-shrink-0 px-3.5 py-2 rounded-full text-sm font-medium border ${filter === f ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/15'}`}>
+                {f === 'open' ? 'Open' : f === 'all' ? 'All' : STATUS[f].label} <span className={filter === f ? 'text-slate-700' : 'text-slate-200'}>{count(f)}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {loading ? (
         <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
@@ -323,21 +397,40 @@ export default function FieldEstimatesPage() {
           <p className="text-slate-100 text-sm mt-1 mb-5">At a job visit, press New, take your photos and write what you see.</p>
           <button onClick={startNew} className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"><Plus className="w-5 h-5" /> New field estimate</button>
         </div>
+      ) : shown.length === 0 ? (
+        <div className={card + ' text-center py-10'}>
+          <p className="text-white">Nothing here.</p>
+          <button onClick={() => { setFilter('all'); setSearch('') }} className="mt-3 text-blue-200 underline">Show all estimates</button>
+        </div>
       ) : (
         <div className="space-y-3">
-          {notes.map(n => (
-            <div key={n.id} className={card}>
+          {shown.map(n => {
+            const st = statusOf(n)
+            const locked = st === 'discarded'
+            const canInvoice = !n.invoiceId && OPEN.includes(st)
+            return (
+            <div key={n.id} className={card + (locked ? ' opacity-80' : '')}>
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-white text-lg truncate">{n.clientName || 'No name'}</h3>
                   <p className="text-slate-100 text-sm">{n.projectName}{n.createdAt ? ` · ${formatDate(n.createdAt)}` : ''}</p>
                 </div>
-                {n.estimatedCost && <span className="flex-shrink-0 px-3 py-1 rounded-full bg-green-500/20 text-green-200 text-sm font-semibold">{n.estimatedCost}</span>}
+                <span className={`flex-shrink-0 px-3 py-1 rounded-full border text-sm font-semibold flex items-center gap-1.5 ${STATUS[st].chip}`}>{locked && <Lock className="w-3.5 h-3.5" />}{STATUS[st].label}</span>
               </div>
-              {(n.address || n.clientPhone) && (
-                <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-100 mt-2">
-                  {n.address && <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-blue-300" />{n.address}</span>}
-                  {n.clientPhone && <a href={`tel:${n.clientPhone}`} className="flex items-center gap-1.5 text-blue-200 underline"><Phone className="w-4 h-4" />{n.clientPhone}</a>}
+              <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+                {n.estimatedCost && <span className="px-2.5 py-0.5 rounded-full bg-green-500/20 text-green-100 font-semibold">{n.estimatedCost}</span>}
+                {n.wasReopened && st !== 'reopened' && <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-100">Came back after declining</span>}
+                {n.followUpDate && OPEN.includes(st) && (
+                  <span className={`px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${isDue(n) ? 'bg-red-600 text-white font-semibold' : 'bg-slate-700 text-white'}`}><CalendarClock className="w-3.5 h-3.5" />{isDue(n) ? `Follow up now (${shortDay(n.followUpDate)})` : `Follow up ${shortDay(n.followUpDate)}`}</span>
+                )}
+                {n.statusChangedAt && st !== 'new' && <span className="text-slate-100">since {shortDay(n.statusChangedAt)}</span>}
+              </div>
+              {n.address && <p className="flex items-center gap-1.5 text-sm text-slate-100 mt-2"><MapPin className="w-4 h-4 text-blue-300 flex-shrink-0" />{n.address}</p>}
+              {(n.clientPhone || n.address) && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {n.clientPhone && <a href={`tel:${n.clientPhone}`} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Phone className="w-4 h-4" /> Call</a>}
+                  {n.clientPhone && <a href={`sms:${n.clientPhone}`} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><MessageSquare className="w-4 h-4" /> Text</a>}
+                  {n.address && <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(n.address)}`} target="_blank" rel="noopener noreferrer" className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Navigation className="w-4 h-4" /> Directions</a>}
                 </div>
               )}
               {n.notes && <p className="text-slate-100 text-sm mt-3 whitespace-pre-line line-clamp-3">{n.notes}</p>}
@@ -352,19 +445,54 @@ export default function FieldEstimatesPage() {
                   ))}
                 </div>
               )}
-              <div className="flex flex-wrap items-center gap-2 mt-4 pt-3 border-t border-white/10">
+
+              {/* Status and invoice */}
+              <div className="mt-4 pt-3 border-t border-white/10 grid sm:grid-cols-2 gap-2">
+                {locked ? (
+                  <p className="sm:col-span-2 text-sm text-slate-100 flex items-center gap-2"><Lock className="w-4 h-4" /> Discarded{n.statusChangedAt ? ` on ${shortDay(n.statusChangedAt)}` : ''}. It is closed for good and cannot be changed or invoiced.</p>
+                ) : st === 'invoiced' ? (
+                  <p className="text-sm text-slate-100 self-center">Invoice {n.invoiceNumber || ''} was made from this estimate.</p>
+                ) : (
+                  <label className="text-sm text-slate-100">
+                    <span className="block mb-1">Change status</span>
+                    <select value="" onChange={e => { const to = e.target.value as EstimateStatus; if (!to) return; to === 'discarded' ? setToDiscard(n) : changeStatus(n, to) }} className="w-full bg-slate-800 border border-white/15 rounded-lg px-3 py-2.5 text-white text-base">
+                      <option value="">{STATUS[st].label} (now)</option>
+                      {NEXT[st].map(to => <option key={to} value={to}>{STATUS[to].label}: {STATUS[to].hint.toLowerCase()}</option>)}
+                    </select>
+                  </label>
+                )}
+                {n.invoiceId ? (
+                  <a href={`/admin/invoices?id=${n.invoiceId}`} className="self-end px-3 py-2.5 rounded-lg bg-emerald-600 text-white font-medium hover:bg-emerald-700 flex items-center justify-center gap-2"><Receipt className="w-4 h-4" /> Open invoice {n.invoiceNumber || ''}</a>
+                ) : canInvoice ? (
+                  <a href={`/admin/invoices?fromEstimate=${n.id}`} className="self-end px-3 py-2.5 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 flex items-center justify-center gap-2"><Receipt className="w-4 h-4" /> Create invoice</a>
+                ) : st === 'declined' ? (
+                  <p className="self-end text-sm text-slate-100">To invoice it, change the status to Reopened first.</p>
+                ) : null}
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 mt-3">
                 {n.driveFolderUrl ? (
                   <a href={n.driveFolderUrl} target="_blank" rel="noopener noreferrer" className="text-sm px-3 py-2 rounded-lg bg-blue-600/30 text-blue-100 hover:bg-blue-600/40 flex items-center gap-1.5"><FolderOpen className="w-4 h-4" /> Open in Drive</a>
-                ) : (
+                ) : !locked ? (
                   <button onClick={() => retryDrive(n)} disabled={retrying} className="text-sm px-3 py-2 rounded-lg bg-amber-600/30 text-amber-100 hover:bg-amber-600/40 flex items-center gap-1.5">{retrying ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />} Save to Drive</button>
-                )}
-                <button onClick={() => startEdit(n)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Open / edit</button>
+                ) : null}
+                {!locked && <button onClick={() => startEdit(n)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Open / edit</button>}
                 <button onClick={() => setToDelete(n)} className="text-sm px-3 py-2 rounded-lg bg-red-600/20 text-red-200 hover:bg-red-600/30 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
               </div>
             </div>
-          ))}
+          )})}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!toDiscard} danger
+        title={`Discard the estimate for ${toDiscard?.clientName || 'this client'}?`}
+        confirmLabel="Yes, discard for good" cancelLabel="Keep it open"
+        onCancel={() => setToDiscard(null)} onConfirm={() => toDiscard && changeStatus(toDiscard, 'discarded')}
+      >
+        <p>Discarded is final. You will not be able to change its status, edit it, or create an invoice from it.</p>
+        <p>If the client only said "not now", choose <strong>Declined</strong> instead: a declined estimate can be reopened when they come back.</p>
+      </ConfirmDialog>
 
       <ConfirmDialog
         open={!!toDelete} danger
@@ -373,6 +501,7 @@ export default function FieldEstimatesPage() {
         onCancel={() => setToDelete(null)} onConfirm={() => toDelete && handleDelete(toDelete)}
       >
         <p>The notes and photos will be removed from the portal for good.</p>
+        {toDelete?.invoiceId && <p>Invoice {toDelete.invoiceNumber || ''} made from it is <strong>not</strong> deleted. It stays in your invoices.</p>}
         {toDelete?.driveFolderUrl && <p>The copy in Google Drive stays there until you delete it in Drive.</p>}
       </ConfirmDialog>
     </div>

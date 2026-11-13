@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getDocumentsByType, deleteDocument, type DocumentRecord } from '@/lib/firebase-auth'
+import { getDocumentsByType, deleteDocument, updateFieldNote, type DocumentRecord } from '@/lib/firebase-auth'
 import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, DollarSign, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from './DocumentGuards'
@@ -59,7 +59,10 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
     setToDelete(null)
     setDeleting(id)
     try {
+      const linked = allDocs.find(d => d.id === id)?.estimateId
       await deleteDocument(id)
+      // free the field estimate so a new invoice can be made from it
+      if (linked) await updateFieldNote(linked, { invoiceId: null, invoiceNumber: null, status: 'accepted', statusChangedAt: new Date().toISOString().split('T')[0] }).catch(() => {})
       setDocs(prev => prev.filter(d => d.id !== id))
     } catch (err) {
       console.error('Failed to delete:', err)
@@ -213,6 +216,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
           <>
             <p>This was already sent to {toDelete?.clientName || 'the client'}. Deleting it removes <strong>your record</strong> of it from the portal. The client still has their copy.</p>
             <p>This cannot be undone.</p>
+            {toDelete?.estimateId && <p>The field estimate it came from goes back to "Accepted", so you can make a new invoice from it.</p>}
           </>
         )}
       </ConfirmDialog>

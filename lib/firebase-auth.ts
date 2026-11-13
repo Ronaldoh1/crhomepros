@@ -24,6 +24,7 @@ import {
   getDoc,
   getDocs,
   deleteDoc,
+  deleteField,
   query,
   orderBy,
   where,
@@ -211,6 +212,10 @@ export interface DocumentRecord {
   contractTerms?: string
   signatureData: string | null
   status: 'draft' | 'sent' | 'signed' | 'paid'
+  /** Field estimate this invoice was made from (one invoice per estimate) */
+  estimateId?: string
+  /** The client first declined the estimate and later came back */
+  estimateReopened?: boolean
   signedFileUrl?: string
   signedFileName?: string
   emailSubject?: string
@@ -244,6 +249,52 @@ export async function getDocument(id: string): Promise<DocumentRecord | null> {
   const db = requireDb()
   const snap = await getDoc(doc(db, DOCS_COLLECTION, id))
   return snap.exists() ? (snap.data() as DocumentRecord) : null
+}
+
+// ── Document numbers ─────────────────────────
+// Format PREFIX-YEAR-0001. The next number is one above the highest
+// existing number of that type for the year, and is checked again on save.
+
+const NUMBER_PREFIX: Record<DocumentRecord['type'], string> = { invoice: 'INV', 'change-order': 'CO', contract: 'CTR' }
+
+export async function nextDocumentNumber(type: DocumentRecord['type']): Promise<string> {
+  const db = requireDb()
+  const year = new Date().getFullYear()
+  const start = `${NUMBER_PREFIX[type]}-${year}-`
+  const snap = await getDocs(query(collection(db, DOCS_COLLECTION), where('type', '==', type)))
+  let highest = 0
+  snap.docs.forEach(d => {
+    const n = String(d.data().number || '')
+    if (!n.startsWith(start)) return
+    const seq = parseInt(n.slice(start.length), 10) // "0007-CORRECTED" reads as 7
+    if (seq > highest) highest = seq
+  })
+  return `${start}${String(highest + 1).padStart(4, '0')}`
+}
+
+/** true when another document of this type already uses the number */
+export async function isDocumentNumberTaken(type: DocumentRecord['type'], baseNumber: string, exceptId?: string | null): Promise<boolean> {
+  const db = requireDb()
+  const base = baseNumber.replace(/-CORRECTED$/i, '').trim()
+  if (!base) return false
+  const snap = await getDocs(query(collection(db, DOCS_COLLECTION), where('number', 'in', [base, `${base}-CORRECTED`])))
+  return snap.docs.some(d => d.id !== exceptId && d.data().type === type)
+}
+
+/**
+ * Returns a number that is safe to save under.
+ * New document: keeps the wanted number if free, otherwise takes the next free one.
+ * Existing document: throws if someone changed the number to one already in use.
+ */
+export async function confirmDocumentNumber(type: DocumentRecord['type'], wanted: string, savedId?: string | null): Promise<string> {
+  const base = (wanted || '').replace(/-CORRECTED$/i, '').trim()
+  if (base && !(await isDocumentNumberTaken(type, base, savedId))) return base
+  if (savedId && base) throw new Error(`The number ${base} is already used by another document. Type a different number.`)
+  for (let i = 0; i < 5; i++) {
+    const next = await nextDocumentNumber(type)
+    if (!(await isDocumentNumberTaken(type, next, savedId))) return next
+  }
+  throw new Error('Could not find a free document number. Please tell Ron.')
 }
 
 export async function getDocumentsByType(type: DocumentRecord['type']): Promise<DocumentRecord[]> {
@@ -419,10 +470,22 @@ export interface FieldNoteRecord {
   /** Google Drive copy of this estimate */
   driveFolderId?: string
   driveFolderUrl?: string
-  status: 'draft' | 'complete'
+  /** 'draft' and 'complete' are from the first version and count as "new" */
+  status: EstimateStatus | 'draft' | 'complete'
+  /** Day the status last changed (YYYY-MM-DD) */
+  statusChangedAt?: string
+  /** The client declined once and later came back */
+  wasReopened?: boolean
+  /** Day to call the client back (YYYY-MM-DD) */
+  followUpDate?: string
+  /** The one invoice made from this estimate */
+  invoiceId?: string
+  invoiceNumber?: string
   createdAt?: any
   updatedAt?: any
 }
+
+export type EstimateStatus = 'new' | 'quoted' | 'accepted' | 'invoiced' | 'declined' | 'reopened' | 'discarded'
 
 const FIELD_NOTES_COLLECTION = 'field_notes'
 
@@ -444,6 +507,18 @@ export async function saveFieldNote(noteData: FieldNoteRecord, isNew = !noteData
     ...(isNew ? { createdAt: serverTimestamp() } : {}),
   }, { merge: true })
   return docRef.id
+}
+
+export async function getFieldNote(id: string): Promise<FieldNoteRecord | null> {
+  const snap = await getDoc(doc(requireDb(), FIELD_NOTES_COLLECTION, id))
+  return snap.exists() ? ({ ...snap.data(), id: snap.id } as FieldNoteRecord) : null
+}
+
+/** Change some fields of an estimate. A value of null removes that field. */
+export async function updateFieldNote(id: string, patch: { [K in keyof FieldNoteRecord]?: FieldNoteRecord[K] | null }): Promise<void> {
+  const data: Record<string, any> = { updatedAt: serverTimestamp() }
+  Object.entries(patch).forEach(([k, v]) => { data[k] = v === null ? deleteField() : v })
+  await setDoc(doc(requireDb(), FIELD_NOTES_COLLECTION, id), data, { merge: true })
 }
 
 /** Upload one (already shrunk) field photo. Stored privately: admin only. */

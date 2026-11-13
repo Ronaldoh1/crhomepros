@@ -7,7 +7,7 @@ import {
   AlertTriangle, Mail
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
-import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
+import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
@@ -22,7 +22,7 @@ interface InvoiceData {
 }
 
 const INITIAL: InvoiceData = {
-  number: `INV-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+  number: '', // unique number is assigned when the page opens and checked again on save
   date: new Date().toISOString().split('T')[0],
   dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
   clientName: '', clientEmail: '', clientPhone: '', clientAddress: '', projectName: '',
@@ -46,6 +46,8 @@ export default function InvoicesPage() {
   const [wasSent, setWasSent] = useState(false) // already emailed to the client
   const [confirmCorrection, setConfirmCorrection] = useState(false)
   const markSaved = useUnsavedWarning(inv)
+  // set when this invoice was made from a field estimate
+  const [estimate, setEstimate] = useState<{ id: string; clientName: string; reopened: boolean; cost: string } | null>(null)
 
   const subtotal = Math.round(inv.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0) * 100) / 100
   const tax = Math.round(subtotal * inv.taxRate) / 100 // rounded to the cent
@@ -58,11 +60,40 @@ export default function InvoicesPage() {
   // Reopen a saved draft: /admin/...?id=<document id>
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id')
-    if (!id) return
+    const fromEstimate = new URLSearchParams(window.location.search).get('fromEstimate')
+    if (!id && fromEstimate) {
+      // Invoice made from a field estimate: one invoice per estimate
+      getFieldNote(fromEstimate).then(async note => {
+        if (!note) { alert('That field estimate was not found.'); return }
+        if (note.invoiceId) { window.location.replace(`/admin/invoices?id=${note.invoiceId}`); return }
+        if (note.status === 'discarded' || note.status === 'declined') {
+          alert(note.status === 'discarded' ? 'This estimate was discarded. It cannot be turned into an invoice.' : 'The client declined this estimate. Reopen it first, then create the invoice.')
+          window.location.replace('/admin/field-notes'); return
+        }
+        const prices = (note.estimatedCost || '').match(/\d[\d,]*(\.\d+)?/g) || []
+        const onePrice = prices.length === 1 ? Math.round(Number(prices[0].replace(/,/g, '')) * 100) / 100 : 0
+        const number = await nextDocumentNumber('invoice').catch(() => '')
+        setEstimate({ id: fromEstimate, clientName: note.clientName, reopened: !!note.wasReopened, cost: note.estimatedCost || '' })
+        markSaved()
+        setInv(prev => ({
+          ...prev, number: prev.number || number,
+          clientName: note.clientName || '', clientEmail: note.clientEmail || '', clientPhone: note.clientPhone || '',
+          clientAddress: note.address || '', projectName: note.projectName || '',
+          items: [{ id: '1', description: note.projectName || '', quantity: 1, unitPrice: onePrice }],
+        }))
+      }).catch(err => alert(`Could not open the field estimate.\n\n${err instanceof Error ? err.message : String(err)}`))
+      return
+    }
+    if (!id) {
+      // New document: take the next free number
+      nextDocumentNumber('invoice').then(n => { markSaved(); setInv(prev => (prev.number ? prev : { ...prev, number: n })) }).catch(() => {})
+      return
+    }
     getDocument(id).then(d => {
       if (!d) return
       setSavedId(id)
       const alreadySent = !!d.status && d.status !== 'draft'
+      if (d.estimateId) setEstimate({ id: d.estimateId, clientName: d.clientName, reopened: !!d.estimateReopened, cost: '' })
       setWasSent(alreadySent)
       markSaved()
       setInv(prev => ({
@@ -91,16 +122,27 @@ export default function InvoicesPage() {
   const handleSave = async (status: DocumentRecord['status'] = 'draft') => {
     setSaving(true)
     try {
+      if (estimate && !savedId) {
+        const note = await getFieldNote(estimate.id)
+        if (note?.invoiceId) throw new Error(`This estimate already has an invoice (${note.invoiceNumber || 'saved earlier'}). Open that invoice from Field Estimates.`)
+        if (note?.status === 'discarded') throw new Error('This estimate was discarded. It cannot be turned into an invoice.')
+      }
+      const num = await confirmDocumentNumber('invoice', inv.number, savedId)
+      if (num !== inv.number) setInv(prev => ({ ...prev, number: num }))
       const docData: DocumentRecord = {
         ...(savedId ? { id: savedId } : {}), type: 'invoice',
-        number: inv.isCorrection ? `${inv.number}-CORRECTED` : inv.number,
+        number: inv.isCorrection ? `${num}-CORRECTED` : num,
         clientName: inv.clientName, clientEmail: inv.clientEmail, clientPhone: inv.clientPhone,
         clientAddress: inv.clientAddress, projectName: inv.projectName, date: inv.date, dueDate: inv.dueDate,
         items: inv.items, notes: inv.notes, subtotal, tax, taxRate: inv.taxRate, total,
         signatureData: inv.signatureData, status,
-        formData: { ...inv, signatureData: null },
+        ...(estimate ? { estimateId: estimate.id, estimateReopened: estimate.reopened } : {}),
+        formData: { ...inv, number: num, signatureData: null },
       }
       const id = await saveDocument(docData)
+      if (estimate && !savedId) {
+        await updateFieldNote(estimate.id, { invoiceId: id, invoiceNumber: num, status: 'invoiced', statusChangedAt: new Date().toISOString().split('T')[0] })
+      }
       setSavedId(id)
       markSaved()
       if (status !== 'draft') { setWasSent(true); setInv(prev => ({ ...prev, isCorrection: true })) }
@@ -135,9 +177,15 @@ export default function InvoicesPage() {
     setGenerating(false)
   }
 
-  const prepareEmail = () => {
-    setEmailSubject(`${inv.isCorrection ? 'Corrected ' : ''}Invoice ${inv.number} — ${inv.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${inv.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Invoice ${inv.number} for ${inv.projectName || 'your project'} in the amount of $${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPayment is due by ${new Date(inv.dueDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.\n\nIf you have any questions, please don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+  const prepareEmail = async () => {
+    // make sure the number is unique before it goes into an email
+    let num = inv.number
+    try {
+      num = await confirmDocumentNumber('invoice', inv.number, savedId)
+      if (num !== inv.number) setInv(prev => ({ ...prev, number: num }))
+    } catch (err) { alert(err instanceof Error ? err.message : String(err)); return }
+    setEmailSubject(`${inv.isCorrection ? 'Corrected ' : ''}Invoice ${num} — ${inv.projectName || 'CR Home Pros'}`)
+    setEmailBody(`Hi ${inv.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Invoice ${num} for ${inv.projectName || 'your project'} in the amount of $${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPayment is due by ${new Date(inv.dueDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.\n\nIf you have any questions, please don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     if (inv.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
   }
@@ -189,6 +237,14 @@ export default function InvoicesPage() {
       </div>
 
       {wasSent && <SentNotice what="invoice" />}
+      {estimate && (
+        <div className="mb-6 rounded-xl border border-blue-400/40 bg-blue-500/10 p-4 text-sm text-blue-50">
+          <p className="font-semibold text-white">Made from the field estimate for {estimate.clientName || 'this client'}.</p>
+          <p className="mt-1">One estimate gets one invoice. {savedId ? 'They are now linked.' : 'They are linked when you save.'} {estimate.reopened && 'The client declined this estimate at first and later came back.'}</p>
+          {!savedId && estimate.cost && <p className="mt-1">Estimated cost on the estimate: <strong className="text-white">{estimate.cost}</strong>. Check the price below before you send.</p>}
+          <Link href="/admin/field-notes" className="mt-2 inline-block text-blue-200 underline">Back to Field Estimates</Link>
+        </div>
+      )}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
         <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
@@ -200,7 +256,7 @@ export default function InvoicesPage() {
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Invoice Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
-              <div><label className={lc}>Invoice #</label><input value={inv.number} onChange={e => updateField('number', e.target.value)} className={ic} /></div>
+              <div><label className={lc}>Invoice #</label><input value={inv.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={inv.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
               <div><label className={lc}>Due Date</label><input type="date" value={inv.dueDate} onChange={e => updateField('dueDate', e.target.value)} className={dic} /></div>
             </div>

@@ -6,7 +6,7 @@ import {
   Briefcase, User, Calendar, FileText, Pencil, AlertTriangle, Mail
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
-import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
+import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
@@ -31,7 +31,7 @@ Client agrees to provide reasonable access to the property during scheduled work
 CRGS, Inc. carries full liability insurance and workers' compensation coverage. MHIC License #05-132359.`
 
 const INITIAL: ContractData = {
-  number: `CTR-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+  number: '', // unique number is assigned when the page opens and checked again on save
   date: new Date().toISOString().split('T')[0],
   clientName: '', clientEmail: '', clientPhone: '', clientAddress: '', propertyAddress: '',
   projectName: '', projectTitle: '',
@@ -67,7 +67,11 @@ export default function ContractsPage() {
   // Reopen a saved draft: /admin/...?id=<document id>
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id')
-    if (!id) return
+    if (!id) {
+      // New document: take the next free number
+      nextDocumentNumber('contract').then(n => { markSaved(); setCt(prev => (prev.number ? prev : { ...prev, number: n })) }).catch(() => {})
+      return
+    }
     getDocument(id).then(d => {
       if (!d) return
       setSavedId(id)
@@ -111,9 +115,11 @@ export default function ContractsPage() {
   const handleSave = async (status: DocumentRecord['status'] = 'draft') => {
     setSaving(true)
     try {
+      const num = await confirmDocumentNumber('contract', ct.number, savedId)
+      if (num !== ct.number) setCt(prev => ({ ...prev, number: num }))
       const docData: DocumentRecord = {
         ...(savedId ? { id: savedId } : {}), type: 'contract',
-        number: ct.isCorrection ? `${ct.number}-CORRECTED` : ct.number,
+        number: ct.isCorrection ? `${num}-CORRECTED` : num,
         clientName: ct.clientName, clientEmail: ct.clientEmail, clientPhone: ct.clientPhone,
         clientAddress: ct.clientAddress, propertyAddress: ct.propertyAddress,
         projectName: ct.projectName, date: ct.date,
@@ -122,7 +128,7 @@ export default function ContractsPage() {
         paymentStructure: ct.paymentStructure, contractTerms: ct.contractTerms,
         notes: ct.notes, subtotal: ct.totalAmount, tax: 0, taxRate: 0, total: ct.totalAmount,
         signatureData: ct.signatureData, status,
-        formData: { ...ct, signatureData: null },
+        formData: { ...ct, number: num, signatureData: null },
       }
       const id = await saveDocument(docData)
       setSavedId(id)
@@ -164,8 +170,14 @@ export default function ContractsPage() {
     setGenerating(false)
   }
 
-  const prepareEmail = () => {
-    setEmailSubject(`${ct.isCorrection ? 'Corrected ' : ''}Contract ${ct.number} — ${ct.projectName || 'CR Home Pros'}`)
+  const prepareEmail = async () => {
+    // make sure the number is unique before it goes into an email
+    let num = ct.number
+    try {
+      num = await confirmDocumentNumber('contract', ct.number, savedId)
+      if (num !== ct.number) setCt(prev => ({ ...prev, number: num }))
+    } catch (err) { alert(err instanceof Error ? err.message : String(err)); return }
+    setEmailSubject(`${ct.isCorrection ? 'Corrected ' : ''}Contract ${num} — ${ct.projectName || 'CR Home Pros'}`)
     setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal estimated cost: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nPlease review, sign, and return at your earliest convenience. If you have any questions, don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     if (ct.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
@@ -221,7 +233,7 @@ export default function ContractsPage() {
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Contract Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
-              <div><label className={lc}>Contract #</label><input value={ct.number} onChange={e => updateField('number', e.target.value)} className={ic} /></div>
+              <div><label className={lc}>Contract #</label><input value={ct.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={ct.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
               <div><label className={lc}>Total Amount</label><input type="number" value={ct.totalAmount || ''} onChange={e => updateField('totalAmount', Number(e.target.value))} className={ic} step="0.01" placeholder="17097.00" /></div>
             </div>

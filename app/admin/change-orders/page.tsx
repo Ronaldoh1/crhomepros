@@ -6,7 +6,7 @@ import {
   ClipboardList, User, Calendar, FileText, Pencil, AlertTriangle, Mail
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
-import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl } from '@/lib/firebase-auth'
+import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
@@ -23,7 +23,7 @@ interface ChangeOrderData {
 }
 
 const INITIAL: ChangeOrderData = {
-  number: `CO-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`,
+  number: '', // unique number is assigned when the page opens and checked again on save
   date: new Date().toISOString().split('T')[0],
   clientName: '', clientEmail: '', clientPhone: '', clientAddress: '', propertyAddress: '',
   projectName: '', existingContractDate: '', previousContractAmount: 0,
@@ -59,7 +59,11 @@ export default function ChangeOrdersPage() {
   // Reopen a saved draft: /admin/...?id=<document id>
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id')
-    if (!id) return
+    if (!id) {
+      // New document: take the next free number
+      nextDocumentNumber('change-order').then(n => { markSaved(); setCo(prev => (prev.number ? prev : { ...prev, number: n })) }).catch(() => {})
+      return
+    }
     getDocument(id).then(d => {
       if (!d) return
       setSavedId(id)
@@ -92,16 +96,18 @@ export default function ChangeOrdersPage() {
   const handleSave = async (status: DocumentRecord['status'] = 'draft') => {
     setSaving(true)
     try {
+      const num = await confirmDocumentNumber('change-order', co.number, savedId)
+      if (num !== co.number) setCo(prev => ({ ...prev, number: num }))
       const docData: DocumentRecord = {
         ...(savedId ? { id: savedId } : {}), type: 'change-order',
-        number: co.isCorrection ? `${co.number}-CORRECTED` : co.number,
+        number: co.isCorrection ? `${num}-CORRECTED` : num,
         clientName: co.clientName, clientEmail: co.clientEmail, clientPhone: co.clientPhone,
         clientAddress: co.clientAddress, propertyAddress: co.propertyAddress,
         projectName: co.projectName, date: co.date,
         items: co.items, notes: co.notes,
         subtotal: changeTotal, tax: 0, taxRate: 0, total: totalAfterChange,
         signatureData: co.signatureData, status,
-        formData: { ...co, signatureData: null },
+        formData: { ...co, number: num, signatureData: null },
       }
       const id = await saveDocument(docData)
       setSavedId(id)
@@ -139,9 +145,15 @@ export default function ChangeOrdersPage() {
     setGenerating(false)
   }
 
-  const prepareEmail = () => {
-    setEmailSubject(`${co.isCorrection ? 'Corrected ' : ''}Change Order ${co.number} — ${co.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${co.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Change Order ${co.number} for additional work on your project.\n\nThe change order total is $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+  const prepareEmail = async () => {
+    // make sure the number is unique before it goes into an email
+    let num = co.number
+    try {
+      num = await confirmDocumentNumber('change-order', co.number, savedId)
+      if (num !== co.number) setCo(prev => ({ ...prev, number: num }))
+    } catch (err) { alert(err instanceof Error ? err.message : String(err)); return }
+    setEmailSubject(`${co.isCorrection ? 'Corrected ' : ''}Change Order ${num} — ${co.projectName || 'CR Home Pros'}`)
+    setEmailBody(`Hi ${co.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Change Order ${num} for additional work on your project.\n\nThe change order total is $${changeTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPlease review, sign, and return at your earliest convenience.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     if (co.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
   }
@@ -199,7 +211,7 @@ export default function ChangeOrdersPage() {
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Change Order Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
-              <div><label className={lc}>CO #</label><input value={co.number} onChange={e => updateField('number', e.target.value)} className={ic} /></div>
+              <div><label className={lc}>CO #</label><input value={co.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={co.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
               <div><label className={lc}>Existing Contract Date</label><input type="date" value={co.existingContractDate} onChange={e => updateField('existingContractDate', e.target.value)} className={dic} /></div>
             </div>
