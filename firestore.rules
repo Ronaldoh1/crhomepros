@@ -16,6 +16,7 @@ service cloud.firestore {
     match /banners/{id}       { allow read: if true; allow write: if isAdmin(); }
     match /site_settings/{id} { allow read: if true; allow write: if isAdmin(); }
     match /projects/{id}      { allow read: if true; allow write: if isAdmin(); }
+    match /public_projects/{id} { allow read: if true; allow write: if isAdmin(); }  // project library: no client details
 
     // Reviews: visitors can submit (unapproved) and read approved ones
     match /reviews/{id} {

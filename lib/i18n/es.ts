@@ -568,6 +568,8 @@ const es: Dictionary = {
     nav: {
       services: 'Servicios',
       work: 'Nuestro Trabajo',
+      gallery: 'Galería de Fotos',
+      library: 'Biblioteca de Proyectos (próximamente)',
       about: 'Nosotros',
       areas: 'Áreas de Servicio',
       contact: 'Contacto',

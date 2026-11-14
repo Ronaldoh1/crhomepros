@@ -13,6 +13,7 @@ import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_co
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../_components/Toast'
+import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
 
 interface ScopeItem { id: string; description: string }
 
@@ -31,6 +32,24 @@ All work guaranteed for one (1) year from completion date. Warranty covers workm
 Client agrees to provide reasonable access to the property during scheduled work hours. Any delays caused by client will extend the project timeline accordingly.
 
 CRGS, Inc. carries full liability insurance and workers' compensation coverage. MHIC License #05-132359.`
+
+// Payment splits Carlos can pick from. Each part is a share of the total and when it is due.
+const PAYMENT_PRESETS: { label: string; parts: [number, string][] }[] = [
+  { label: '3 equal payments', parts: [[1 / 3, 'when client authorizes work agreement'], [1 / 3, 'due at project midpoint'], [1 / 3, 'upon completion and customer satisfaction']] },
+  { label: '50% / 50%', parts: [[0.5, 'when client authorizes work agreement'], [0.5, 'upon completion and customer satisfaction']] },
+  { label: '30% / 40% / 30%', parts: [[0.3, 'when client authorizes work agreement'], [0.4, 'due at project midpoint'], [0.3, 'upon completion and customer satisfaction']] },
+  { label: '10% deposit, rest at the end', parts: [[0.1, 'deposit when client authorizes work agreement'], [0.9, 'upon completion and customer satisfaction']] },
+]
+const usd = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+/** Writes the payment lines; the last payment absorbs the rounding so they add up to the total exactly */
+function paymentText(total: number, parts: [number, string][]): string {
+  let left = Math.round(total * 100)
+  return parts.map(([share, when], i) => {
+    const cents = i === parts.length - 1 ? left : Math.round(total * share * 100)
+    left -= cents
+    return `${usd(cents / 100)} USD ${when}.`
+  }).join('\n')
+}
 
 const INITIAL: ContractData = {
   number: '', // unique number is assigned when the page opens and checked again on save
@@ -54,6 +73,7 @@ export default function ContractsPage() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const toast = useToast()
+  const [pdf, setPdf] = useState<ReadyPdf | null>(null)
   // a contract the client already signed cannot be changed or sent again
   const [signedBy, setSignedBy] = useState<{ name?: string; signedAt?: string } | null>(null)
   const [estimateId, setEstimateId] = useState<string | null>(null)
@@ -126,16 +146,16 @@ export default function ContractsPage() {
 
   // Auto-generate payment structure when total changes
   useEffect(() => {
+    // first time a total is entered: start with 3 equal payments (Carlos can change it)
     if (ct.totalAmount > 0 && !ct.paymentStructure) {
-      const third = Math.round(ct.totalAmount / 3 * 100) / 100
-      setCt(prev => ({
-        ...prev,
-        paymentStructure: `$${third.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD when client authorizes work agreement.\n$${third.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD due at project midpoint.\n$${third.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD upon completion and customer satisfaction.`
-      }))
+      setCt(prev => ({ ...prev, paymentStructure: paymentText(ct.totalAmount, PAYMENT_PRESETS[0].parts) }))
     }
   }, [ct.totalAmount])
 
   const updateField = (field: keyof ContractData, value: any) => setCt(prev => ({ ...prev, [field]: value }))
+  // dollar amounts written in the payment structure, to catch a total that changed afterwards
+  const paymentSum = Math.round((ct.paymentStructure.match(/\$\s?\d[\d,]*(\.\d+)?/g) || []).reduce((sum, m) => sum + Number(m.replace(/[$,\s]/g, '')), 0) * 100) / 100
+  const paymentMismatch = ct.totalAmount > 0 && paymentSum > 0 && Math.abs(paymentSum - ct.totalAmount) > 0.01 ? paymentSum : 0
   const addScope = () => setCt(prev => ({ ...prev, scopeItems: [...prev.scopeItems, { id: String(Date.now()), description: '' }] }))
   const removeScope = (id: string) => { if (ct.scopeItems.length > 1) setCt(prev => ({ ...prev, scopeItems: prev.scopeItems.filter(i => i.id !== id) })) }
   const updateScope = (id: string, value: string) => setCt(prev => ({ ...prev, scopeItems: prev.scopeItems.map(i => i.id === id ? { ...i, description: value } : i) }))
@@ -193,8 +213,12 @@ export default function ContractsPage() {
   const handleGeneratePdf = async () => {
     setGenerating(true)
     try {
-      const res = await adminFetch('/api/admin/generate-pdf', { type: 'contract', data: pdfData() })
-      window.open(URL.createObjectURL(await res.blob()), '_blank')
+      const data = pdfData()
+      const res = await adminFetch('/api/admin/generate-pdf', { type: 'contract', data })
+      const blob = await res.blob()
+      if (blob.type !== 'application/pdf' || blob.size < 500) throw new Error('The server did not return a PDF.')
+      // shown in a window with Open / Download buttons: a new tab opened from code is blocked by Safari
+      setPdf({ blob, filename: `contract-${String(data.number || 'draft').replace(/[^\w.-]/g, '_')}.pdf` })
     } catch (err) {
       console.error('PDF failed:', err)
       alert(`The PDF could not be created. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -307,8 +331,19 @@ export default function ContractsPage() {
 
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4">Payment Structure</h2>
-            <textarea value={ct.paymentStructure} onChange={e => updateField('paymentStructure', e.target.value)} rows={4} placeholder="$5,699.00 when client authorizes work agreement..." className={ic} />
-            <p className="text-xs text-slate-500 mt-2">Auto-generated as 3 equal payments. Edit as needed.</p>
+            <p className="text-sm text-slate-100 mb-3">Pick a split to fill it in from the total, then change the wording any way you like. Nothing here is fixed.</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {PAYMENT_PRESETS.map(preset => (
+                <button key={preset.label} type="button" disabled={!ct.totalAmount} onClick={() => updateField('paymentStructure', paymentText(ct.totalAmount, preset.parts))}
+                  className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 disabled:opacity-50">{preset.label}</button>
+              ))}
+              <button type="button" onClick={() => updateField('paymentStructure', '')} className="text-sm px-3 py-2 rounded-lg bg-slate-800 border border-white/15 text-white hover:bg-slate-700">Clear and write my own</button>
+            </div>
+            <textarea value={ct.paymentStructure} onChange={e => updateField('paymentStructure', e.target.value)} rows={5} placeholder="Example: $5,000.00 USD when client authorizes work agreement..." className={ic} />
+            {!ct.totalAmount && <p className="text-sm text-slate-100 mt-2">Enter the contract total first to use the buttons.</p>}
+            {paymentMismatch && (
+              <p className="mt-2 rounded-lg border border-amber-400/50 bg-amber-500/15 px-3 py-2 text-sm text-amber-50">The payments written here add up to <strong className="text-white">{fmt(paymentMismatch)}</strong>, but the contract total is <strong className="text-white">{fmt(ct.totalAmount)}</strong>. Check the amounts or press a split button again.</p>
+            )}
           </div>
 
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
@@ -405,6 +440,7 @@ export default function ContractsPage() {
         <p>If you continue, the client gets a <strong>second email</strong> with a new PDF marked as a correction. It cannot be taken back once it is sent.</p>
         <p>Only continue if something in the first one was wrong.</p>
       </ConfirmDialog>
+      <PdfDialog pdf={pdf} onClose={() => setPdf(null)} />
     </div>
   )
 }

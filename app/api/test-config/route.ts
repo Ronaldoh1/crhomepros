@@ -76,9 +76,20 @@ export async function GET() {
     }
   }
 
+  // Live test: can the server build a PDF?
+  let pdfCheck = 'not tested'
+  try {
+    const { buildDocumentPdf } = await import('@/lib/pdf-document')
+    const bytes = await buildDocumentPdf('invoice', { number: 'TEST-0001', date: '2026-01-01', clientName: 'Health check', items: [{ description: 'Test line', quantity: 1, unitPrice: 1 }] })
+    pdfCheck = bytes.length > 1000 ? `✅ PDF built (${Math.round(bytes.length / 1024)} KB)` : '❌ PDF came out empty'
+  } catch (e: any) {
+    pdfCheck = `❌ ${String(e?.message || e).slice(0, 200)}`
+  }
+
   const problems: string[] = []
   if (badlyFormatted.length) problems.push(`These settings contain a stray newline, space or quotes and must be retyped in Vercel: ${badlyFormatted.join(', ')}`)
   if (websiteDatabase.startsWith('❌')) problems.push(`The admin database (invoices, contracts, leads) is not working: ${websiteDatabase}`)
+  if (pdfCheck.startsWith('❌')) problems.push(`PDFs cannot be created on the server: ${pdfCheck}`)
   if (!clientProject) problems.push('NEXT_PUBLIC_FIREBASE_PROJECT_ID is not set')
   if (adminProject === OLD_PROJECT) problems.push(`FIREBASE_ADMIN_PROJECT_ID is "${OLD_PROJECT}" (locked project). Set it to "${clientProject || 'crhomepros-9309c'}".`)
   if (clientProject && adminProject !== clientProject) problems.push(`Server project (${adminProject}) and website project (${clientProject}) differ: form leads and the admin panel use different databases.`)
@@ -104,6 +115,7 @@ export async function GET() {
       admin_login: 'Google sign-in, crhomepros@gmail.com only',
       client_pages: 'private link per client at /portal/<link>',
     },
+    documents: { pdf_test: pdfCheck },
     email: {
       provider: 'Resend',
       from: env.EMAIL_FROM || 'CR Home Pros <onboarding@resend.dev> (default)',

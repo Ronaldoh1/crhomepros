@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Images, Loader2, Camera, ImagePlus, Plus, X, CheckCircle, Trash2, Lock, Eye, Save } from 'lucide-react'
 import {
-  getPastProjects, updatePastProject, createPastProject, deletePastProject, uploadProjectPhoto, deleteFieldPhoto,
+  getPastProjects, updatePastProject, createPastProject, deletePastProject, uploadProjectPhoto, deleteFieldPhoto, publishProject, unpublishProject,
   type PastProject,
 } from '@/lib/firebase-auth'
 import { shrinkPhoto } from '@/lib/shrink-photo'
@@ -25,6 +25,7 @@ export default function PastProjectsPage() {
   const [busy, setBusy] = useState('')
   const [toDelete, setToDelete] = useState<PastProject | null>(null)
   const [preview, setPreview] = useState<string | null>(null)
+  const [toPublish, setToPublish] = useState<PastProject | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
   const camRef = useRef<HTMLInputElement>(null)
   const target = useRef<{ id: string; phase: 'before' | 'after' } | null>(null)
@@ -37,7 +38,14 @@ export default function PastProjectsPage() {
 
   const patch = async (p: PastProject, change: Partial<PastProject>, message?: string) => {
     setProjects(prev => prev.map(x => (x.id === p.id ? { ...x, ...change } : x)))
-    try { await updatePastProject(p.id!, change); if (message) toast(message) } catch (e) { toast(e instanceof Error ? e.message : 'Not saved', 'error'); load() }
+    try {
+      await updatePastProject(p.id!, change)
+      // keep the public copy in step with every change
+      const next = { ...p, ...change }
+      if (next.published && next.status === 'completed') await publishProject(next)
+      else if (p.published || change.published === false) await unpublishProject(p.id!).catch(() => {})
+      if (message) toast(message)
+    } catch (e) { toast(e instanceof Error ? e.message : 'Not saved', 'error'); load() }
   }
 
   const pick = (id: string, phase: 'before' | 'after', camera: boolean) => { target.current = { id, phase }; (camera ? camRef : fileRef).current?.click() }
@@ -109,7 +117,7 @@ export default function PastProjectsPage() {
         <button onClick={addManual} className="flex-shrink-0 px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 flex items-center gap-2"><Plus className="w-5 h-5" /> Add</button>
       </div>
       <p className="text-slate-100 text-sm mb-4">A project starts by itself when a client signs a contract. The photos from your field estimate become the "before" photos. Add the "after" photos when the job is done.</p>
-      <div className="rounded-xl border border-blue-400/40 bg-blue-500/10 p-4 mb-6 text-sm text-blue-50 flex gap-3"><Lock className="w-5 h-5 text-blue-200 flex-shrink-0" /><p><strong className="text-white">Everything here is private.</strong> Marking a project "ready for the website" does not publish anything yet. When the public gallery is turned on, it will show only the title, the city, what was done and the photos. Never the client's name, address, email or price.</p></div>
+      <div className="rounded-xl border border-blue-400/40 bg-blue-500/10 p-4 mb-6 text-sm text-blue-50 flex gap-3"><Lock className="w-5 h-5 text-blue-200 flex-shrink-0" /><p><strong className="text-white">Everything here is private until you tick "Show on the website".</strong> Then the project appears in the public Project Library with only the title, the city, what was done and the photos. Never the client's name, address, email or price. Untick it to take it down.</p></div>
 
       {loading ? <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
         : error ? <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-red-50">Projects could not be loaded. {error}</div>
@@ -138,7 +146,7 @@ export default function PastProjectsPage() {
                   <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
                     <button onClick={() => patch(p, done ? { status: 'in-progress', published: false } : { status: 'completed', completedAt: new Date().toISOString().slice(0, 10) }, done ? `${p.title} is back in progress` : `${p.title} marked completed`)} className={`text-sm px-3 py-2 rounded-lg font-medium flex items-center gap-1.5 ${done ? 'bg-slate-700 text-white' : 'bg-green-600 text-white hover:bg-green-700'}`}><CheckCircle className="w-4 h-4" /> {done ? 'Completed (undo)' : 'Mark completed'}</button>
                     <label className={`text-sm px-3 py-2 rounded-lg flex items-center gap-2 ${canPublish ? 'bg-slate-700 text-white cursor-pointer' : 'bg-slate-800 text-slate-200 cursor-not-allowed'}`} title={canPublish ? '' : 'Mark it completed and add after photos first'}>
-                      <input type="checkbox" disabled={!canPublish} checked={!!p.published && canPublish} onChange={e => patch(p, { published: e.target.checked }, e.target.checked ? `${p.title} is marked ready for the website` : `${p.title} is no longer marked for the website`)} className="w-4 h-4" /> Ready for the website
+                      <input type="checkbox" disabled={!canPublish} checked={!!p.published && canPublish} onChange={e => (e.target.checked ? setToPublish(p) : patch(p, { published: false }, `${p.title} was removed from the website`))} className="w-4 h-4" /> Show on the website
                     </label>
                     <button onClick={() => setPreview(preview === p.id ? null : p.id!)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Eye className="w-4 h-4" /> {preview === p.id ? 'Hide' : 'Show'} public view</button>
                     <button onClick={() => setToDelete(p)} className="text-sm px-3 py-2 rounded-lg bg-red-600/20 text-red-200 hover:bg-red-600/30 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
@@ -158,9 +166,17 @@ export default function PastProjectsPage() {
           </div>
         )}
 
+      <ConfirmDialog open={!!toPublish} title={`Show "${toPublish?.title || ''}" on the website?`} confirmLabel="Yes, show it" cancelLabel="Not yet"
+        onCancel={() => setToPublish(null)}
+        onConfirm={() => { const p = toPublish!; setToPublish(null); patch(p, { published: true }, `${p.title} is now in the Project Library on the website`) }}>
+        <p>Anyone visiting crhomepros.com will see the <strong>title, city, what was done, and all {(toPublish?.beforePhotos || []).length + (toPublish?.afterPhotos || []).length} photos</strong> (before and after).</p>
+        <p>They will not see the client's name, address, email or price.</p>
+        <p><strong>Before you say yes:</strong> make sure the client is fine with photos of their home being shown, and that no photo shows a house number, a license plate, a face or anything personal. Remove any photo that does.</p>
+      </ConfirmDialog>
+
       <ConfirmDialog open={!!toDelete} danger title={`Delete the project "${toDelete?.title || ''}"?`} confirmLabel="Yes, delete it" cancelLabel="Keep it"
         onCancel={() => setToDelete(null)}
-        onConfirm={async () => { const p = toDelete!; setToDelete(null); try { await deletePastProject(p.id!); setProjects(prev => prev.filter(x => x.id !== p.id)); toast('Project deleted') } catch (e) { toast(e instanceof Error ? e.message : 'Not deleted', 'error') } }}>
+        onConfirm={async () => { const p = toDelete!; setToDelete(null); try { await deletePastProject(p.id!); await unpublishProject(p.id!).catch(() => {}); setProjects(prev => prev.filter(x => x.id !== p.id)); toast('Project deleted') } catch (e) { toast(e instanceof Error ? e.message : 'Not deleted', 'error') } }}>
         <p>The project and its "after" photos list are removed. The contract and the field estimate are not touched.</p>
       </ConfirmDialog>
     </div>

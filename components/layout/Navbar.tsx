@@ -57,7 +57,13 @@ export function Navbar() {
         { label: r.nav.pricing, href: lp('/pricing') },
       ],
     },
-    { key: 'work', label: r.nav.work, href: lp('/projects') },
+    {
+      key: 'work', label: r.nav.work, href: lp('/projects'),
+      children: [
+        { label: r.nav.gallery, href: lp('/projects') },
+        { label: r.nav.library, href: lp('/project-library') },
+      ],
+    },
     {
       key: 'about',
       label: r.nav.about,

@@ -14,6 +14,7 @@ import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_co
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../_components/Toast'
+import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
 
 interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
 
@@ -41,6 +42,7 @@ export default function InvoicesPage() {
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const toast = useToast()
+  const [pdf, setPdf] = useState<ReadyPdf | null>(null)
   const router = useRouter()
   const [savedSigUrl, setSavedSigUrl] = useState<string | null>(null)
   const [emailSubject, setEmailSubject] = useState('')
@@ -173,8 +175,12 @@ export default function InvoicesPage() {
   const handleGeneratePdf = async () => {
     setGenerating(true)
     try {
-      const res = await adminFetch('/api/admin/generate-pdf', { type: 'invoice', data: pdfData() })
-      window.open(URL.createObjectURL(await res.blob()), '_blank')
+      const data = pdfData()
+      const res = await adminFetch('/api/admin/generate-pdf', { type: 'invoice', data })
+      const blob = await res.blob()
+      if (blob.type !== 'application/pdf' || blob.size < 500) throw new Error('The server did not return a PDF.')
+      // shown in a window with Open / Download buttons: a new tab opened from code is blocked by Safari
+      setPdf({ blob, filename: `invoice-${String(data.number || 'draft').replace(/[^\w.-]/g, '_')}.pdf` })
     } catch (err) {
       console.error('PDF failed:', err)
       alert(`The PDF could not be created. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -391,6 +397,7 @@ export default function InvoicesPage() {
         <p>If you continue, the client gets a <strong>second email</strong> with a new PDF marked as a correction. It cannot be taken back once it is sent.</p>
         <p>Only continue if something in the first one was wrong.</p>
       </ConfirmDialog>
+      <PdfDialog pdf={pdf} onClose={() => setPdf(null)} />
     </div>
   )
 }

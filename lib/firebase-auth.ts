@@ -653,3 +653,36 @@ export async function uploadProjectPhoto(projectId: string, photo: Blob): Promis
   await uploadBytes(storageRef, photo, { contentType: 'image/jpeg' })
   return { url: await getDownloadURL(storageRef), path }
 }
+
+// ── Public project library ───────────────────
+// A copy of a past project with nothing private in it: no client name,
+// address, email, price or contract number. Only this copy is public.
+
+export interface PublicProject {
+  id: string
+  title: string
+  city: string
+  workDone: string
+  beforePhotos: string[]
+  afterPhotos: string[]
+  completedAt?: string
+}
+
+export async function publishProject(p: PastProject): Promise<void> {
+  const pub: PublicProject = {
+    id: p.id!, title: p.title || 'Project', city: p.publicCity || '', workDone: p.workDone || '',
+    beforePhotos: p.beforePhotos || [], afterPhotos: p.afterPhotos || [], completedAt: p.completedAt || '',
+  }
+  await setDoc(doc(requireDb(), 'public_projects', p.id!), { ...pub, publishedAt: serverTimestamp() })
+}
+
+export async function unpublishProject(id: string): Promise<void> {
+  await deleteDoc(doc(requireDb(), 'public_projects', id))
+}
+
+export async function getPublicProjects(): Promise<PublicProject[]> {
+  const db = ensureDb()
+  if (!db) return []
+  const snap = await getDocs(collection(db, 'public_projects'))
+  return snap.docs.map(d => ({ ...(d.data() as PublicProject), id: d.id })).sort((a, b) => String(b.completedAt).localeCompare(String(a.completedAt)))
+}

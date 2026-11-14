@@ -566,6 +566,8 @@ const en = {
     nav: {
       services: 'Services',
       work: 'Our Work',
+      gallery: 'Photo Gallery',
+      library: 'Project Library (coming soon)',
       about: 'About',
       areas: 'Service Areas',
       contact: 'Contact',
