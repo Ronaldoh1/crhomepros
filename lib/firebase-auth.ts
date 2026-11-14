@@ -34,6 +34,7 @@ import {
   type Firestore,
 } from 'firebase/firestore'
 import { emailKey, phoneKey } from './client-keys'
+import type { Payment, PaymentPlan } from './payment-plan'
 import {
   getStorage,
   ref,
@@ -218,6 +219,15 @@ export interface DocumentRecord {
   estimateId?: string
   /** The client first declined the estimate and later came back */
   estimateReopened?: boolean
+  /** Contract: which split was chosen. Invoice: the payments and which were received */
+  paymentPlan?: PaymentPlan
+  payments?: Payment[]
+  /** Invoice: the contract it was made from (one invoice per contract) */
+  contractId?: string
+  contractNumber?: string
+  /** Contract: the invoice made when it was signed */
+  invoiceId?: string
+  invoiceNumber?: string
   /** Set when the client signs a contract on their page */
   clientSignature?: { dataUrl?: string; name?: string; signedAt?: string; ip?: string }
   signedFileUrl?: string
@@ -302,6 +312,11 @@ export async function confirmDocumentNumber(type: DocumentRecord['type'], wanted
     if (!(await isDocumentNumberTaken(type, next, savedId))) return next
   }
   throw new Error('Could not find a free document number. Please tell Ron.')
+}
+
+/** Change a few fields of a saved document */
+export async function saveDocumentPatch(id: string, patch: Partial<DocumentRecord>): Promise<void> {
+  await setDoc(doc(requireDb(), DOCS_COLLECTION, id), { ...patch, updatedAt: serverTimestamp() }, { merge: true })
 }
 
 export async function getDocumentsByType(type: DocumentRecord['type']): Promise<DocumentRecord[]> {
@@ -469,6 +484,10 @@ export interface FieldNoteRecord {
   measurements?: string
   materialsNeeded?: string
   estimatedCost?: string
+  /** Estimated price in dollars, before tax. estimatedCost holds the same amount as text. */
+  estimatedAmount?: number
+  /** The client approved and signed the estimate on their page */
+  clientApproval?: { dataUrl?: string; name?: string; signedAt?: string; ip?: string }
   nextSteps?: string
   /** Photo links (Firebase Storage). Very old notes may hold inline image data instead. */
   photos: string[]
@@ -497,7 +516,8 @@ export interface FieldNoteRecord {
   updatedAt?: any
 }
 
-export type EstimateStatus = 'new' | 'quoted' | 'accepted' | 'invoiced' | 'declined' | 'reopened' | 'discarded'
+// 'invoiced' is from the earlier version and is shown as "In contract"
+export type EstimateStatus = 'new' | 'quoted' | 'accepted' | 'contracted' | 'invoiced' | 'declined' | 'reopened' | 'discarded'
 
 const FIELD_NOTES_COLLECTION = 'field_notes'
 

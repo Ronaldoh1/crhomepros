@@ -5,6 +5,7 @@ import {
   FileSignature, ClipboardList, Receipt, Users, CheckCircle, Loader2, Download, Send, Phone, ChevronDown, AlertTriangle, ListChecks, MessageSquare,
 } from 'lucide-react'
 import { SignaturePad } from '@/app/admin/_components/SignaturePad'
+import { TAX_NOTE, TAX_NOTE_ES } from '@/lib/payment-plan'
 
 // ── Words (English / Spanish) ────────────────
 const EN = {
@@ -21,7 +22,11 @@ const EN = {
   agree: 'I have read this contract and I agree to it. I agree to sign it electronically, and I understand my electronic signature has the same effect as signing on paper.',
   signBtn: 'Sign contract', signing: 'Signing…', signedBy: 'Signed by', on: 'on', signedOk: 'Thank you. Your contract is signed, and a copy is on its way to your email.',
   needName: 'Type your full name.', needSig: 'Add your signature.', needAgree: 'Tick the box to agree.',
-  estOpen: 'Estimate', estAccepted: 'Accepted', estInvoiced: 'Invoiced', estDeclined: 'Declined', price: 'Estimated price', next: 'Next steps', photos: 'Photos from our visit',
+  estOpen: 'Waiting for your approval', estAccepted: 'Approved', estInvoiced: 'In contract', estDeclined: 'Declined', price: 'Estimated price, before tax',
+  taxNote: TAX_NOTE, approveTitle: 'Approve this estimate', approveBtn: 'Approve and sign', approving: 'Approving…',
+  approveAgree: 'I approve this estimate and would like CR Home Pros to prepare the contract. I understand this is not the contract, and that the final price with taxes is stated in the contract.',
+  approvedOk: 'Thank you. Carlos will prepare your contract and send it to you.', approvedBy: 'Approved and signed by',
+  contractPrice: 'Contract price', salesTax: 'Sales tax', totalWithTax: 'Total, taxes included', payments: 'Payments', received: 'Received', dueLabel: 'Due', paidSoFar: 'Payments received', balance: 'Balance due', paidFull: 'Paid in full', invoiceTotal: 'Invoice total', todoApprove: 'Approve your estimate', next: 'Next steps', photos: 'Photos from our visit',
   none: 'Nothing here yet.', due: 'Due', paid: 'Paid', unpaid: 'Sent',
   referIntro: 'Know someone who needs work done? Send us their details and Carlos will reach out. We will tell them you sent us.',
   friendName: 'Their name', friendPhone: 'Their phone', friendEmail: 'Their email', friendWhat: 'What do they need? (optional)',
@@ -44,7 +49,11 @@ const ES: typeof EN = {
   agree: 'He leído este contrato y estoy de acuerdo. Acepto firmarlo electrónicamente y entiendo que mi firma electrónica tiene el mismo efecto que una firma en papel.',
   signBtn: 'Firmar contrato', signing: 'Firmando…', signedBy: 'Firmado por', on: 'el', signedOk: 'Gracias. Su contrato está firmado y le llegará una copia por correo.',
   needName: 'Escriba su nombre completo.', needSig: 'Agregue su firma.', needAgree: 'Marque la casilla para aceptar.',
-  estOpen: 'Presupuesto', estAccepted: 'Aceptado', estInvoiced: 'Facturado', estDeclined: 'Rechazado', price: 'Precio estimado', next: 'Próximos pasos', photos: 'Fotos de nuestra visita',
+  estOpen: 'Esperando su aprobación', estAccepted: 'Aprobado', estInvoiced: 'En contrato', estDeclined: 'Rechazado', price: 'Precio estimado, antes de impuestos',
+  taxNote: TAX_NOTE_ES, approveTitle: 'Apruebe este presupuesto', approveBtn: 'Aprobar y firmar', approving: 'Aprobando…',
+  approveAgree: 'Apruebo este presupuesto y deseo que CR Home Pros prepare el contrato. Entiendo que esto no es el contrato y que el precio final con impuestos se indica en el contrato.',
+  approvedOk: 'Gracias. Carlos preparará su contrato y se lo enviará.', approvedBy: 'Aprobado y firmado por',
+  contractPrice: 'Precio del contrato', salesTax: 'Impuesto sobre la venta', totalWithTax: 'Total, impuestos incluidos', payments: 'Pagos', received: 'Recibido', dueLabel: 'Pendiente', paidSoFar: 'Pagos recibidos', balance: 'Saldo pendiente', paidFull: 'Pagado en su totalidad', invoiceTotal: 'Total de la factura', todoApprove: 'Apruebe su presupuesto', next: 'Próximos pasos', photos: 'Fotos de nuestra visita',
   none: 'Todavía no hay nada aquí.', due: 'Vence', paid: 'Pagada', unpaid: 'Enviada',
   referIntro: '¿Conoce a alguien que necesite un trabajo? Envíenos sus datos y Carlos se comunicará. Le diremos que usted nos recomendó.',
   friendName: 'Su nombre', friendPhone: 'Su teléfono', friendEmail: 'Su correo', friendWhat: '¿Qué necesita? (opcional)',
@@ -105,7 +114,7 @@ export default function ClientPage({ params }: { params: { token: string } }) {
 
   const first = (data.client.name || '').split(' ')[0]
   const toSign = data.contracts.filter(c => c.status === 'to-sign')
-  const openEst = data.estimates.filter(e => e.status === 'open')
+  const openEst = data.estimates.filter(e => e.status === 'open' && !e.approvedAt)
   const card = 'bg-white rounded-2xl border border-slate-300 shadow-sm p-5 sm:p-6'
   const h2 = 'text-xl font-bold text-[#0b1b33] flex items-center gap-2.5 mb-4'
 
@@ -134,7 +143,7 @@ export default function ClientPage({ params }: { params: { token: string } }) {
           {toSign.length + openEst.length === 0 ? <p className="text-slate-800 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-700" /> {t.todoNone}</p> : (
             <ul className="space-y-2">
               {toSign.map(c => <li key={c.id}><a href={`#c-${c.id}`} className="flex items-center gap-3 rounded-xl bg-amber-50 border border-amber-300 px-4 py-3 font-semibold text-slate-900"><FileSignature className="w-5 h-5 text-[#c2410c]" /> {t.todoSign} {c.number}</a></li>)}
-              {openEst.map(e => <li key={e.id}><a href={`#e-${e.id}`} className="flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-300 px-4 py-3 font-semibold text-slate-900"><ClipboardList className="w-5 h-5 text-blue-800" /> {t.todoEstimate}{e.projectName ? `: ${e.projectName}` : ''}</a></li>)}
+              {openEst.map(e => <li key={e.id}><a href={`#e-${e.id}`} className="flex items-center gap-3 rounded-xl bg-blue-50 border border-blue-300 px-4 py-3 font-semibold text-slate-900"><ClipboardList className="w-5 h-5 text-blue-800" /> {t.todoApprove}{e.projectName ? `: ${e.projectName}` : ''}</a></li>)}
             </ul>
           )}
         </section>
@@ -155,9 +164,10 @@ export default function ClientPage({ params }: { params: { token: string } }) {
               <div key={e.id} id={`e-${e.id}`} className={card + ' scroll-mt-4'}>
                 <div className="flex items-start justify-between gap-3">
                   <div><h3 className="text-lg font-bold text-slate-900">{e.projectName || t.estOpen}</h3><p className="text-sm text-slate-800">{day(e.date)}{e.address ? ` · ${e.address}` : ''}</p></div>
-                  <Chip tone={e.status === 'declined' ? 'slate' : e.status === 'open' ? 'blue' : 'green'}>{e.status === 'accepted' ? t.estAccepted : e.status === 'invoiced' ? t.estInvoiced : e.status === 'declined' ? t.estDeclined : t.estOpen}</Chip>
+                  <Chip tone={e.status === 'declined' ? 'slate' : e.status === 'open' ? 'amber' : 'green'}>{e.status === 'accepted' ? t.estAccepted : e.status === 'contracted' ? t.estInvoiced : e.status === 'declined' ? t.estDeclined : t.estOpen}</Chip>
                 </div>
-                {e.estimatedCost && <p className="mt-4"><span className="block text-xs font-bold uppercase tracking-wide text-[#b45309]">{t.price}</span><span className="text-2xl font-bold text-[#0b1b33]">{e.estimatedCost}</span></p>}
+                {e.estimatedCost && <p className="mt-4"><span className="block text-xs font-bold uppercase tracking-wide text-[#b45309]">{t.price}</span><span className="text-2xl font-bold text-[#0b1b33]">{e.estimatedCost}</span><span className="mt-2 block rounded-lg bg-amber-100 border border-amber-400 text-amber-900 px-3 py-2 text-sm font-semibold">{t.taxNote}</span></p>}
+                {e.approvedAt && <p className="mt-3 text-slate-900 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-700" /> {t.approvedBy} {e.approvedName} {t.on} {dayTime(e.approvedAt)}</p>}
                 {e.nextSteps && <p className="mt-3"><span className="block text-xs font-bold uppercase tracking-wide text-[#b45309]">{t.next}</span><span className="whitespace-pre-line text-slate-900">{e.nextSteps}</span></p>}
                 {e.photos.length > 0 && (
                   <div className="mt-4"><span className="block text-xs font-bold uppercase tracking-wide text-[#b45309] mb-2">{t.photos}</span>
@@ -166,6 +176,10 @@ export default function ClientPage({ params }: { params: { token: string } }) {
                       <a key={i} href={p} target="_blank" rel="noopener noreferrer" className="block aspect-square rounded-lg overflow-hidden bg-slate-200"><img src={p} alt="" loading="lazy" className="w-full h-full object-cover" /></a>
                     ))}</div>
                   </div>
+                )}
+                {e.status === 'open' && !e.approvedAt && (
+                  <SignBlock t={t} title={t.approveTitle} agreeText={t.approveAgree} button={t.approveBtn} busyText={t.approving} okText={t.approvedOk} defaultName={data.client.name}
+                    onSign={async (name, signature) => { await post({ action: 'approve-estimate', docId: e.id, name, signature, agree: true }); await load() }} />
                 )}
                 <Thread t={t} title={t.noteTitle} button={t.noteBtn} placeholder={t.notePh} messages={data.messages.filter(m => m.docType === 'estimate' && m.docId === e.id)} dayTime={dayTime}
                   onSend={async text => { await post({ action: 'message', docType: 'estimate', docId: e.id, text }); await load() }} />
@@ -178,14 +192,26 @@ export default function ClientPage({ params }: { params: { token: string } }) {
         {data.invoices.length > 0 && (
           <section>
             <h2 className={h2}><Receipt className="w-5 h-5 text-[#c2410c]" /> {t.invoices}</h2>
-            <div className={card + ' divide-y divide-slate-200 !p-0'}>
+            <div className="space-y-4">
               {data.invoices.map(i => (
-                <div key={i.id} className="flex flex-wrap items-center justify-between gap-3 p-4 sm:px-6">
-                  <div><p className="font-bold text-slate-900">{i.number}</p><p className="text-sm text-slate-800">{i.projectName}{i.dueDate ? ` · ${t.due} ${day(i.dueDate)}` : ''}</p></div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-[#0b1b33]">{money(i.total)}</span>
-                    <Chip tone={i.status === 'paid' ? 'green' : 'blue'}>{i.status === 'paid' ? t.paid : t.unpaid}</Chip>
-                    <a href={`${api}/pdf?doc=${i.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 text-slate-900 text-sm font-semibold hover:bg-slate-300"><Download className="w-4 h-4" /> PDF</a>
+                <div key={i.id} className={card}>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div><p className="text-lg font-bold text-slate-900">{i.number}</p><p className="text-sm text-slate-800">{i.projectName}{i.dueDate ? ` · ${t.due} ${day(i.dueDate)}` : ''}</p></div>
+                    <div className="flex items-center gap-2">
+                      <Chip tone={i.balance <= 0 ? 'green' : 'blue'}>{i.balance <= 0 ? t.paidFull : `${t.balance}: ${money(i.balance)}`}</Chip>
+                      <a href={`${api}/pdf?doc=${i.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 text-slate-900 text-sm font-semibold hover:bg-slate-300"><Download className="w-4 h-4" /> PDF</a>
+                    </div>
+                  </div>
+                  <div className="mt-4 rounded-xl border border-slate-300 overflow-hidden text-slate-900">
+                    <div className="flex justify-between gap-4 px-4 py-2.5 bg-slate-50"><span>{t.invoiceTotal}</span><span className="font-bold">{money(i.total)}</span></div>
+                    {(i.payments || []).map((p: any, k: number) => (
+                      <div key={k} className={`flex items-start justify-between gap-4 px-4 py-2.5 border-t border-slate-200 ${p.received ? 'bg-green-50' : ''}`}>
+                        <span>{p.label}</span>
+                        <span className="text-right flex-shrink-0"><span className="block font-bold">{money(p.amount)}</span><span className={`block text-xs font-bold uppercase ${p.received ? 'text-green-800' : 'text-[#b45309]'}`}>{p.received ? `${t.received}${p.receivedAt ? ` ${day(p.receivedAt)}` : ''}` : t.dueLabel}</span></span>
+                      </div>
+                    ))}
+                    <div className="flex justify-between gap-4 px-4 py-2.5 border-t border-slate-200"><span>{t.paidSoFar}</span><span className="font-bold">- {money(i.paid)}</span></div>
+                    <div className={`flex justify-between gap-4 px-4 py-3 text-white text-lg ${i.balance <= 0 ? 'bg-green-700' : 'bg-[#0b1b33]'}`}><span className="font-bold">{i.balance <= 0 ? t.paidFull : t.balance}</span><span className="font-extrabold">{money(i.balance)}</span></div>
                   </div>
                 </div>
               ))}
@@ -282,7 +308,17 @@ function Contract({ c, t, token, post, reload, messages, defaultName, day, dayTi
         <div className="mt-4 rounded-xl border border-slate-300 bg-slate-50 p-4 sm:p-5 space-y-4 text-slate-900">
           {c.propertyAddress && <div><span className={label}>{t.jobAddress}</span>{c.propertyAddress}</div>}
           {c.scope.length > 0 && <div><span className={label}>{t.scope}</span><ol className="list-decimal pl-5 space-y-1">{c.scope.map((s: string, i: number) => <li key={i}>{s}</li>)}</ol>{c.scopeNote && <p className="mt-2 whitespace-pre-line">{c.scopeNote}</p>}</div>}
-          <div><span className={label}>{t.payment}</span><p className="whitespace-pre-line">{c.paymentStructure}</p><p className="mt-1 font-bold">{t.total}: {money(c.total)}</p></div>
+          <div>
+            <span className={label}>{t.payment}</span>
+            {c.payments?.length ? (
+              <div className="rounded-lg border border-slate-300 bg-white overflow-hidden">
+                <div className="flex justify-between gap-4 px-3 py-2"><span>{t.contractPrice}</span><span className="font-bold">{money(c.subtotal)}</span></div>
+                <div className="flex justify-between gap-4 px-3 py-2 border-t border-slate-200 bg-amber-50"><span>{t.salesTax} ({Number(c.taxRate || 0).toFixed(2)}%)</span><span className="font-bold">{money(c.tax)}</span></div>
+                <div className="flex justify-between gap-4 px-3 py-2 border-t border-slate-200 bg-[#0b1b33] text-white"><span className="font-bold">{t.totalWithTax}</span><span className="font-extrabold">{money(c.total)}</span></div>
+                {c.payments.map((p: any, k: number) => <div key={k} className="flex justify-between gap-4 px-3 py-2 border-t border-slate-200"><span>{p.label}</span><span className="font-bold flex-shrink-0">{money(p.amount)}</span></div>)}
+              </div>
+            ) : <><p className="whitespace-pre-line">{c.paymentStructure}</p><p className="mt-1 font-bold">{t.total}: {money(c.total)}</p></>}
+          </div>
           {c.terms && <div><span className={label}>{t.terms}</span><p className="whitespace-pre-line text-sm leading-relaxed">{c.terms}</p></div>}
           {c.notes && <div><span className={label}>{t.notes}</span><p className="whitespace-pre-line">{c.notes}</p></div>}
         </div>
@@ -337,5 +373,42 @@ function Referral({ t, post, reload, sent, cardCls, h2 }: { t: typeof EN; post: 
         {sent.length > 0 && <ul className="mt-4 pt-4 border-t border-slate-200 space-y-1 text-slate-900">{sent.map((r, i) => <li key={i} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-700" /> {t.referred} {r.name}</li>)}</ul>}
       </div>
     </section>
+  )
+}
+
+/** Name + signature + agreement, used to approve an estimate */
+function SignBlock({ t, title, agreeText, button, busyText, okText, defaultName, onSign }: {
+  t: typeof EN; title: string; agreeText: string; button: string; busyText: string; okText: string; defaultName: string
+  onSign: (name: string, signature: string) => Promise<void>
+}) {
+  const [name, setName] = useState(defaultName || '')
+  const [sig, setSig] = useState<string | null>(null)
+  const [agree, setAgree] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const [done, setDone] = useState(false)
+  const go = async () => {
+    setErr('')
+    if (name.trim().length < 2) return setErr(t.needName)
+    if (!sig) return setErr(t.needSig)
+    if (!agree) return setErr(t.needAgree)
+    setBusy(true)
+    try { await onSign(name.trim(), sig); setDone(true) } catch (e: any) { setErr(e.message) }
+    setBusy(false)
+  }
+  if (done) return <p className="mt-4 rounded-xl bg-green-100 border border-green-500 text-green-900 px-4 py-3 font-semibold">{okText}</p>
+  return (
+    <div className="mt-5 pt-5 border-t-2 border-[#fd9b14]">
+      <h4 className="text-lg font-bold text-[#0b1b33] mb-3">{title}</h4>
+      <label className="block text-sm font-semibold text-slate-900 mb-1.5">{t.fullName}</label>
+      <input value={name} onChange={e => setName(e.target.value)} autoComplete="name" className="w-full rounded-xl border border-slate-400 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 mb-4" />
+      <SignaturePad mode="client" label={t.signature} onSignatureChange={setSig} text={{ draw: t.draw, type: t.type, begin: t.begin, clear: t.clear, typePlaceholder: t.typePlaceholder, hintDraw: t.hintDraw, hintType: t.hintType, change: t.change }} />
+      <label className="flex items-start gap-3 mt-4 cursor-pointer">
+        <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} className="mt-1 w-5 h-5 flex-shrink-0 accent-[#0b1b33]" />
+        <span className="text-sm text-slate-900 leading-relaxed">{agreeText}</span>
+      </label>
+      {err && <p className="mt-3 rounded-lg bg-red-100 border border-red-400 text-red-900 px-3 py-2 text-sm font-semibold">{err}</p>}
+      <button onClick={go} disabled={busy} className="mt-4 w-full inline-flex items-center justify-center gap-2 px-5 py-4 rounded-xl bg-green-700 text-white text-base font-bold hover:bg-green-800 disabled:opacity-70">{busy ? <><Loader2 className="w-5 h-5 animate-spin" /> {busyText}</> : <><CheckCircle className="w-5 h-5" /> {button}</>}</button>
+    </div>
   )
 }

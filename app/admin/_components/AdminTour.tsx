@@ -12,32 +12,32 @@ const STEPS = [
   {
     icon: LayoutDashboard,
     title: 'Welcome to your admin portal',
-    body: 'The dashboard shows what needs your attention: new requests, client notes and questions, signed contracts, referrals and follow-ups. The menu is on the left (on a phone, tap the three lines at the top).',
+    body: 'The dashboard shows what needs your attention. Each notification has a button that opens the estimate, contract or invoice it is about. The menu on the left follows a job in order: 1 Estimates (blue), 2 Contracts (purple), 3 Invoices (orange).',
   },
   {
     icon: Camera,
-    title: 'Estimates at the job site',
-    body: 'On your phone, open "Field Estimates" and press New. Take photos, then write the measurements, materials and your price. "Send to client" emails the client a private link where they see the price and photos and can write you a note.',
+    title: '1. Estimates',
+    body: 'Press "Generate Estimate". On your phone you can take photos; on a computer you choose them. Write your price before tax. "Send to client" emails the client a private link where they approve and sign the estimate or write you a note.',
   },
   {
     icon: FileText,
-    title: 'Contracts signed online',
-    body: 'From an estimate press "Create contract". When you send it, the client gets a link to review it, ask questions and sign on their phone or computer. Once signed it shows "In contract" and a past project is started for you.',
+    title: '2. Contracts',
+    body: 'From an estimate press "Create contract". Enter the sales tax, and choose 3 equal payments or 50% / 50%. The client reviews and signs online. Once signed it shows "In contract" and cannot be changed.',
   },
   {
     icon: Receipt,
-    title: 'Invoices',
-    body: '"Create invoice" on an estimate fills in the client and price. Sending emails the PDF right away and takes you to the Sent list, with a green message confirming it went out. Drafts wait under "Drafts".',
+    title: '3. Invoices',
+    body: 'When a contract is signed, its invoice is made for you with the same total, tax and payments. Find it under "Invoices to Approve", check it and press "Approve and send". Invoices are only made from signed contracts.',
   },
   {
     icon: Send,
-    title: 'Messages and referrals',
-    body: 'Client notes and questions arrive under "Client Messages". Answer there and the client gets an email. Clients can also refer friends from their page: referrals show under "Leads and Referrals" with a note on whether the person who referred is a past client.',
+    title: 'When the client pays',
+    body: 'Open the invoice, tap the payment to mark "Payment received", and send the updated invoice. It shows what was paid and the balance. If you ticked one by mistake, untick it and the invoice goes out as corrected, with your note.',
   },
   {
     icon: AlertTriangle,
-    title: 'Fixing and warnings',
-    body: 'To fix a sent invoice, open it from "Sent" and press "Send Correction". A signed contract cannot be changed. The portal warns you before it sends a correction, deletes anything, or leaves a page with unsaved changes.',
+    title: 'Messages, referrals and warnings',
+    body: 'Client notes and questions arrive under "Client Messages", referrals under "Leads and Referrals". Every action shows a green confirmation. The portal asks before it sends, deletes anything, or leaves a page with unsaved changes.',
   },
 ]
 

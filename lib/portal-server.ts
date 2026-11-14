@@ -120,9 +120,13 @@ export function pdfDataFromRecord(doc: any): PdfDocData {
       projectName: f.projectTitle || doc.projectName || '',
       items: (doc.items || []).map((i: any) => ({ description: i.description })),
       freeformDescription: doc.freeformDescription ? `Note: ${doc.freeformDescription}` : '',
-      paymentStructure: `${doc.paymentStructure || ''}\n\nSum estimated to complete job: $${cents(doc.total)} USD`,
+      // contracts saved since the tax and payment-plan change already carry the full text
+      paymentStructure: doc.paymentPlan ? doc.paymentStructure || '' : `${doc.paymentStructure || ''}\n\nSum estimated to complete job: $${cents(doc.total)} USD`,
       contractTerms: doc.contractTerms || '',
     }
   }
-  return { ...base, dueDate: doc.dueDate, projectName: doc.projectName, items: doc.items || [], taxRate: doc.taxRate || 0 }
+  return {
+    ...base, dueDate: doc.dueDate, projectName: doc.projectName, items: doc.items || [], taxRate: doc.taxRate || 0,
+    payments: doc.payments || [], contractNumber: doc.contractNumber || '', isCorrection: !!doc.isCorrection,
+  }
 }

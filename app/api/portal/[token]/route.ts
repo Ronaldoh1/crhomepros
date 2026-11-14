@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getAdminDb } from '@/lib/firebase-admin-server'
 import { emailKey, phoneKey } from '@/lib/client-keys'
-import { buildDocumentPdf } from '@/lib/pdf-document'
+import { afterContractSigned } from '@/lib/contract-signed'
+import { balanceDue, paidSoFar } from '@/lib/payment-plan'
 import {
   findClientByToken, addMessage, sendMail, emailShell, esc, isEmail, portalUrl, pdfDataFromRecord, OFFICE_EMAIL, SITE_URL,
 } from '@/lib/portal-server'
@@ -41,6 +42,8 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
       propertyAddress: d.propertyAddress || d.clientAddress || '',
       scope: (d.items || []).map((i: any) => i.description).filter(Boolean),
       scopeNote: d.freeformDescription || '', paymentStructure: d.paymentStructure || '',
+      subtotal: d.subtotal || d.total || 0, taxRate: d.taxRate || 0, tax: d.tax || 0,
+      payments: (d.payments || []).map((p: any) => ({ label: p.label, amount: p.amount })),
       total: d.total || 0, terms: d.contractTerms || '', notes: d.notes || '',
       status: d.status === 'signed' ? 'signed' : 'to-sign',
       signedAt: d.clientSignature?.signedAt || null, signedName: d.clientSignature?.name || null,
@@ -48,12 +51,15 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
     const invoices = docs.filter(d => d.type === 'invoice').map(d => ({
       id: d.id, number: d.number, date: d.date, dueDate: d.dueDate || '', projectName: d.projectName || '',
       total: d.total || 0, status: d.status === 'paid' ? 'paid' : 'sent',
+      payments: (d.payments || []).map((p: any) => ({ label: p.label, amount: p.amount, received: !!p.received, receivedAt: p.receivedAt || '' })),
+      paid: paidSoFar(d.payments || []), balance: balanceDue(d.total || 0, d.payments || []),
     }))
     // Estimates: only the ones Carlos chose to share, and only the client-facing parts
     const estimates = notesSnap.docs.map(d => ({ id: d.id, ...(d.data() as any) })).filter(n => n.sharedWithClient && n.status !== 'discarded').map(n => ({
       id: n.id, projectName: n.projectName || '', address: n.address || '', estimatedCost: n.estimatedCost || '',
       nextSteps: n.nextSteps || '', photos: (n.photos || []).filter((p: string) => typeof p === 'string' && p.startsWith('https://')).slice(0, 24),
-      status: n.status === 'invoiced' ? 'invoiced' : n.status === 'accepted' ? 'accepted' : n.status === 'declined' ? 'declined' : 'open',
+      status: n.status === 'invoiced' || n.status === 'contracted' ? 'contracted' : n.status === 'accepted' ? 'accepted' : n.status === 'declined' ? 'declined' : 'open',
+      approvedAt: n.clientApproval?.signedAt || null, approvedName: n.clientApproval?.name || null,
       date: iso(n.createdAt),
     }))
     const messages = msgSnap.docs.map(d => ({ id: d.id, ...(d.data() as any) }))
@@ -128,6 +134,40 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       return NextResponse.json({ success: true })
     }
 
+    // ── Approve and sign an estimate ──
+    if (action === 'approve-estimate') {
+      const docId = String(body.docId || '')
+      const name = String(body.name || '').trim().slice(0, 120)
+      const signature = String(body.signature || '')
+      if (!body.agree) return bad('Please tick the box to approve.')
+      if (name.length < 2) return bad('Type your full name.')
+      if (!signature.startsWith('data:image/png;base64,') || signature.length < 600) return bad('Please add your signature.')
+      if (signature.length > 400000) return bad('The signature image is too large. Please clear it and sign again.')
+      const ref = db.collection('field_notes').doc(docId)
+      const signedAt = new Date().toISOString()
+      const ip = (req.headers.get('x-forwarded-for') || '').split(',')[0].trim() || req.headers.get('x-real-ip') || ''
+      const result = await db.runTransaction(async tx => {
+        const snap = await tx.get(ref)
+        const d = snap.data() as any
+        if (!snap.exists || d.clientEmailKey !== key || !d.sharedWithClient) return 'NOT_FOUND'
+        if (d.clientApproval?.signedAt) return 'ALREADY'
+        if (['discarded', 'declined', 'contracted', 'invoiced'].includes(d.status)) return 'CLOSED'
+        tx.update(ref, { status: 'accepted', statusChangedAt: signedAt.slice(0, 10), clientApproval: { dataUrl: signature, name, signedAt, ip }, updatedAt: new Date() })
+        return d
+      })
+      if (result === 'NOT_FOUND') return bad('That estimate was not found.', 404)
+      if (result === 'ALREADY') return bad('This estimate is already approved.', 409)
+      if (result === 'CLOSED') return bad('This estimate can no longer be approved. Please call us at (571) 237-7164.', 409)
+      const label = `Estimate: ${result.projectName || ''}`
+      await addMessage({ clientEmail: client.email, clientName: client.name, from: 'system', kind: 'signed', docType: 'estimate', docId, docLabel: label, text: `${name} approved and signed the estimate for ${result.projectName || 'the job'}${result.estimatedCost ? ` (${result.estimatedCost})` : ''}. You can now create the contract.` })
+      await sendMail({
+        to: OFFICE_EMAIL, subject: `${client.name || client.email} approved the estimate: ${result.projectName || ''}`,
+        text: `${name} approved and signed the estimate. Create the contract: ${SITE_URL}/admin/estimates?open=${docId}`,
+        html: emailShell(`<p><strong>${esc(name)}</strong> approved and signed the estimate for <strong>${esc(result.projectName || 'the job')}</strong>${result.estimatedCost ? ` (${esc(result.estimatedCost)})` : ''}.</p><p>The next step is the contract.</p>`, { label: 'Open the estimate', url: `${SITE_URL}/admin/estimates?open=${docId}` }),
+      }).catch(e => console.error('Notify email failed:', e?.message))
+      return NextResponse.json({ success: true, signedAt })
+    }
+
     // ── Sign a contract ──
     if (action === 'sign') {
       const docId = String(body.docId || '')
@@ -160,48 +200,8 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       if (contract === 'ALREADY') return bad('This contract is already signed.', 409)
       if (contract === 'NOT_FOUND') return bad('That contract was not found or is not ready to sign.', 404)
 
-      // Start the past project: "before" photos come from the field estimate
-      let beforePhotos: string[] = []; let beforePaths: string[] = []; let estimateId = contract.estimateId || ''
-      try {
-        let note: any = null
-        if (estimateId) note = (await db.collection('field_notes').doc(estimateId).get()).data()
-        if (!note) {
-          const cands = (await db.collection('field_notes').where('clientEmailKey', '==', key).get()).docs.map(d => ({ id: d.id, ...(d.data() as any) }))
-            .filter(n => n.status !== 'discarded').sort((a, b) => (b.createdAt?.toMillis?.() || 0) - (a.createdAt?.toMillis?.() || 0))
-          if (cands[0]) { note = cands[0]; estimateId = cands[0].id }
-        }
-        if (note) {
-          beforePhotos = (note.photos || []).filter((p: string) => typeof p === 'string' && p.startsWith('https://'))
-          beforePaths = note.photoPaths || []
-          if (estimateId && ['new', 'quoted', 'reopened'].includes(note.status)) {
-            await db.collection('field_notes').doc(estimateId).set({ status: 'accepted', statusChangedAt: signedAt.slice(0, 10), contractId: contract.id, updatedAt: new Date() }, { merge: true })
-          }
-        }
-        await db.collection('past_projects').doc(contract.id).set({
-          contractId: contract.id, contractNumber: contract.number || '', estimateId,
-          clientName: contract.clientName || '', clientEmail: client.email, clientEmailKey: key,
-          address: contract.propertyAddress || contract.clientAddress || '',
-          title: contract.formData?.projectTitle || contract.projectName || 'Project',
-          workDone: (contract.items || []).map((i: any) => i.description).filter(Boolean).join('\n'),
-          beforePhotos, beforePaths, afterPhotos: [], afterPaths: [],
-          status: 'in-progress', published: false, startedAt: signedAt.slice(0, 10),
-          createdAt: new Date(), updatedAt: new Date(),
-        }, { merge: true })
-      } catch (e: any) { console.error('Past project not created:', e?.message) }
-
-      await addMessage({ clientEmail: client.email, clientName: client.name, from: 'system', kind: 'signed', docType: 'contract', docId: contract.id, docLabel: `Contract ${contract.number || ''}`, text: `${name} signed contract ${contract.number || ''}. You are now in contract.` })
-
-      // Signed copy to both sides
-      try {
-        const pdf = Buffer.from(await buildDocumentPdf('contract', pdfDataFromRecord(contract)))
-        const file = [{ filename: `contract-${String(contract.number || 'signed').replace(/[^\w.-]/g, '_')}-signed.pdf`, content: pdf }]
-        await sendMail({
-          to: client.email, copyOffice: true, attachments: file,
-          subject: `Signed: contract ${contract.number || ''} with CR Home Pros`,
-          text: `Thank you, ${name}. Your signed contract ${contract.number || ''} is attached.\n\nYour page: ${portalUrl(params.token)}`,
-          html: emailShell(`<p>Thank you, ${esc(name)}.</p><p>Your contract <strong>${esc(contract.number || '')}</strong> is signed. A copy is attached for your records.</p><p>We will be in touch about the next steps.</p>`, { label: 'Open your page', url: portalUrl(params.token) }),
-        })
-      } catch (e: any) { console.error('Signed-copy email failed:', e?.message) }
+      // Invoice, past project, notification and signed copies
+      await afterContractSigned(db, contract, name, 'online')
 
       return NextResponse.json({ success: true, signedAt })
     }

@@ -142,3 +142,35 @@ export function PercentInput({ value, onChange, className = '' }: { value: numbe
     />
   )
 }
+
+/**
+ * Dollar box: numbers only, no up/down arrows. Typing 2000 means $2,000.00,
+ * 2050.5 means $2,050.50. Shows commas and two decimals once you leave the box.
+ */
+export function MoneyInput({ value, onChange, className = '', placeholder = '0.00', ariaLabel = 'Amount in dollars' }: { value: number; onChange: (n: number) => void; className?: string; placeholder?: string; ariaLabel?: string }) {
+  const pretty = (n: number) => (n ? n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '')
+  const [text, setText] = useState(pretty(value))
+  const [focused, setFocused] = useState(false)
+  useEffect(() => { if (!focused) setText(pretty(value)) }, [value, focused]) // eslint-disable-line react-hooks/exhaustive-deps
+  return (
+    <div className="relative">
+      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white text-base font-semibold pointer-events-none">$</span>
+      <input
+        type="text" inputMode="decimal" autoComplete="off" aria-label={ariaLabel} placeholder={placeholder}
+        value={text}
+        onFocus={e => { setFocused(true); setText(value ? String(value) : ''); requestAnimationFrame(() => e.target.select()) }}
+        onChange={e => {
+          // digits and one decimal point, at most two decimals
+          let t = e.target.value.replace(/[^\d.]/g, '')
+          const dot = t.indexOf('.')
+          if (dot !== -1) t = t.slice(0, dot + 1) + t.slice(dot + 1).replace(/\./g, '').slice(0, 2)
+          if (Number(t) > 99999999) t = '99999999'
+          setText(t)
+          onChange(Math.round((Number(t) || 0) * 100) / 100)
+        }}
+        onBlur={() => { setFocused(false); setText(pretty(value)) }}
+        className={className + ' pl-8'}
+      />
+    </div>
+  )
+}

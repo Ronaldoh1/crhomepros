@@ -1,11 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getDocumentsByType, deleteDocument, updateFieldNote, type DocumentRecord } from '@/lib/firebase-auth'
+import { getDocumentsByType, deleteDocument, updateFieldNote, saveDocumentPatch, type DocumentRecord } from '@/lib/firebase-auth'
 import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, DollarSign, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from './DocumentGuards'
 import { useToast } from './Toast'
+import { balanceDue } from '@/lib/payment-plan'
 
 const STATUS_STYLES: Record<string, string> = {
   draft: 'bg-amber-800 text-white',
@@ -62,9 +63,12 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
     setDeleting(id)
     try {
       const linked = allDocs.find(d => d.id === id)?.estimateId
+      const fromContract = allDocs.find(d => d.id === id)?.contractId
       await deleteDocument(id)
       // free the field estimate so a new invoice can be made from it
       if (linked) await updateFieldNote(linked, { invoiceId: null, invoiceNumber: null, status: 'accepted', statusChangedAt: new Date().toISOString().split('T')[0] }).catch(() => {})
+      // an invoice that is deleted frees its contract, so the invoice can be made again
+      if (type === 'invoice' && fromContract) await saveDocumentPatch(fromContract, { invoiceId: '', invoiceNumber: '' }).catch(() => {})
       setDocs(prev => prev.filter(d => d.id !== id))
       toast('Deleted')
     } catch (err) {
@@ -112,9 +116,9 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
         <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
           {([['drafts', `Drafts (${draftCount})`], ['sent', `Sent (${sentCount})`]] as const).map(([v, label]) =>
             v === view ? (
-              <span key={v} className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 text-white">{label}</span>
+              <span key={v} aria-current="page" className="px-4 py-2 rounded-lg text-sm font-bold bg-white text-slate-950 shadow">{label}</span>
             ) : (
-              <Link key={v} href={otherHref} className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:text-white">{label}</Link>
+              <Link key={v} href={otherHref} className="px-4 py-2 rounded-lg text-sm font-medium text-white hover:bg-white/10">{label}</Link>
             )
           )}
         </div>
@@ -124,7 +128,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
         <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-12 text-center">
           <FileText className="w-12 h-12 text-white mx-auto mb-4" />
           <p className="text-white text-lg mb-2">{view === 'drafts' ? `No draft ${type.replace('-', ' ')}s` : `No sent ${type.replace('-', ' ')}s yet`}</p>
-          <p className="text-white text-sm mb-6">{view === 'drafts' ? 'Drafts you save appear here until you send them.' : `A ${type.replace('-', ' ')} moves here once you send it.`}</p>
+          <p className="text-white text-sm mb-6">{type === 'invoice' ? (view === 'drafts' ? 'An invoice appears here by itself when a client signs a contract.' : 'An invoice moves here once you approve and send it.') : view === 'drafts' ? 'Drafts you save appear here until you send them.' : `A ${type.replace('-', ' ')} moves here once you send it.`}</p>
           <Link
             href={createHref}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700"
@@ -147,7 +151,9 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                       <h3 className="font-semibold text-white truncate">{doc.number}</h3>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[doc.status] || STATUS_STYLES.draft}`}>
                         <StatusIcon className="w-3 h-3" />
-                        {doc.type === 'contract' && doc.status === 'signed' ? 'In contract' : doc.type === 'contract' && doc.status === 'sent' ? 'Waiting for signature' : doc.status}
+                        {doc.type === 'contract' && doc.status === 'signed' ? 'In contract' : doc.type === 'contract' && doc.status === 'sent' ? 'Waiting for signature'
+                          : doc.type === 'invoice' && doc.status === 'draft' ? 'To approve' : doc.type === 'invoice' && doc.status === 'paid' ? 'Paid in full'
+                          : doc.type === 'invoice' && doc.payments?.length ? `${doc.payments.filter(p => p.received).length} of ${doc.payments.length} payments received` : doc.status}
                       </span>
                     </div>
                     <p className="text-white text-sm">{doc.clientName}</p>
@@ -158,6 +164,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
 
                   <div className="text-right flex-shrink-0">
                     <p className="text-lg font-bold text-white">{formatCurrency(doc.total)}</p>
+                    {doc.type === 'invoice' && !!doc.payments?.length && doc.status !== 'draft' && <p className="text-sm text-white">Balance {formatCurrency(balanceDue(doc.total, doc.payments))}</p>}
                     {doc.signedFileUrl && (
                       <a
                         href={doc.signedFileUrl}
@@ -187,7 +194,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                       href={`${createHref}?id=${doc.id}`}
                       className="text-xs px-3 py-1.5 rounded-lg bg-blue-800 text-white hover:bg-blue-700 flex items-center gap-1.5"
                     >
-                      <Eye className="w-3 h-3" /> {view === 'drafts' ? 'Continue editing' : 'Open / correct'}
+                      <Eye className="w-3 h-3" /> {type === 'invoice' ? (view === 'drafts' ? 'Review and approve' : 'Open / mark payment') : view === 'drafts' ? 'Continue editing' : 'Open / correct'}
                     </Link>
                   )}
                   <button

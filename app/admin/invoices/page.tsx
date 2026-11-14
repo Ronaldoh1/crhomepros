@@ -1,405 +1,318 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import {
-  Plus, Trash2, Send, Download, Eye, Loader2,
-  CheckCircle, DollarSign, User, Calendar, FileText, Pencil,
-  AlertTriangle, Mail
-} from 'lucide-react'
-import { SignaturePad } from '../_components/SignaturePad'
-import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
-
-import { adminFetch } from '@/lib/admin-api'
-import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useToast } from '../_components/Toast'
+import { Receipt, Loader2, Send, Download, CheckCircle, FileSignature, AlertTriangle, Briefcase, Circle } from 'lucide-react'
+import { getDocument, saveDocument, getDocumentsByType, getSavedSignatureUrl, type DocumentRecord } from '@/lib/firebase-auth'
+import { adminFetch } from '@/lib/admin-api'
+import { balanceDue, buildPayments, paidSoFar, nextPayment, usd, type Payment } from '@/lib/payment-plan'
+import { SignaturePad } from '../_components/SignaturePad'
+import { ConfirmDialog } from '../_components/DocumentGuards'
 import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
-import { SendSummary, PercentInput } from '../_components/SendSummary'
+import { SendSummary } from '../_components/SendSummary'
+import { useToast } from '../_components/Toast'
 
-interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
+const today = () => new Date().toISOString().split('T')[0]
+const day = (d?: string) => (d ? new Date(d + 'T12:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : '')
+const sameTicks = (a: Payment[], b: Payment[]) => a.length === b.length && a.every((p, i) => !!p.received === !!b[i].received)
 
-interface InvoiceData {
-  number: string; date: string; dueDate: string; clientName: string; clientEmail: string
-  clientPhone: string; clientAddress: string; projectName: string; items: LineItem[]
-  notes: string; taxRate: number; signatureData: string | null; isCorrection: boolean
-}
-
-const INITIAL: InvoiceData = {
-  number: '', // unique number is assigned when the page opens and checked again on save
-  date: new Date().toISOString().split('T')[0],
-  dueDate: new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0],
-  clientName: '', clientEmail: '', clientPhone: '', clientAddress: '', projectName: '',
-  items: [{ id: '1', description: '', quantity: 1, unitPrice: 0 }],
-  notes: 'Payment due within 30 days of invoice date.\nAll dumping fees, materials and labor are included.\nThank you for choosing CR Home Pros!',
-  taxRate: 0, signatureData: null, isCorrection: false,
-}
-
-export default function InvoicesPage() {
-  const [inv, setInv] = useState<InvoiceData>(INITIAL)
-  const [saving, setSaving] = useState(false)
-  const [savedId, setSavedId] = useState<string | null>(null)
-  const [generating, setGenerating] = useState(false)
-  const [sending, setSending] = useState(false)
-  const [sent, setSent] = useState(false)
+/**
+ * An invoice always belongs to a signed contract. It is created by the system
+ * when the contract is signed and takes its amounts from the contract:
+ *   1. Carlos approves it and sends it (first payment due)
+ *   2. Each time a payment comes in he ticks "Payment received" and sends the
+ *      updated invoice, which shows what was paid and what is left
+ *   3. Unticking a payment sends a corrected invoice with his note
+ */
+export default function InvoicePage() {
   const toast = useToast()
-  const [pdf, setPdf] = useState<ReadyPdf | null>(null)
   const router = useRouter()
+  const [doc, setDoc] = useState<DocumentRecord | null>(null)
+  const [payments, setPayments] = useState<Payment[]>([])
+  const [sentPayments, setSentPayments] = useState<Payment[]>([]) // as the client last saw them
+  const [dueDate, setDueDate] = useState('')
+  const [notes, setNotes] = useState('')
+  const [signature, setSignature] = useState<string | null>(null)
   const [savedSigUrl, setSavedSigUrl] = useState<string | null>(null)
-  const [emailSubject, setEmailSubject] = useState('')
-  const [emailBody, setEmailBody] = useState('')
-  const [showEmailModal, setShowEmailModal] = useState(false)
-  const [tab, setTab] = useState<'edit' | 'preview'>('edit')
-  const [wasSent, setWasSent] = useState(false) // already emailed to the client
-  const [confirmCorrection, setConfirmCorrection] = useState(false)
-  const markSaved = useUnsavedWarning(inv)
-  // set when this invoice was made from a field estimate
-  const [estimate, setEstimate] = useState<{ id: string; clientName: string; reopened: boolean; cost: string } | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [waiting, setWaiting] = useState<DocumentRecord[]>([]) // signed contracts with no invoice yet
+  const [busy, setBusy] = useState('')
+  const [pdf, setPdf] = useState<ReadyPdf | null>(null)
+  const [summary, setSummary] = useState(false)
+  const [sending, setSending] = useState(false)
+  const [subject, setSubject] = useState('')
+  const [message, setMessage] = useState('')
+  const [correctionNote, setCorrectionNote] = useState('')
+  const [toUntick, setToUntick] = useState<number | null>(null)
 
-  const subtotal = Math.round(inv.items.reduce((s, i) => s + i.quantity * i.unitPrice, 0) * 100) / 100
-  const tax = Math.round(subtotal * inv.taxRate) / 100 // rounded to the cent
-  const total = Math.round((subtotal + tax) * 100) / 100
-
-  useEffect(() => {
-    getSavedSignatureUrl().then(url => { if (url) setSavedSigUrl(url) })
-  }, [])
-
-  // Reopen a saved draft: /admin/...?id=<document id>
+  useEffect(() => { getSavedSignatureUrl().then(url => { if (url) setSavedSigUrl(url) }) }, [])
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id')
-    const fromEstimate = new URLSearchParams(window.location.search).get('fromEstimate')
-    if (!id && fromEstimate) {
-      // Invoice made from a field estimate: one invoice per estimate
-      getFieldNote(fromEstimate).then(async note => {
-        if (!note) { alert('That field estimate was not found.'); return }
-        if (note.invoiceId) { window.location.replace(`/admin/invoices?id=${note.invoiceId}`); return }
-        if (note.status === 'discarded' || note.status === 'declined') {
-          alert(note.status === 'discarded' ? 'This estimate was discarded. It cannot be turned into an invoice.' : 'The client declined this estimate. Reopen it first, then create the invoice.')
-          window.location.replace('/admin/field-notes'); return
-        }
-        const prices = (note.estimatedCost || '').match(/\d[\d,]*(\.\d+)?/g) || []
-        const onePrice = prices.length === 1 ? Math.round(Number(prices[0].replace(/,/g, '')) * 100) / 100 : 0
-        const number = await nextDocumentNumber('invoice').catch(() => '')
-        setEstimate({ id: fromEstimate, clientName: note.clientName, reopened: !!note.wasReopened, cost: note.estimatedCost || '' })
-        markSaved()
-        setInv(prev => ({
-          ...prev, number: prev.number || number,
-          clientName: note.clientName || '', clientEmail: note.clientEmail || '', clientPhone: note.clientPhone || '',
-          clientAddress: note.address || '', projectName: note.projectName || '',
-          items: [{ id: '1', description: note.projectName || '', quantity: 1, unitPrice: onePrice }],
-        }))
-      }).catch(err => alert(`Could not open the field estimate.\n\n${err instanceof Error ? err.message : String(err)}`))
-      return
-    }
     if (!id) {
-      // New document: take the next free number
-      nextDocumentNumber('invoice').then(n => { markSaved(); setInv(prev => (prev.number ? prev : { ...prev, number: n })) }).catch(() => {})
+      // No invoice chosen: show what can be invoiced
+      getDocumentsByType('contract').then(cs => setWaiting(cs.filter(c => c.status === 'signed' && !c.invoiceId))).catch(() => {}).finally(() => setLoading(false))
       return
     }
     getDocument(id).then(d => {
-      if (!d) return
-      setSavedId(id)
-      const alreadySent = !!d.status && d.status !== 'draft'
-      if (d.estimateId) setEstimate({ id: d.estimateId, clientName: d.clientName, reopened: !!d.estimateReopened, cost: '' })
-      setWasSent(alreadySent)
-      markSaved()
-      setInv(prev => ({
-        ...prev,
-        ...(d.formData || {
-          number: (d.number || prev.number).replace(/-CORRECTED$/, ''),
-          date: d.date || prev.date, clientName: d.clientName || '', clientEmail: d.clientEmail || '',
-          clientPhone: d.clientPhone || '', clientAddress: d.clientAddress || '',
-          projectName: d.projectName || '', notes: d.notes ?? prev.notes,
-          // older drafts saved before formData existed: restore what was stored
-          ...('items' in prev && d.items?.length ? { items: d.items } : {}),
-          ...('dueDate' in prev && d.dueDate ? { dueDate: d.dueDate } : {}),
-          ...('taxRate' in prev && d.taxRate != null ? { taxRate: d.taxRate } : {}),
-        }),
-        signatureData: d.signatureData ?? null,
-        ...(alreadySent ? { isCorrection: true } : {}),
-      }))
-    }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
+      if (!d || d.type !== 'invoice') { setError('That invoice was not found.'); return }
+      // invoices from before payments existed: one payment for the full amount
+      const pays = d.payments?.length ? d.payments : [{ label: 'Payment in full', amount: d.total || 0, received: d.status === 'paid' }]
+      setDoc(d); setPayments(pays); setSentPayments(d.status === 'draft' ? pays.map(p => ({ ...p, received: false })) : pays)
+      setDueDate(d.dueDate || ''); setNotes(d.notes || ''); setSignature(d.signatureData || null)
+    }).catch(e => setError(e instanceof Error ? e.message : String(e))).finally(() => setLoading(false))
   }, [])
 
-  const updateField = (field: keyof InvoiceData, value: any) => setInv(prev => ({ ...prev, [field]: value }))
-  const addItem = () => setInv(prev => ({ ...prev, items: [...prev.items, { id: String(Date.now()), description: '', quantity: 1, unitPrice: 0 }] }))
-  const removeItem = (id: string) => { if (inv.items.length > 1) setInv(prev => ({ ...prev, items: prev.items.filter(i => i.id !== id) })) }
-  const updateItem = (id: string, field: keyof LineItem, value: any) => setInv(prev => ({ ...prev, items: prev.items.map(i => i.id === id ? { ...i, [field]: value } : i) }))
+  const isDraft = doc?.status === 'draft'
+  const total = doc?.total || 0
+  const paid = paidSoFar(payments)
+  const balance = balanceDue(total, payments)
+  const changed = !sameTicks(payments, sentPayments)
+  const unticked = payments.some((p, i) => !p.received && sentPayments[i]?.received) // a payment the client was told was received
+  const newlyPaid = payments.filter((p, i) => p.received && !sentPayments[i]?.received)
+  const next = nextPayment(payments)
 
-  const handleSave = async (status: DocumentRecord['status'] = 'draft') => {
-    setSaving(true)
-    try {
-      if (estimate && !savedId) {
-        const note = await getFieldNote(estimate.id)
-        if (note?.invoiceId) throw new Error(`This estimate already has an invoice (${note.invoiceNumber || 'saved earlier'}). Open that invoice from Field Estimates.`)
-        if (note?.status === 'discarded') throw new Error('This estimate was discarded. It cannot be turned into an invoice.')
-      }
-      const num = await confirmDocumentNumber('invoice', inv.number, savedId)
-      if (num !== inv.number) setInv(prev => ({ ...prev, number: num }))
-      const docData: DocumentRecord = {
-        ...(savedId ? { id: savedId } : {}), type: 'invoice',
-        number: inv.isCorrection ? `${num}-CORRECTED` : num,
-        clientName: inv.clientName, clientEmail: inv.clientEmail, clientPhone: inv.clientPhone,
-        clientAddress: inv.clientAddress, projectName: inv.projectName, date: inv.date, dueDate: inv.dueDate,
-        items: inv.items, notes: inv.notes, subtotal, tax, taxRate: inv.taxRate, total,
-        signatureData: inv.signatureData, status,
-        ...(estimate ? { estimateId: estimate.id, estimateReopened: estimate.reopened } : {}),
-        formData: { ...inv, number: num, signatureData: null },
-      }
-      const id = await saveDocument(docData)
-      if (estimate && !savedId) {
-        await updateFieldNote(estimate.id, { invoiceId: id, invoiceNumber: num, status: 'invoiced', statusChangedAt: new Date().toISOString().split('T')[0] })
-      }
-      setSavedId(id)
-      markSaved()
-      if (status === 'draft') toast(`Draft ${num} saved. Find it under Drafts.`)
-      if (status !== 'draft') { setWasSent(true); setInv(prev => ({ ...prev, isCorrection: true })) }
-    } catch (err) {
-      console.error('Save failed:', err)
-      alert(`The invoice could not be saved. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
-      setSaving(false)
-      throw err
-    }
-    setSaving(false)
-  }
-
-  // Everything the PDF needs, built from the form
   const pdfData = () => ({
-    number: inv.isCorrection ? `${inv.number}-CORRECTED` : inv.number,
-    date: inv.date, dueDate: inv.dueDate, clientName: inv.clientName,
-    clientEmail: inv.clientEmail, clientPhone: inv.clientPhone,
-    clientAddress: inv.clientAddress, projectName: inv.projectName,
-    items: inv.items, notes: inv.notes, taxRate: inv.taxRate,
-    signatureData: inv.signatureData,
+    number: doc!.number, date: doc!.date, dueDate, clientName: doc!.clientName, clientEmail: doc!.clientEmail,
+    clientPhone: doc!.clientPhone, clientAddress: doc!.clientAddress, projectName: doc!.projectName,
+    items: doc!.items, taxRate: doc!.taxRate || 0, notes: [unticked && correctionNote.trim() ? `Correction: ${correctionNote.trim()}` : '', notes].filter(Boolean).join('\n\n'),
+    signatureData: signature, payments, contractNumber: doc!.contractNumber || '', isCorrection: unticked,
   })
 
-  const handleGeneratePdf = async () => {
-    setGenerating(true)
+  const tick = (i: number) => {
+    if (payments[i].received) { setToUntick(i); return }
+    // payments are received in order
+    if (payments.slice(0, i).some(p => !p.received)) { toast(`Mark ${payments[i - 1].label.split(':')[0]} as received first.`, 'error'); return }
+    setPayments(prev => prev.map((p, j) => (j === i ? { ...p, received: true, receivedAt: today() } : p)))
+  }
+  const untick = (i: number) => {
+    setToUntick(null)
+    // a later payment cannot stay received if an earlier one is not
+    setPayments(prev => prev.map((p, j) => (j >= i ? { ...p, received: false, receivedAt: '' } : p)))
+  }
+
+  const openPdf = async () => {
+    setBusy('pdf')
     try {
-      const data = pdfData()
-      const res = await adminFetch('/api/admin/generate-pdf', { type: 'invoice', data })
+      const res = await adminFetch('/api/admin/generate-pdf', { type: 'invoice', data: pdfData() })
       const blob = await res.blob()
       if (blob.type !== 'application/pdf' || blob.size < 500) throw new Error('The server did not return a PDF.')
-      // shown in a window with Open / Download buttons: a new tab opened from code is blocked by Safari
-      setPdf({ blob, filename: `invoice-${String(data.number || 'draft').replace(/[^\w.-]/g, '_')}.pdf` })
-    } catch (err) {
-      console.error('PDF failed:', err)
-      alert(`The PDF could not be created. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
+      setPdf({ blob, filename: `invoice-${String(doc!.number).replace(/[^\w.-]/g, '_')}.pdf` })
+    } catch (e) { toast(e instanceof Error ? e.message : 'The PDF could not be created.', 'error') }
+    setBusy('')
+  }
+
+  const openSummary = () => {
+    if (!doc) return
+    if (unticked && !correctionNote.trim()) { toast('Write a short note for the client explaining the correction.', 'error'); return }
+    const first = (doc.clientName || '').split(' ')[0] || 'there'
+    const sign = '\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164'
+    if (isDraft) {
+      setSubject(`Invoice ${doc.number}: ${doc.projectName || 'CR Home Pros'}`)
+      setMessage(`Hi ${first},\n\nThank you for signing the contract for ${doc.projectName || 'your project'}. Your invoice ${doc.number} is attached.\n\nInvoice total: ${usd(total)}${next ? `\nDue now, to start the job: ${usd(next.amount)}` : ''}\n\nThe invoice shows every payment in the contract. We will send you an updated copy each time a payment is received.${sign}`)
+    } else if (unticked) {
+      setSubject(`Corrected invoice ${doc.number}`)
+      setMessage(`Hi ${first},\n\nThis is a corrected version of invoice ${doc.number}. It replaces the one we sent before.\n\n${correctionNote.trim()}\n\nBalance due: ${usd(balance)}${sign}`)
+    } else {
+      const got = newlyPaid.map(p => `${usd(p.amount)} (${p.label.split(',')[0]})`).join(' and ')
+      setSubject(balance <= 0 ? `Paid in full: invoice ${doc.number}` : `Payment received: invoice ${doc.number}`)
+      setMessage(`Hi ${first},\n\n${got ? `We received your payment of ${got}. Thank you!` : `Here is your updated invoice ${doc.number}.`}\n\nYour updated invoice is attached.\n\nPaid so far: ${usd(paid)}\n${balance <= 0 ? 'Balance due: $0.00. This invoice is paid in full.' : `Balance due: ${usd(balance)}${next ? `\nNext payment: ${usd(next.amount)} (${next.label.split(',')[0]})` : ''}`}${sign}`)
     }
-    setGenerating(false)
+    setSummary(true)
   }
 
-  const prepareEmail = async () => {
-    // make sure the number is unique before it goes into an email
-    let num = inv.number
-    try {
-      num = await confirmDocumentNumber('invoice', inv.number, savedId)
-      if (num !== inv.number) setInv(prev => ({ ...prev, number: num }))
-    } catch (err) { alert(err instanceof Error ? err.message : String(err)); return }
-    setEmailSubject(`${inv.isCorrection ? 'Corrected ' : ''}Invoice ${num} — ${inv.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${inv.clientName.split(' ')[0] || 'there'},\n\nPlease find attached Invoice ${num} for ${inv.projectName || 'your project'} in the amount of $${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}.\n\nPayment is due by ${new Date(inv.dueDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}.\n\nIf you have any questions, please don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
-    if (inv.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
-    setShowEmailModal(true)
-  }
-
-  const handleSend = async () => {
+  const send = async () => {
+    if (!doc) return
     setSending(true)
     try {
-      // Email goes out from the website with the PDF attached; Carlos gets a copy
-      await adminFetch('/api/admin/send-document', {
-        type: 'invoice', data: pdfData(), to: inv.clientEmail.trim(), subject: emailSubject, message: emailBody,
-      })
-      await handleSave('sent')
-      setSent(true); setShowEmailModal(false)
-      // say what happened, then show it in the Sent list
-      toast(`Invoice ${inv.number} sent to ${inv.clientEmail.trim()}`)
+      await adminFetch('/api/admin/send-document', { type: 'invoice', data: pdfData(), to: doc.clientEmail.trim(), subject, message })
+      const status: DocumentRecord['status'] = balance <= 0 ? 'paid' : 'sent'
+      const updated: DocumentRecord = {
+        ...doc, status, payments, dueDate, notes, signatureData: signature,
+        ...(unticked ? { correctionNote: correctionNote.trim(), correctedAt: today() } : {}),
+      } as DocumentRecord
+      await saveDocument(updated)
+      setSummary(false)
+      toast(`${unticked ? 'Corrected invoice' : isDraft ? 'Invoice' : 'Updated invoice'} sent to client: ${doc.clientName || doc.clientEmail}`)
       router.push('/admin/invoices/sent')
-    } catch (err) {
-      console.error('Send failed:', err)
-      alert(`The email was not sent.\n\n${err instanceof Error ? err.message : String(err)}`)
-    }
+    } catch (e) { toast(e instanceof Error ? e.message : 'The invoice was not sent.', 'error') }
     setSending(false)
   }
 
-  const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  const ic = "w-full bg-slate-800 border border-white/25 rounded-xl px-4 py-3 text-white placeholder-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
-  const dic = ic + " [color-scheme:dark]"
-  const lc = "text-sm font-medium text-white mb-1.5 block"
+  const createFor = async (c: DocumentRecord) => {
+    setBusy(c.id!)
+    try {
+      const res = await adminFetch('/api/admin/create-invoice', { contractId: c.id })
+      const data = await res.json()
+      toast(`Invoice ${data.invoiceNumber} created from contract ${c.number}`)
+      window.location.href = `/admin/invoices?id=${data.invoiceId}`
+    } catch (e) { toast(e instanceof Error ? e.message : 'The invoice was not created.', 'error') }
+    setBusy('')
+  }
 
+  const card = 'bg-slate-800/50 border border-white/25 rounded-2xl p-4 sm:p-6'
+  const ic = 'w-full bg-slate-800 border border-white/30 rounded-xl px-4 py-3 text-white text-base placeholder-slate-300 outline-none focus:border-blue-400'
+
+  if (loading) return <div className="flex justify-center py-24"><Loader2 className="w-8 h-8 animate-spin text-blue-300" /></div>
+  if (error) return <div className="p-6 max-w-2xl mx-auto"><div className="rounded-xl border border-red-300 bg-red-800 p-4 text-white">{error}</div></div>
+
+  // ── No invoice open: explain where invoices come from ──
+  if (!doc) return (
+    <div className="p-4 sm:p-6 max-w-2xl mx-auto">
+      <h1 className="text-2xl font-bold text-white flex items-center gap-3 mb-2"><Receipt className="w-6 h-6 text-orange-300" /> Invoices</h1>
+      <div className={card}>
+        <p className="text-white text-lg font-semibold">Invoices come from signed contracts.</p>
+        <p className="text-white mt-1">When a client signs a contract, its invoice is created for you automatically with the contract's total, tax and payments. Find it under <strong>Invoices to approve</strong>.</p>
+        <div className="flex flex-wrap gap-2 mt-4">
+          <Link href="/admin/invoices/drafts" className="px-4 py-2.5 rounded-xl bg-orange-600 text-white font-semibold hover:bg-orange-700">Invoices to approve</Link>
+          <Link href="/admin/invoices/sent" className="px-4 py-2.5 rounded-xl bg-slate-700 text-white font-semibold hover:bg-slate-600">Sent invoices</Link>
+          <Link href="/admin/contracts/sent" className="px-4 py-2.5 rounded-xl bg-slate-700 text-white font-semibold hover:bg-slate-600">Contracts</Link>
+        </div>
+      </div>
+      {waiting.length > 0 && (
+        <div className={card + ' mt-4'}>
+          <p className="text-white font-semibold mb-3">Signed contracts without an invoice</p>
+          <div className="space-y-2">
+            {waiting.map(c => (
+              <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-slate-900 border border-white/25 p-3">
+                <div className="text-white"><p className="font-semibold">{c.clientName}</p><p className="text-sm">{c.number} · {usd(c.total)}</p></div>
+                <button onClick={() => createFor(c)} disabled={busy === c.id} className="px-4 py-2.5 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 flex items-center gap-2">{busy === c.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Receipt className="w-4 h-4" />} Create invoice</button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
+  // ── The invoice ──
+  const stateChip = isDraft ? ['bg-orange-600', 'Waiting for your approval'] : balance <= 0 ? ['bg-green-700', 'Paid in full'] : ['bg-blue-700', `Sent · ${payments.filter(p => p.received).length} of ${payments.length} payments received`]
   return (
-    <div className="p-4 sm:p-6 max-w-6xl mx-auto">
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto pb-32">
+      <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <DollarSign className="w-6 h-6 text-blue-300" />
-            {inv.isCorrection ? 'Correction Invoice' : 'Create Invoice'}
-          </h1>
-          <p className="text-white text-sm mt-1">Generate professional invoices for your clients</p>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Receipt className="w-6 h-6 text-orange-300" /> Invoice {doc.number}</h1>
+          <p className="text-white mt-1">{doc.clientName} · {doc.projectName}</p>
         </div>
-        <div className="flex items-center gap-2 flex-wrap">
-          <Link href="/admin/invoices/drafts" className="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-2">
-            <Pencil className="w-4 h-4" /> Drafts
-          </Link>
-          <Link href="/admin/invoices/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-2">
-            <FileText className="w-4 h-4" /> Sent
-          </Link>
-          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-800 text-white text-sm ${wasSent ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
-            <input type="checkbox" checked={inv.isCorrection || wasSent} disabled={wasSent} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
-            <AlertTriangle className="w-3.5 h-3.5" /> Correction
-          </label>
-        </div>
+        <span className={`px-3 py-1.5 rounded-full text-white text-sm font-bold ${stateChip[0]}`}>{stateChip[1]}</span>
       </div>
 
-      {wasSent && <SentNotice what="invoice" />}
-      {estimate && (
-        <div className="mb-6 rounded-xl border border-blue-300 bg-blue-800 p-4 text-sm text-white">
-          <p className="font-semibold text-white">Made from the field estimate for {estimate.clientName || 'this client'}.</p>
-          <p className="mt-1">One estimate gets one invoice. {savedId ? 'They are now linked.' : 'They are linked when you save.'} {estimate.reopened && 'The client declined this estimate at first and later came back.'}</p>
-          {!savedId && estimate.cost && <p className="mt-1">Estimated cost on the estimate: <strong className="text-white">{estimate.cost}</strong>. Check the price below before you send.</p>}
-          <Link href="/admin/field-notes" className="mt-2 inline-block text-white underline">Back to Field Estimates</Link>
+      {isDraft && (
+        <div className="mb-5 rounded-xl border border-orange-300 bg-orange-800 p-4 text-white">
+          <p className="font-bold flex items-center gap-2"><FileSignature className="w-5 h-5" /> The contract is signed. This invoice is ready for you to approve.</p>
+          <p className="mt-1 text-sm">Check the amounts, then press <strong>Approve and send</strong>. Nothing reaches the client until you do.</p>
         </div>
       )}
 
-      <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
-        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
-        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
+      <div className="space-y-5">
+        <div className={card}>
+          <div className="grid sm:grid-cols-2 gap-4 text-white">
+            <div><p className="text-xs font-bold uppercase tracking-wide text-orange-300">Bill to</p><p className="font-semibold text-lg">{doc.clientName}</p><p className="break-all">{doc.clientEmail}</p><p>{doc.clientPhone}</p><p>{doc.clientAddress}</p></div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-wide text-orange-300">From contract</p>
+              {doc.contractId ? <Link href={`/admin/contracts?id=${doc.contractId}`} className="inline-flex items-center gap-2 font-semibold underline"><Briefcase className="w-4 h-4" /> {doc.contractNumber || 'Open contract'}</Link> : <p>Made before invoices were tied to contracts</p>}
+              <p className="mt-2 text-sm">Invoice date: {day(doc.date)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className={card}>
+          <h2 className="text-lg font-semibold text-white mb-3">Amounts, from the contract</h2>
+          <div className="rounded-xl border border-white/25 overflow-hidden text-white">
+            {(doc.items || []).map((it, i) => (
+              <div key={i} className={`flex items-start justify-between gap-4 px-4 py-3 ${i ? 'border-t border-white/20' : ''}`}><span>{it.description}</span><span className="font-semibold">{usd(it.quantity * it.unitPrice)}</span></div>
+            ))}
+            <div className="flex justify-between gap-4 px-4 py-2.5 border-t border-white/20"><span>Contract price</span><span className="font-semibold">{usd(doc.subtotal)}</span></div>
+            <div className={`flex justify-between gap-4 px-4 py-2.5 border-t border-white/20 ${(doc.taxRate || 0) > 0 ? 'bg-amber-800 font-semibold' : ''}`}><span>Sales tax ({(doc.taxRate || 0).toFixed(2)}%)</span><span className="font-semibold">{usd(doc.tax)}</span></div>
+            <div className="flex justify-between gap-4 px-4 py-3 border-t border-white/20 bg-slate-900 text-lg"><span className="font-bold">Invoice total, taxes included</span><span className="font-extrabold">{usd(total)}</span></div>
+          </div>
+          <p className="text-sm text-white mt-2">These come from the signed contract and cannot be changed here.</p>
+        </div>
+
+        <div className={card}>
+          <h2 className="text-lg font-semibold text-white">Payments</h2>
+          <p className="text-sm text-white mb-3">{isDraft ? 'After you send the invoice, come back here each time the client pays.' : 'When a payment comes in, tick it and send the updated invoice.'}</p>
+          <div className="space-y-2">
+            {payments.map((p, i) => {
+              const wasSent = !!sentPayments[i]?.received
+              return (
+                <button key={i} type="button" role="checkbox" aria-checked={!!p.received} disabled={isDraft} onClick={() => tick(i)}
+                  className={`w-full text-left rounded-xl border-2 p-4 flex items-center gap-4 transition-colors disabled:cursor-not-allowed ${p.received ? 'bg-green-700 border-white' : 'bg-slate-800 border-white/30 hover:border-white'}`}>
+                  {p.received ? <CheckCircle className="w-8 h-8 text-white flex-shrink-0" /> : <Circle className="w-8 h-8 text-white flex-shrink-0" />}
+                  <span className="flex-1 min-w-0 text-white">
+                    <span className="block font-semibold">{p.label}</span>
+                    <span className="block text-sm">{p.received ? `Payment received${p.receivedAt ? ` on ${day(p.receivedAt)}` : ''}${wasSent ? '' : ' · not sent to the client yet'}` : wasSent ? 'Unticked · the client was told this was received' : isDraft ? 'Due after the invoice is sent' : 'Not received yet. Tap when the client pays.'}</span>
+                  </span>
+                  <span className="text-white text-lg font-extrabold flex-shrink-0">{usd(p.amount)}</span>
+                </button>
+              )
+            })}
+          </div>
+          <div className="mt-4 rounded-xl border-2 border-white/40 overflow-hidden text-white">
+            <div className="flex justify-between gap-4 px-4 py-2.5"><span>Invoice total</span><span className="font-semibold">{usd(total)}</span></div>
+            <div className="flex justify-between gap-4 px-4 py-2.5 border-t border-white/20"><span>Payments received</span><span className="font-semibold">- {usd(paid)}</span></div>
+            <div className={`flex justify-between gap-4 px-4 py-3 text-lg ${balance <= 0 ? 'bg-green-700' : 'bg-orange-600'}`}><span className="font-bold">{balance <= 0 ? 'Paid in full' : 'Balance due'}</span><span className="font-extrabold">{usd(balance)}</span></div>
+          </div>
+
+          {unticked && (
+            <div className="mt-4 rounded-xl border border-amber-300 bg-amber-800 p-4 text-white">
+              <p className="font-bold flex items-center gap-2"><AlertTriangle className="w-5 h-5" /> This will go out as a corrected invoice</p>
+              <p className="text-sm mt-1">The client was told this payment was received. Write a short note explaining the correction. It is printed on the invoice and in the email.</p>
+              <textarea value={correctionNote} onChange={e => setCorrectionNote(e.target.value)} rows={2} placeholder="Example: Payment 2 was marked as received by mistake. It is still due." className={ic + ' mt-2'} />
+            </div>
+          )}
+        </div>
+
+        <div className={card}>
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div><label className="text-sm font-medium text-white mb-1.5 block">Due date for the next payment (optional)</label><input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} className={ic} /></div>
+            <div><label className="text-sm font-medium text-white mb-1.5 block">Note on the invoice (optional)</label><textarea value={notes} onChange={e => setNotes(e.target.value)} rows={2} className={ic} /></div>
+          </div>
+        </div>
+
+        <div className={card}>
+          <SignaturePad onSignatureChange={setSignature} savedSignatureUrl={savedSigUrl || (signature && signature.startsWith('https://') ? signature : null)} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Your signature (Carlos Hernandez)" compact />
+        </div>
       </div>
 
-      {tab === 'edit' ? (
-        <div className="space-y-6">
-          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-300" /> Invoice Details</h2>
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div><label className={lc}>Invoice #</label><input value={inv.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
-              <div><label className={lc}>Date</label><input type="date" value={inv.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
-              <div><label className={lc}>Due Date</label><input type="date" value={inv.dueDate} onChange={e => updateField('dueDate', e.target.value)} className={dic} /></div>
-            </div>
-          </div>
-
-          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-300" /> Client Information</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div><label className={lc}>Full Name</label><input value={inv.clientName} onChange={e => updateField('clientName', e.target.value)} placeholder="Monica McNutt" className={ic} /></div>
-              <div><label className={lc}>Email</label><input type="email" value={inv.clientEmail} onChange={e => updateField('clientEmail', e.target.value)} placeholder="client@email.com" className={ic} /></div>
-              <div><label className={lc}>Phone</label><input value={inv.clientPhone} onChange={e => updateField('clientPhone', e.target.value)} placeholder="(202) 555-0123" className={ic} /></div>
-              <div><label className={lc}>Project Name</label><input value={inv.projectName} onChange={e => updateField('projectName', e.target.value)} placeholder="Kitchen Remodel" className={ic} /></div>
-              <div className="sm:col-span-2"><label className={lc}>Address</label><textarea value={inv.clientAddress} onChange={e => updateField('clientAddress', e.target.value)} placeholder={"3441 Massachusetts Avenue\nSouth East Washington DC"} rows={2} className={ic} /></div>
-            </div>
-          </div>
-
-          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-300" /> Line Items</h2>
-            <div className="space-y-3">
-              {inv.items.map((item, idx) => (
-                <div key={item.id} className="flex gap-3 items-start">
-                  <span className="text-white text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
-                  <div className="flex-1 grid sm:grid-cols-[1fr_80px_120px] gap-3">
-                    <input value={item.description} onChange={e => updateItem(item.id, 'description', e.target.value)} placeholder="Power wash garage..." className={ic} />
-                    <input type="number" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', Number(e.target.value))} min={1} className={ic + ' text-center'} placeholder="Qty" />
-                    <input type="number" value={item.unitPrice || ''} onChange={e => updateItem(item.id, 'unitPrice', Math.round(Number(e.target.value) * 100) / 100)} className={ic + ' text-right'} placeholder="$ 0.00" step="0.01" />
-                  </div>
-                  <button onClick={() => removeItem(item.id)} className="mt-3 text-red-300 hover:text-red-300 p-1" disabled={inv.items.length === 1}><Trash2 className="w-4 h-4" /></button>
-                </div>
-              ))}
-            </div>
-            <button onClick={addItem} className="mt-4 flex items-center gap-2 text-sm text-blue-300 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-700"><Plus className="w-4 h-4" /> Add Line Item</button>
-            <div className="mt-6 pt-4 border-t border-white/25 space-y-2 text-right">
-              <div className="text-white">Subtotal: <span className="font-semibold ml-2">{fmt(subtotal)}</span></div>
-              <div className="flex items-center justify-end gap-2">
-                <label className="text-white">Sales tax</label>
-                <PercentInput value={inv.taxRate} onChange={n => updateField('taxRate', n)} className="w-24 bg-slate-800 border-2 border-white/40 rounded-lg px-3 py-2 text-white text-base text-right font-semibold outline-none focus:border-blue-400" />
-                <span className="text-white text-lg font-semibold">%</span>
-              </div>
-              <p className="text-sm text-white">Type the number only: 6 means 6.00%, 6.5 means 6.50%. Leave it empty for no tax.</p>
-              {/* what is being charged, spelled out */}
-              <div className={`ml-auto w-full sm:w-80 rounded-xl border-2 p-3 text-left ${inv.taxRate > 0 ? 'border-amber-300 bg-amber-800' : 'border-white/30 bg-slate-800'}`}>
-                <div className="flex items-center justify-between gap-3 text-white"><span className="text-sm font-medium">Tax rate</span><span className="text-lg font-bold">{inv.taxRate.toFixed(2)}%</span></div>
-                <div className="flex items-center justify-between gap-3 text-white mt-1"><span className="text-sm font-medium">Tax you are charging</span><span className="text-lg font-bold">{fmt(tax)}</span></div>
-              </div>
-              <div className="text-lg font-bold text-white pt-2 border-t border-white/25">Total: {fmt(total)}</div>
-            </div>
-          </div>
-
-          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6"><label className={lc}>Notes</label><textarea value={inv.notes} onChange={e => updateField('notes', e.target.value)} rows={3} className={ic} /></div>
-
-          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
-            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
-          </div>
-
-          <div className="flex flex-wrap gap-3 pt-2">
-            {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
-            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
-            <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
-            <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!inv.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
-          </div>
+      {/* Actions */}
+      <div className="fixed bottom-0 inset-x-0 lg:left-64 z-30 bg-slate-950/95 backdrop-blur border-t border-white/25 p-3">
+        <div className="max-w-3xl mx-auto flex gap-3">
+          <button onClick={openPdf} disabled={busy === 'pdf'} className="px-4 py-3.5 rounded-xl bg-slate-700 text-white font-semibold hover:bg-slate-600 flex items-center gap-2">{busy === 'pdf' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} <span className="hidden sm:inline">Open</span> PDF</button>
+          {isDraft ? (
+            <button onClick={openSummary} className="flex-1 px-4 py-3.5 rounded-xl bg-green-600 text-white text-base font-bold hover:bg-green-700 flex items-center justify-center gap-2"><Send className="w-5 h-5" /> Approve and send</button>
+          ) : changed ? (
+            <button onClick={openSummary} className={`flex-1 px-4 py-3.5 rounded-xl text-white text-base font-bold flex items-center justify-center gap-2 ${unticked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-green-600 hover:bg-green-700'}`}><Send className="w-5 h-5" /> {unticked ? 'Send corrected invoice' : 'Send updated invoice'}</button>
+          ) : (
+            <button onClick={openSummary} className="flex-1 px-4 py-3.5 rounded-xl bg-slate-700 text-white text-base font-semibold hover:bg-slate-600 flex items-center justify-center gap-2"><Send className="w-5 h-5" /> Send again</button>
+          )}
         </div>
-      ) : (
-        <div>
-          <div className="bg-white rounded-2xl shadow-2xl p-8 sm:p-12 max-w-[800px] mx-auto text-slate-900">
-            <div className="flex items-start justify-between border-b-4 border-blue-900 pb-6 mb-8">
-              <div>
-                <h2 className="text-3xl font-bold text-blue-900">C&R</h2>
-                <p className="text-sm text-slate-600">General Services Inc.</p>
-                <p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p>
-                <p className="text-xs text-slate-400 mt-0.5">(571) 237-7164 | crhomepros@gmail.com</p>
-              </div>
-              <div className="text-right">
-                <h1 className="text-2xl font-bold text-amber-600">{inv.isCorrection ? 'CORRECTED INVOICE' : 'INVOICE'}</h1>
-                <p className="text-sm text-slate-500 mt-1">#{inv.number}</p>
-                <p className="text-sm text-slate-500">Date: {inv.date}</p>
-                <p className="text-sm text-slate-500">Due: {inv.dueDate}</p>
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-8 mb-8">
-              <div><p className="text-xs font-bold text-blue-900 uppercase mb-2">Bill To</p><p className="font-semibold text-lg">{inv.clientName || '—'}</p><p className="text-sm text-slate-600 whitespace-pre-line">{inv.clientAddress}</p>{inv.clientPhone && <p className="text-sm text-slate-600 mt-1">{inv.clientPhone}</p>}</div>
-              {inv.projectName && <div><p className="text-xs font-bold text-blue-900 uppercase mb-2">Project</p><p className="font-medium">{inv.projectName}</p></div>}
-            </div>
-            <table className="w-full mb-6"><thead><tr className="bg-blue-900 text-white text-sm"><th className="px-3 py-2.5 text-left rounded-tl-lg">#</th><th className="px-3 py-2.5 text-left">Description</th><th className="px-3 py-2.5 text-right">Qty</th><th className="px-3 py-2.5 text-right">Price</th><th className="px-3 py-2.5 text-right rounded-tr-lg">Amount</th></tr></thead>
-              <tbody>{inv.items.map((item, idx) => (<tr key={item.id} className={idx % 2 === 0 ? 'bg-slate-50' : ''}><td className="px-3 py-2.5 text-sm text-slate-500">{idx + 1}</td><td className="px-3 py-2.5 text-sm">{item.description || '—'}</td><td className="px-3 py-2.5 text-sm text-right">{item.quantity}</td><td className="px-3 py-2.5 text-sm text-right">{fmt(item.unitPrice)}</td><td className="px-3 py-2.5 text-sm text-right font-medium">{fmt(item.quantity * item.unitPrice)}</td></tr>))}</tbody>
-            </table>
-            <div className="flex justify-end mb-8"><div className="w-64 space-y-1.5 text-sm">
-              <div className="flex justify-between text-slate-600"><span>Subtotal</span><span>{fmt(subtotal)}</span></div>
-              {inv.taxRate > 0 && <div className="flex justify-between text-slate-600"><span>Tax ({inv.taxRate.toFixed(2)}%)</span><span>{fmt(tax)}</span></div>}
-              <div className="flex justify-between text-lg font-bold text-blue-900 pt-2 border-t-2 border-blue-900"><span>TOTAL</span><span>{fmt(total)}</span></div>
-            </div></div>
-            {inv.notes && <div className="bg-slate-50 rounded-xl p-4 mb-8"><p className="text-xs font-bold text-blue-900 uppercase mb-2">Notes</p><p className="text-sm text-slate-600 whitespace-pre-line">{inv.notes}</p></div>}
-            <div className="grid sm:grid-cols-2 gap-8 border-t pt-8">
-              <div><p className="text-sm font-semibold mb-4">Provided and Guaranteed by:</p><div className="h-16 border-b border-slate-300 mb-1">{inv.signatureData && <img src={inv.signatureData} alt="Sig" className="h-full object-contain" />}</div><p className="text-sm font-semibold">Carlos Hernandez</p><p className="text-xs text-slate-500">President, CRGS, Inc.</p></div>
-              <div><p className="text-sm font-semibold mb-4">Accepted and Agreed:</p><div className="h-16 border-b border-slate-300 mb-1" /><p className="text-sm font-semibold">{inv.clientName || '________________'}</p><p className="text-xs text-slate-500">Date: ________________</p></div>
-            </div>
-          </div>
-          <div className="flex justify-center gap-3 mt-6">
-            <button onClick={() => setTab('edit')} className="px-4 py-2.5 rounded-xl bg-slate-700 text-white text-sm hover:bg-slate-600">← Back to Edit</button>
-            <button onClick={handleGeneratePdf} disabled={generating} className="px-5 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 flex items-center gap-2">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download PDF</button>
-          </div>
-        </div>
-      )}
+      </div>
 
       <SendSummary
-        open={showEmailModal} kind={inv.isCorrection ? 'Corrected Invoice' : 'Invoice'} number={inv.number}
-        clientName={inv.clientName} clientEmail={inv.clientEmail} project={inv.projectName}
+        open={summary} kind={unticked ? 'Corrected Invoice' : isDraft ? 'Invoice' : 'Updated Invoice'} number={doc.number}
+        clientName={doc.clientName} clientEmail={doc.clientEmail} project={doc.projectName}
         rows={[
-          { label: `${inv.items.filter(i => i.description || i.unitPrice).length} line item${inv.items.filter(i => i.description || i.unitPrice).length === 1 ? '' : 's'}`, value: fmt(subtotal) },
-          { label: `Sales tax (${inv.taxRate.toFixed(2)}%)`, value: fmt(tax), highlight: inv.taxRate > 0 },
-          ...(inv.dueDate ? [{ label: 'Due', value: inv.dueDate }] : []),
+          { label: `Invoice total (tax ${(doc.taxRate || 0).toFixed(2)}%: ${usd(doc.tax)})`, value: usd(total) },
+          ...payments.map(p => ({ label: p.label.split(',')[0], value: `${usd(p.amount)}\n${p.received ? 'Received' : 'Due'}`, highlight: !!p.received })),
+          { label: 'Payments received', value: `- ${usd(paid)}` },
         ]}
-        totalLabel="Total due" total={fmt(total)}
-        note="The PDF is attached to the email. You get a copy, and replies come to crhomepros@gmail.com."
-        checks={[!inv.signatureData && 'There is no signature on this invoice.', total <= 0 && 'The total is $0.00.', inv.isCorrection && 'This goes out marked as a CORRECTION.']}
-        subject={emailSubject} onSubject={setEmailSubject} message={emailBody} onMessage={setEmailBody}
-        sending={sending} sendLabel={inv.isCorrection ? 'Send correction' : 'Send invoice'}
-        onEdit={() => setShowEmailModal(false)} onSend={handleSend}
+        totalLabel={balance <= 0 ? 'Paid in full' : 'Balance due'} total={usd(balance)}
+        note="The updated PDF is attached to the email. You get a copy, and replies come to crhomepros@gmail.com."
+        checks={[!signature && 'There is no signature on this invoice.', total <= 0 && 'The invoice total is $0.00.', unticked && 'This goes out marked as a CORRECTED invoice, with your note.', !isDraft && !changed && 'Nothing changed since the last time you sent it.']}
+        subject={subject} onSubject={setSubject} message={message} onMessage={setMessage}
+        sending={sending} sendLabel={unticked ? 'Send correction' : isDraft ? 'Send invoice' : 'Send update'}
+        onEdit={() => setSummary(false)} onSend={send}
       />
-      <ConfirmDialog
-        open={confirmCorrection}
-        title="This invoice was already sent"
-        confirmLabel="Yes, write the correction email"
-        onCancel={() => setConfirmCorrection(false)}
-        onConfirm={() => { setConfirmCorrection(false); prepareEmail() }}
-      >
-        <p>{inv.clientName || 'The client'} already received this invoice by email.</p>
-        <p>If you continue, the client gets a <strong>second email</strong> with a new PDF marked as a correction. It cannot be taken back once it is sent.</p>
-        <p>Only continue if something in the first one was wrong.</p>
+
+      <ConfirmDialog open={toUntick !== null} title="Untick this payment?" confirmLabel="Yes, it was not received" cancelLabel="Leave it ticked"
+        onCancel={() => setToUntick(null)} onConfirm={() => toUntick !== null && untick(toUntick)}>
+        <p>Only do this if <strong>{toUntick !== null ? payments[toUntick]?.label.split(',')[0] : ''}</strong> was marked as received by mistake.</p>
+        {toUntick !== null && sentPayments[toUntick]?.received
+          ? <p>The client was already told it was received. You will be asked for a short note, and the invoice goes out again marked as <strong>corrected</strong>.</p>
+          : <p>The client has not been told yet, so nothing needs to be corrected.</p>}
+        {toUntick !== null && payments.slice(toUntick + 1).some(p => p.received) && <p>Later payments will be unticked too, because payments are received in order.</p>}
       </ConfirmDialog>
       <PdfDialog pdf={pdf} onClose={() => setPdf(null)} />
     </div>

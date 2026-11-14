@@ -14,15 +14,24 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../_components/Toast'
 import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
-import { SendSummary } from '../_components/SendSummary'
+import { SendSummary, PercentInput, MoneyInput } from '../_components/SendSummary'
+import { PAYMENT_PLANS, buildPayments, paymentLines, taxOn, usd, type PaymentPlan } from '@/lib/payment-plan'
 
 interface ScopeItem { id: string; description: string }
 
 interface ContractData {
   number: string; date: string; clientName: string; clientEmail: string; clientPhone: string
   clientAddress: string; propertyAddress: string; projectName: string; projectTitle: string
-  scopeItems: ScopeItem[]; scopeNote: string; totalAmount: number
-  paymentStructure: string; contractTerms: string; notes: string
+  scopeItems: ScopeItem[]; scopeNote: string
+  /** contract price before tax */
+  totalAmount: number
+  taxRate: number
+  paymentPlan: PaymentPlan
+  /** optional extra wording under the payments */
+  paymentNotes: string
+  /** contracts written before the payment plans kept free text here */
+  paymentStructure: string
+  contractTerms: string; notes: string
   signatureData: string | null; isCorrection: boolean
 }
 
@@ -34,24 +43,6 @@ Client agrees to provide reasonable access to the property during scheduled work
 
 CRGS, Inc. carries full liability insurance and workers' compensation coverage. MHIC License #05-132359.`
 
-// Payment splits Carlos can pick from. Each part is a share of the total and when it is due.
-const PAYMENT_PRESETS: { label: string; parts: [number, string][] }[] = [
-  { label: '3 equal payments', parts: [[1 / 3, 'when client authorizes work agreement'], [1 / 3, 'due at project midpoint'], [1 / 3, 'upon completion and customer satisfaction']] },
-  { label: '50% / 50%', parts: [[0.5, 'when client authorizes work agreement'], [0.5, 'upon completion and customer satisfaction']] },
-  { label: '30% / 40% / 30%', parts: [[0.3, 'when client authorizes work agreement'], [0.4, 'due at project midpoint'], [0.3, 'upon completion and customer satisfaction']] },
-  { label: '10% deposit, rest at the end', parts: [[0.1, 'deposit when client authorizes work agreement'], [0.9, 'upon completion and customer satisfaction']] },
-]
-const usd = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-/** Writes the payment lines; the last payment absorbs the rounding so they add up to the total exactly */
-function paymentText(total: number, parts: [number, string][]): string {
-  let left = Math.round(total * 100)
-  return parts.map(([share, when], i) => {
-    const cents = i === parts.length - 1 ? left : Math.round(total * share * 100)
-    left -= cents
-    return `${usd(cents / 100)} USD ${when}.`
-  }).join('\n')
-}
-
 const INITIAL: ContractData = {
   number: '', // unique number is assigned when the page opens and checked again on save
   date: new Date().toISOString().split('T')[0],
@@ -60,6 +51,9 @@ const INITIAL: ContractData = {
   scopeItems: [{ id: '1', description: '' }],
   scopeNote: 'All the above will be plastered, sanded, primed and painted two coats. Existing color will be matched.',
   totalAmount: 0,
+  taxRate: 0,
+  paymentPlan: 'thirds', // default: 3 equal payments
+  paymentNotes: '',
   paymentStructure: '',
   contractTerms: DEFAULT_TERMS,
   notes: 'All dumping fees, materials and labor are included in this price.',
@@ -78,6 +72,9 @@ export default function ContractsPage() {
   // a contract the client already signed cannot be changed or sent again
   const [signedBy, setSignedBy] = useState<{ name?: string; signedAt?: string } | null>(null)
   const [estimateId, setEstimateId] = useState<string | null>(null)
+  const [linkedInvoice, setLinkedInvoice] = useState<{ id: string; number: string } | null>(null)
+  const [confirmPaper, setConfirmPaper] = useState(false)
+  const [markingPaper, setMarkingPaper] = useState(false)
   const router = useRouter()
   const [savedSigUrl, setSavedSigUrl] = useState<string | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -109,7 +106,7 @@ export default function ContractsPage() {
           clientName: note.clientName || '', clientEmail: note.clientEmail || '', clientPhone: note.clientPhone || '',
           clientAddress: note.address || '', propertyAddress: note.address || '',
           projectName: note.projectName || '', projectTitle: note.projectName || '',
-          totalAmount: prices.length === 1 ? Math.round(Number(prices[0].replace(/,/g, '')) * 100) / 100 : prev.totalAmount,
+          totalAmount: note.estimatedAmount || (prices.length === 1 ? Math.round(Number(prices[0].replace(/,/g, '')) * 100) / 100 : prev.totalAmount),
         }))
       }).catch(err => alert(`Could not open the field estimate.\n\n${err instanceof Error ? err.message : String(err)}`))
       return
@@ -124,6 +121,7 @@ export default function ContractsPage() {
       setSavedId(id)
       const alreadySent = !!d.status && d.status !== 'draft'
       if (d.status === 'signed') setSignedBy(d.clientSignature || {})
+      setLinkedInvoice(d.invoiceId ? { id: d.invoiceId, number: d.invoiceNumber || '' } : null)
       if (d.estimateId) setEstimateId(d.estimateId)
       setWasSent(alreadySent)
       markSaved()
@@ -145,18 +143,23 @@ export default function ContractsPage() {
     }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
   }, [])
 
-  // Auto-generate payment structure when total changes
-  useEffect(() => {
-    // first time a total is entered: start with 3 equal payments (Carlos can change it)
-    if (ct.totalAmount > 0 && !ct.paymentStructure) {
-      setCt(prev => ({ ...prev, paymentStructure: paymentText(ct.totalAmount, PAYMENT_PRESETS[0].parts) }))
-    }
-  }, [ct.totalAmount])
-
   const updateField = (field: keyof ContractData, value: any) => setCt(prev => ({ ...prev, [field]: value }))
-  // dollar amounts written in the payment structure, to catch a total that changed afterwards
-  const paymentSum = Math.round((ct.paymentStructure.match(/\$\s?\d[\d,]*(\.\d+)?/g) || []).reduce((sum, m) => sum + Number(m.replace(/[$,\s]/g, '')), 0) * 100) / 100
-  const paymentMismatch = ct.totalAmount > 0 && paymentSum > 0 && Math.abs(paymentSum - ct.totalAmount) > 0.01 ? paymentSum : 0
+  // Price, tax and payments all come from these three numbers
+  const tax = taxOn(ct.totalAmount, ct.taxRate)
+  const grandTotal = Math.round((ct.totalAmount + tax) * 100) / 100
+  const payments = buildPayments(grandTotal, ct.paymentPlan)
+  /** The payment section exactly as it is written into the contract */
+  const paymentSection = [
+    `Contract price: ${usd(ct.totalAmount)} USD`,
+    ct.taxRate > 0 ? `Sales tax (${ct.taxRate.toFixed(2)}%): ${usd(tax)} USD` : 'Sales tax: none',
+    `Total, taxes included: ${usd(grandTotal)} USD`,
+    '',
+    `Payments (${PAYMENT_PLANS[ct.paymentPlan].name}):`,
+    paymentLines(payments),
+    ...(ct.paymentNotes.trim() ? ['', ct.paymentNotes.trim()] : []),
+    '',
+    'An invoice is sent when this contract is signed and is updated each time a payment is received.',
+  ].join('\n')
   const addScope = () => setCt(prev => ({ ...prev, scopeItems: [...prev.scopeItems, { id: String(Date.now()), description: '' }] }))
   const removeScope = (id: string) => { if (ct.scopeItems.length > 1) setCt(prev => ({ ...prev, scopeItems: prev.scopeItems.filter(i => i.id !== id) })) }
   const updateScope = (id: string, value: string) => setCt(prev => ({ ...prev, scopeItems: prev.scopeItems.map(i => i.id === id ? { ...i, description: value } : i) }))
@@ -174,8 +177,9 @@ export default function ContractsPage() {
         projectName: ct.projectName, date: ct.date,
         items: ct.scopeItems.map(s => ({ id: s.id, description: s.description, quantity: 1, unitPrice: 0 })),
         freeformDescription: ct.scopeNote,
-        paymentStructure: ct.paymentStructure, contractTerms: ct.contractTerms,
-        notes: ct.notes, subtotal: ct.totalAmount, tax: 0, taxRate: 0, total: ct.totalAmount,
+        paymentStructure: paymentSection, contractTerms: ct.contractTerms,
+        notes: ct.notes, subtotal: ct.totalAmount, tax, taxRate: ct.taxRate, total: grandTotal,
+        paymentPlan: ct.paymentPlan, payments,
         signatureData: ct.signatureData, status,
         ...(estimateId ? { estimateId } : {}),
         formData: { ...ct, number: num, signatureData: null },
@@ -204,7 +208,7 @@ export default function ContractsPage() {
     projectName: ct.projectTitle || ct.projectName,
     items: ct.scopeItems.map(s => ({ description: s.description })),
     freeformDescription: ct.scopeNote ? `Note: ${ct.scopeNote}` : '',
-    paymentStructure: `${ct.paymentStructure}\n\nSum estimated to complete job: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD`,
+    paymentStructure: paymentSection,
     contractTerms: ct.contractTerms,
     notes: ct.notes,
     signatureData: ct.signatureData,
@@ -235,7 +239,7 @@ export default function ContractsPage() {
       if (num !== ct.number) setCt(prev => ({ ...prev, number: num }))
     } catch (err) { alert(err instanceof Error ? err.message : String(err)); return }
     setEmailSubject(`${ct.isCorrection ? 'Corrected ' : ''}Contract ${num} — ${ct.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal estimated cost: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nPlease review it and sign it online with the button in this email. You can also ask any question there before you sign.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+    setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal, taxes included: ${usd(grandTotal)}\n\nPlease review it and sign it online with the button in this email. You can also ask any question there before you sign.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     if (ct.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
   }
@@ -250,13 +254,25 @@ export default function ContractsPage() {
       await handleSave('sent')
       setSent(true); setShowEmailModal(false)
       // say what happened, then show it in the Sent list
-      toast(`Contract ${ct.number} sent to ${ct.clientEmail.trim()}. They can sign it on their page.`)
+      toast(`Contract sent to client: ${ct.clientName || ct.clientEmail.trim()}`)
       router.push('/admin/contracts/sent')
     } catch (err) {
       console.error('Send failed:', err)
       alert(`The email was not sent.\n\n${err instanceof Error ? err.message : String(err)}`)
     }
     setSending(false)
+  }
+
+  // The client signed a printed copy: same result as signing online
+  const markPaperSigned = async () => {
+    setConfirmPaper(false); setMarkingPaper(true)
+    try {
+      const res = await adminFetch('/api/admin/contract-paper-signed', { contractId: savedId, signerName: ct.clientName })
+      const data = await res.json()
+      toast(`Contract ${ct.number} is now In contract. Invoice ${data.invoiceNumber || ''} is ready to approve and send.`)
+      router.push(data.invoiceId ? `/admin/invoices?id=${data.invoiceId}` : '/admin/contracts/sent')
+    } catch (err) { toast(err instanceof Error ? err.message : 'Not saved', 'error') }
+    setMarkingPaper(false)
   }
 
   const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -284,12 +300,13 @@ export default function ContractsPage() {
         <div className="mb-6 rounded-xl border border-green-300 bg-green-800 p-4 text-sm text-white">
           <p className="font-semibold text-white">In contract: signed by {signedBy.name || 'the client'}{signedBy.signedAt ? ` on ${new Date(signedBy.signedAt).toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}` : ''}.</p>
           <p className="mt-1">A signed contract cannot be changed or sent again. You can still open the PDF, which shows both signatures. If the job changes, make a new contract.</p>
+          {linkedInvoice && <Link href={`/admin/invoices?id=${linkedInvoice.id}`} className="mt-3 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-green-900 font-bold">Open invoice {linkedInvoice.number}</Link>}
         </div>
       ) : wasSent && <SentNotice what="contract" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
-        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
-        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
+        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-white text-slate-950 font-bold shadow' : 'text-white hover:bg-white/10'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
+        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-white text-slate-950 font-bold shadow' : 'text-white hover:bg-white/10'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
       </div>
 
       {tab === 'edit' ? (
@@ -299,7 +316,7 @@ export default function ContractsPage() {
             <div className="grid sm:grid-cols-3 gap-4">
               <div><label className={lc}>Contract #</label><input value={ct.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={ct.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
-              <div><label className={lc}>Total Amount</label><input type="number" value={ct.totalAmount || ''} onChange={e => updateField('totalAmount', Number(e.target.value))} className={ic} step="0.01" placeholder="17097.00" /></div>
+              <div><label className={lc}>Contract price, before tax</label><MoneyInput value={ct.totalAmount} onChange={n => updateField('totalAmount', n)} className={ic} ariaLabel="Contract price before tax" /><p className="text-sm text-white mt-1.5">Numbers only: 2000 means $2,000.00, 2050.5 means $2,050.50.</p></div>
             </div>
           </div>
 
@@ -331,20 +348,44 @@ export default function ContractsPage() {
           </div>
 
           <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4">Payment Structure</h2>
-            <p className="text-sm text-white mb-3">Pick a split to fill it in from the total, then change the wording any way you like. Nothing here is fixed.</p>
-            <div className="flex flex-wrap gap-2 mb-3">
-              {PAYMENT_PRESETS.map(preset => (
-                <button key={preset.label} type="button" disabled={!ct.totalAmount} onClick={() => updateField('paymentStructure', paymentText(ct.totalAmount, preset.parts))}
-                  className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 disabled:opacity-50">{preset.label}</button>
-              ))}
-              <button type="button" onClick={() => updateField('paymentStructure', '')} className="text-sm px-3 py-2 rounded-lg bg-slate-800 border border-white/30 text-white hover:bg-slate-700">Clear and write my own</button>
+            <h2 className="font-semibold text-white mb-1">Price, tax and payments</h2>
+            <p className="text-sm text-white mb-4">The contract total includes tax. The invoice takes these exact amounts when the client signs.</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <label className="text-white">Sales tax</label>
+              <PercentInput value={ct.taxRate} onChange={n => updateField('taxRate', n)} className="w-24 bg-slate-800 border-2 border-white/40 rounded-lg px-3 py-2 text-white text-base text-right font-semibold outline-none focus:border-blue-400" />
+              <span className="text-white text-lg font-semibold">%</span>
+              <span className="text-sm text-white">6 means 6.00%. Leave empty for no tax.</span>
             </div>
-            <textarea value={ct.paymentStructure} onChange={e => updateField('paymentStructure', e.target.value)} rows={5} placeholder="Example: $5,000.00 USD when client authorizes work agreement..." className={ic} />
-            {!ct.totalAmount && <p className="text-sm text-white mt-2">Enter the contract total first to use the buttons.</p>}
-            {paymentMismatch && (
-              <p className="mt-2 rounded-lg border border-amber-300 bg-amber-800 px-3 py-2 text-sm text-white">The payments written here add up to <strong className="text-white">{fmt(paymentMismatch)}</strong>, but the contract total is <strong className="text-white">{fmt(ct.totalAmount)}</strong>. Check the amounts or press a split button again.</p>
-            )}
+            <div className={`mt-3 rounded-xl border-2 p-4 ${ct.taxRate > 0 ? 'border-amber-300 bg-amber-800' : 'border-white/30 bg-slate-800'}`}>
+              <div className="flex items-center justify-between gap-3 text-white"><span>Contract price</span><span className="font-bold">{fmt(ct.totalAmount)}</span></div>
+              <div className="flex items-center justify-between gap-3 text-white mt-1"><span>Sales tax ({ct.taxRate.toFixed(2)}%)</span><span className="font-bold">{fmt(tax)}</span></div>
+              <div className="flex items-center justify-between gap-3 text-white mt-2 pt-2 border-t border-white/40 text-lg"><span className="font-bold">Contract total, taxes included</span><span className="font-extrabold">{fmt(grandTotal)}</span></div>
+            </div>
+
+            <p className="font-semibold text-white mt-6 mb-2">How will the client pay?</p>
+            <div className="grid sm:grid-cols-2 gap-3" role="radiogroup" aria-label="Payment plan">
+              {(Object.keys(PAYMENT_PLANS) as PaymentPlan[]).map(plan => {
+                const on = ct.paymentPlan === plan
+                return (
+                  <button key={plan} type="button" role="radio" aria-checked={on} onClick={() => updateField('paymentPlan', plan)}
+                    className={`text-left rounded-xl border-2 p-4 transition-colors ${on ? 'bg-blue-600 border-white shadow-lg ring-2 ring-blue-300' : 'bg-slate-800 border-white/30 hover:border-white'}`}>
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <span className="text-white text-lg font-bold">{PAYMENT_PLANS[plan].name}</span>
+                      {on ? <span className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-white text-blue-800 text-xs font-extrabold uppercase"><CheckCircle className="w-4 h-4" /> Selected</span>
+                        : <span className="w-6 h-6 rounded-full border-2 border-white/60" aria-hidden="true" />}
+                    </div>
+                    {buildPayments(grandTotal, plan).map((pay, i) => (
+                      <div key={i} className="flex items-start justify-between gap-3 text-white text-sm py-0.5"><span>{pay.label.split(',')[0]}</span><span className="font-bold">{fmt(pay.amount)}</span></div>
+                    ))}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="mt-4"><label className={lc}>Anything else about payment (optional)</label><textarea value={ct.paymentNotes} onChange={e => updateField('paymentNotes', e.target.value)} rows={2} placeholder="Example: checks payable to C&R General Services Inc." className={ic} /></div>
+            <details className="mt-3">
+              <summary className="text-sm text-white underline cursor-pointer">See how this reads in the contract</summary>
+              <p className="mt-2 rounded-lg bg-slate-900 border border-white/25 p-3 text-sm text-white whitespace-pre-line">{paymentSection}</p>
+            </details>
           </div>
 
           <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
@@ -363,6 +404,7 @@ export default function ContractsPage() {
             <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
             {!signedBy && <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>}
+            {!signedBy && wasSent && savedId && <button onClick={() => setConfirmPaper(true)} disabled={markingPaper} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50">{markingPaper ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Client signed on paper</button>}
           </div>
         </div>
       ) : (
@@ -384,11 +426,10 @@ export default function ContractsPage() {
               ))}
             </div>
             {ct.scopeNote && <p className="text-sm italic text-slate-600 mb-6 bg-slate-50 rounded-lg p-3">Note: {ct.scopeNote}</p>}
-            {ct.paymentStructure && (
+            {ct.totalAmount > 0 && (
               <div className="bg-slate-50 rounded-xl p-5 mb-6">
                 <h4 className="font-bold text-blue-900 uppercase text-xs mb-3">Payment Structure</h4>
-                <p className="text-sm whitespace-pre-line">{ct.paymentStructure}</p>
-                <div className="mt-3 pt-3 border-t"><p className="font-bold text-lg text-blue-900">Sum estimated to complete job: {fmt(ct.totalAmount)}</p></div>
+                <p className="text-sm whitespace-pre-line">{paymentSection}</p>
               </div>
             )}
             {ct.notes && <p className="text-sm text-slate-600 mb-4">{ct.notes}</p>}
@@ -418,11 +459,13 @@ export default function ContractsPage() {
         rows={[
           { label: 'Scope of work', value: `${ct.scopeItems.filter(x => x.description).length} item${ct.scopeItems.filter(x => x.description).length === 1 ? '' : 's'}` },
           ...(ct.propertyAddress ? [{ label: 'Job address', value: ct.propertyAddress }] : []),
-          { label: 'Payments', value: `${ct.paymentStructure.split('\n').filter(l => l.trim()).length} step${ct.paymentStructure.split('\n').filter(l => l.trim()).length === 1 ? '' : 's'}`, highlight: !!paymentMismatch },
+          { label: 'Contract price', value: fmt(ct.totalAmount) },
+          { label: `Sales tax (${ct.taxRate.toFixed(2)}%)`, value: fmt(tax), highlight: ct.taxRate > 0 },
+          { label: `Payments: ${PAYMENT_PLANS[ct.paymentPlan].name}`, value: payments.map(x => fmt(x.amount)).join('\n') },
         ]}
-        totalLabel="Contract total" total={fmt(ct.totalAmount)}
-        note="The client gets the PDF and a button to review and sign it online. You are told the moment they sign."
-        checks={[!ct.signatureData && 'There is no signature on this contract.', ct.totalAmount <= 0 && 'The total is $0.00.', !!paymentMismatch && `The payments add up to ${fmt(paymentMismatch)}, not the contract total.`, ct.isCorrection && 'This goes out marked as a CORRECTION.']}
+        totalLabel="Total, taxes included" total={fmt(grandTotal)}
+        note="The client gets the PDF and a button to review and sign it online. When they sign, the invoice is created for you to approve and send."
+        checks={[!ct.signatureData && 'There is no signature on this contract.', ct.totalAmount <= 0 && 'The total is $0.00.', ct.taxRate <= 0 && 'No sales tax is being charged on this contract.', ct.isCorrection && 'This goes out marked as a CORRECTION.']}
         subject={emailSubject} onSubject={setEmailSubject} message={emailBody} onMessage={setEmailBody}
         sending={sending} sendLabel={ct.isCorrection ? 'Send correction' : 'Send contract'}
         onEdit={() => setShowEmailModal(false)} onSend={handleSend}
@@ -437,6 +480,11 @@ export default function ContractsPage() {
         <p>{ct.clientName || 'The client'} already received this contract by email.</p>
         <p>If you continue, the client gets a <strong>second email</strong> with a new PDF marked as a correction. It cannot be taken back once it is sent.</p>
         <p>Only continue if something in the first one was wrong.</p>
+      </ConfirmDialog>
+      <ConfirmDialog open={confirmPaper} title="Mark this contract as signed on paper?" confirmLabel="Yes, the client signed" onCancel={() => setConfirmPaper(false)} onConfirm={markPaperSigned}>
+        <p>Use this only when {ct.clientName || 'the client'} signed a printed copy of contract {ct.number}.</p>
+        <p>The contract becomes <strong>In contract</strong> and is locked, and the invoice is created for you to approve and send. This cannot be undone.</p>
+        <p>Keep the signed paper: upload a photo of it under Signed Documents.</p>
       </ConfirmDialog>
       <PdfDialog pdf={pdf} onClose={() => setPdf(null)} />
     </div>

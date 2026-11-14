@@ -6,6 +6,7 @@
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
 import { LOGO_PNG_BASE64 } from './logo-data'
+import type { Payment } from './payment-plan'
 
 export type PdfDocType = 'invoice' | 'change-order' | 'contract'
 
@@ -27,6 +28,12 @@ export interface PdfDocData {
   notes?: string
   /** PNG data URL of Carlos's signature */
   signatureData?: string | null
+  /** Invoice: the contract's payments, with which ones were received */
+  payments?: Payment[]
+  /** Invoice: the contract it belongs to, e.g. CTR-2026-0004 */
+  contractNumber?: string
+  /** Sent again because something in the earlier one was wrong */
+  isCorrection?: boolean
   /** The client's electronic signature (contracts signed on their page) */
   clientSignature?: { dataUrl?: string; name?: string; signedAt?: string; ip?: string } | null
 }
@@ -69,7 +76,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold)
   const baseLabel = { invoice: 'INVOICE', 'change-order': 'CHANGE ORDER', contract: 'CONTRACT' }[type] || 'DOCUMENT'
   // A document sent again after a fix carries a number ending in -CORRECTED
-  const corrected = /-CORRECTED$/i.test(String(d.number || ''))
+  const corrected = !!d.isCorrection || /-CORRECTED$/i.test(String(d.number || ''))
   const label = corrected ? `CORRECTED ${baseLabel}` : baseLabel
   pdf.setTitle(`${label} ${clean(d.number)}`)
   pdf.setAuthor('CR Home Pros')
@@ -170,7 +177,8 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
     ...(d.clientEmail ? [d.clientEmail] : []),
   ]
   const propLines = d.propertyAddress ? wrap(d.propertyAddress, 205, 9.5).filter(Boolean) : []
-  const cardH = 44 + Math.max(clientLines.length, propLines.length) * 13
+  // the FROM card (used when there is no job address) always has three lines
+  const cardH = 44 + Math.max(clientLines.length, propLines.length || 3) * 13
   const cardW = (W - 2 * M - 16) / 2
   const cardBox = (x: number, title: string, name: string, lines: string[]) => {
     page.drawRectangle({ x, y: y - cardH, width: cardW, height: cardH, color: ROW, borderColor: LINE, borderWidth: 0.6 })
@@ -181,7 +189,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   }
   cardBox(M, type === 'invoice' ? 'BILL TO' : 'CLIENT', d.clientName || '', clientLines)
   if (propLines.length) cardBox(M + cardW + 16, 'JOB ADDRESS', '', propLines)
-  else cardBox(M + cardW + 16, 'FROM', 'CR Home Pros', ['C&R General Services Inc.', '(571) 237-7164', 'crhomepros@gmail.com'].slice(0, Math.max(3, clientLines.length)))
+  else cardBox(M + cardW + 16, 'FROM', 'CR Home Pros', ['C&R General Services Inc.', '(571) 237-7164', 'crhomepros@gmail.com'])
   y -= cardH + 26
 
   // ── Items ───────────────────────────────────
@@ -234,11 +242,48 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
       y -= 16
     }
     y -= 16
-    page.drawRectangle({ x: W - M - 230, y: y - 12, width: 230, height: 34, color: BLUE })
-    page.drawRectangle({ x: W - M - 230, y: y - 12, width: 4, height: 34, color: GOLD })
-    text(type === 'invoice' ? 'TOTAL DUE' : 'TOTAL', W - M - 214, y, 9, bold, GOLD)
-    right(money(total), W - M - 12, y - 2, 15, bold, WHITE)
-    y -= 46
+    const totalBox = (title: string, amount: string, color = BLUE) => {
+      page.drawRectangle({ x: W - M - 250, y: y - 12, width: 250, height: 34, color })
+      page.drawRectangle({ x: W - M - 250, y: y - 12, width: 4, height: 34, color: GOLD })
+      text(title, W - M - 234, y, 9, bold, color === BLUE ? GOLD : WHITE)
+      right(amount, W - M - 12, y - 2, 15, bold, WHITE)
+      y -= 46
+    }
+    const pays = (d.payments || []).filter(p => p && p.label)
+    if (!pays.length) {
+      totalBox(type === 'invoice' ? 'TOTAL DUE' : 'TOTAL', money(total))
+    } else {
+      // Invoice for a contract: the total, each payment, what was received, what is left
+      right(`Invoice total:  ${money(total)}`, W - M, y, 11, bold, DARK)
+      y -= 30
+      heading(d.contractNumber ? `PAYMENTS  (contract ${d.contractNumber})` : 'PAYMENTS')
+      y -= 8
+      let paid = 0
+      pays.forEach((p, i) => {
+        const lines = wrap(p.label, W - 2 * M - 250, 9.5)
+        const rowH = Math.max(26, lines.length * 12 + 14)
+        need(rowH + 6)
+        page.drawRectangle({ x: M, y: y + 16 - rowH, width: W - 2 * M, height: rowH, color: i % 2 ? ROW : WHITE, borderColor: LINE, borderWidth: 0.5 })
+        lines.forEach((l, li) => text(l, M + 10, y - li * 12, 9.5))
+        right(money(p.amount), W - M - 130, y, 10, bold)
+        if (p.received) {
+          paid += Math.round(p.amount * 100)
+          right(`RECEIVED${p.receivedAt ? ` ${p.receivedAt}` : ''}`, W - M - 10, y, 8.5, bold, hex('#15803d'))
+        } else {
+          right('DUE', W - M - 10, y, 8.5, bold, GOLD_DARK)
+        }
+        y -= rowH
+      })
+      y -= 14
+      need(90)
+      right(`Payments received:  - ${money(paid / 100)}`, W - M, y, 10, font, GRAY)
+      y -= 30
+      const balance = Math.round(total * 100 - paid) / 100
+      if (balance <= 0) totalBox('PAID IN FULL', money(0), hex('#15803d'))
+      else totalBox('BALANCE DUE', money(balance))
+      const next = pays.find(p => !p.received)
+      if (next && balance > 0) { right(`Next payment due: ${money(next.amount)}`, W - M, y + 6, 9.5, bold, DARK); y -= 14 }
+    }
   } else if (items.length) {
     heading('SCOPE OF WORK')
     items.forEach((item, i) => {

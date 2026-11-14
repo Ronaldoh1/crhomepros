@@ -12,12 +12,12 @@ import {
 } from '@/lib/firebase-auth'
 import { useToast } from './_components/Toast'
 
-interface Notice { key: string; icon: any; tone: string; title: string; detail?: string; href: string; when?: number; messageId?: string }
+interface Notice { key: string; icon: any; tone: string; title: string; detail?: string; href: string; open?: string; second?: { href: string; label: string }; when?: number; messageId?: string }
 
 const quickActions = [
-  { label: 'New field estimate', href: '/admin/field-notes', icon: Camera, desc: 'Photos and notes at a job visit', color: 'from-slate-600 to-slate-700' },
-  { label: 'Create contract', href: '/admin/contracts', icon: Briefcase, desc: 'Send it for the client to sign online', color: 'from-green-600 to-green-700' },
-  { label: 'Create invoice', href: '/admin/invoices', icon: Receipt, desc: 'Email it with the PDF attached', color: 'from-blue-600 to-blue-700' },
+  { label: 'New estimate', href: '/admin/estimates/new', icon: Camera, desc: 'Photos and notes at a job visit', color: 'from-slate-600 to-slate-700' },
+  { label: 'Create contract', href: '/admin/contracts', icon: Briefcase, desc: 'Tax and payments, signed online', color: 'from-green-600 to-green-700' },
+  { label: 'Invoices to approve', href: '/admin/invoices/drafts', icon: Receipt, desc: 'Made when a contract is signed', color: 'from-blue-600 to-blue-700' },
   { label: 'Leads and referrals', href: '/admin/leads', icon: Users, desc: 'People who asked for an estimate', color: 'from-cyan-600 to-cyan-700' },
   { label: 'Client messages', href: '/admin/messages', icon: MessageSquare, desc: 'Notes and questions from clients', color: 'from-indigo-600 to-indigo-700' },
   { label: 'Past projects', href: '/admin/past-projects', icon: Images, desc: 'Before and after photos of your jobs', color: 'from-amber-600 to-amber-700' },
@@ -47,12 +47,18 @@ export default function AdminDashboard() {
     ])
     const list: Notice[] = []
 
+    // where a notification leads: straight to the document it is about
+    const docLink = (m: ClientMessage) => (m.docType === 'contract' && m.docId ? `/admin/contracts?id=${m.docId}` : m.docType === 'estimate' && m.docId ? `/admin/estimates?open=${m.docId}` : '/admin/messages')
     messages.filter((m: ClientMessage) => !m.read && m.from !== 'carlos').forEach(m => {
       const who = m.clientName || m.clientEmail
-      if (m.kind === 'signed') list.push({ key: m.id!, messageId: m.id, icon: FileSignature, tone: 'bg-green-800 text-white', title: `${who} signed ${m.docLabel || 'a contract'}`, detail: 'You are now in contract. A past project was started.', href: '/admin/contracts/sent', when: ms(m.createdAt) })
-      else if (m.kind === 'referral') list.push({ key: m.id!, messageId: m.id, icon: UserPlus, tone: 'bg-purple-800 text-white', title: `${who} sent a referral`, detail: m.text, href: '/admin/leads', when: ms(m.createdAt) })
-      else list.push({ key: m.id!, messageId: m.id, icon: MessageSquare, tone: 'bg-blue-800 text-white', title: `${who} ${m.kind === 'question' ? 'asked about' : 'sent a note on'} ${m.docLabel || 'a document'}`, detail: m.text, href: '/admin/messages', when: ms(m.createdAt) })
+      if (m.kind === 'signed' && m.docType === 'estimate') list.push({ key: m.id!, messageId: m.id, icon: CheckCircle, tone: 'bg-green-800 text-white', title: `${who} approved and signed an estimate`, detail: m.text, href: docLink(m), open: 'Open estimate', when: ms(m.createdAt) })
+      else if (m.kind === 'signed') list.push({ key: m.id!, messageId: m.id, icon: FileSignature, tone: 'bg-green-800 text-white', title: `${who} signed ${m.docLabel || 'a contract'}`, detail: m.text, href: docLink(m), open: 'Open contract', when: ms(m.createdAt) })
+      else if (m.kind === 'referral') list.push({ key: m.id!, messageId: m.id, icon: UserPlus, tone: 'bg-purple-800 text-white', title: `${who} sent a referral`, detail: m.text, href: '/admin/leads', open: 'Open referrals', when: ms(m.createdAt) })
+      else list.push({ key: m.id!, messageId: m.id, icon: MessageSquare, tone: 'bg-blue-800 text-white', title: `${who} ${m.kind === 'question' ? 'asked about' : 'sent a note on'} ${m.docLabel || 'a document'}`, detail: m.text, href: docLink(m), open: m.docType === 'contract' ? 'Open contract' : 'Open estimate', second: { href: '/admin/messages', label: 'Answer' }, when: ms(m.createdAt) })
     })
+
+    // Invoices created by a signed contract, waiting for Carlos
+    docs.filter(d => d.type === 'invoice' && d.status === 'draft').forEach(d => list.push({ key: `inv-${d.id}`, icon: Receipt, tone: 'bg-orange-700 text-white', title: `Invoice ${d.number} is ready to approve and send`, detail: `${d.clientName}: the contract is signed.`, href: `/admin/invoices?id=${d.id}`, open: 'Open invoice', when: ms(d.createdAt) }))
 
     const newLeads = leads.filter(l => (l.status || 'new') === 'new')
     newLeads.slice(0, 5).forEach(l => list.push({ key: `lead-${l.id}`, icon: Users, tone: 'bg-cyan-800 text-white', title: `New estimate request: ${[l.firstName, l.lastName].filter(Boolean).join(' ') || l.name || l.email}`, detail: (l as any).referredBy?.name ? `Referred by ${(l as any).referredBy.name}` : (l.services || []).join(', '), href: '/admin/leads', when: ms((l as any).createdAt) }))
@@ -62,12 +68,12 @@ export default function AdminDashboard() {
 
     const open = ['new', 'quoted', 'accepted', 'reopened']
     notes.filter(n => n.followUpDate && n.followUpDate <= today() && open.includes(n.status as string))
-      .forEach(n => list.push({ key: `fu-${n.id}`, icon: CalendarClock, tone: 'bg-red-800 text-white', title: `Follow up with ${n.clientName}`, detail: n.projectName, href: '/admin/field-notes' }))
+      .forEach(n => list.push({ key: `fu-${n.id}`, icon: CalendarClock, tone: 'bg-red-800 text-white', title: `Follow up with ${n.clientName}`, detail: n.projectName, href: `/admin/estimates?open=${n.id}`, open: 'Open estimate' }))
 
     // After photos: asked for once an invoice has gone out to that client
     const invoiced = new Set(docs.filter(d => d.type === 'invoice' && d.status !== 'draft').map(d => (d as any).clientEmailKey).filter(Boolean))
     projects.filter(p => !(p.afterPhotos || []).length && p.clientEmailKey && invoiced.has(p.clientEmailKey))
-      .forEach(p => list.push({ key: `after-${p.id}`, icon: Images, tone: 'bg-amber-800 text-white', title: `Add the "after" photos for ${p.title}`, detail: `You invoiced ${p.clientName}. Finished photos complete the project.`, href: '/admin/past-projects' }))
+      .forEach(p => list.push({ key: `after-${p.id}`, icon: Images, tone: 'bg-amber-800 text-white', title: `Add the "after" photos for ${p.title}`, detail: `You invoiced ${p.clientName}. Finished photos complete the project.`, href: `/admin/past-projects#p-${p.id}`, open: 'Open project' }))
 
     list.sort((a, b) => (b.when || Date.now()) - (a.when || Date.now()))
     setNotices(list)
@@ -106,7 +112,7 @@ export default function AdminDashboard() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {stat('New leads', stats.leads, '/admin/leads', Users, 'bg-cyan-800 text-white')}
-        {stat('Open estimates', stats.estimates, '/admin/field-notes', ClipboardList, 'bg-blue-800 text-white')}
+        {stat('Open estimates', stats.estimates, '/admin/estimates', ClipboardList, 'bg-blue-800 text-white')}
         {stat('Waiting for signature', stats.toSign, '/admin/contracts/sent', FileSignature, 'bg-amber-800 text-white')}
         {stat('In contract', stats.inContract, '/admin/contracts/sent', CheckCircle, 'bg-green-800 text-white')}
       </div>
@@ -122,14 +128,18 @@ export default function AdminDashboard() {
           : (
             <div className="space-y-2">
               {notices.map(n => (
-                <Link key={n.key} href={n.href} className="flex items-start gap-3 rounded-xl bg-slate-900/60 border border-white/25 p-3 hover:border-white/30">
+                <div key={n.key} className="flex items-start gap-3 rounded-xl bg-slate-900/60 border border-white/25 p-3">
                   <div className={`w-9 h-9 rounded-lg ${n.tone} flex items-center justify-center flex-shrink-0`}><n.icon className="w-5 h-5" /></div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-white">{n.title}</p>
                     {n.detail && <p className="text-sm text-white line-clamp-2">{n.detail}</p>}
+                    <div className="flex flex-wrap items-center gap-2 mt-2">
+                      <Link href={n.href} className="px-3 py-1.5 rounded-lg bg-white text-slate-950 text-sm font-bold">{n.open || 'Open'}</Link>
+                      {n.second && <Link href={n.second.href} className="px-3 py-1.5 rounded-lg bg-slate-700 text-white text-sm font-semibold">{n.second.label}</Link>}
+                      <span className="text-xs text-white ml-auto">{ago(n.when)}</span>
+                    </div>
                   </div>
-                  <span className="text-xs text-white flex-shrink-0 mt-1">{ago(n.when)}</span>
-                </Link>
+                </div>
               ))}
             </div>
           )}

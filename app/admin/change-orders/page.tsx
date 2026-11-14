@@ -215,8 +215,8 @@ export default function ChangeOrdersPage() {
       {wasSent && <SentNotice what="change order" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
-        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
-        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
+        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-white text-slate-950 font-bold shadow' : 'text-white hover:bg-white/10'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
+        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-white text-slate-950 font-bold shadow' : 'text-white hover:bg-white/10'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
       </div>
 
       {tab === 'edit' ? (

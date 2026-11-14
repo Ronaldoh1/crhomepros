@@ -16,6 +16,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
   const pathname = usePathname()
   const { user, signOut } = useAuth()
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    estimates: true,
     invoices: true,
     changeOrders: true,
     contracts: true,
@@ -27,29 +28,46 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
 
   const isActive = (href: string) => pathname === href
 
-  const navLink = (href: string, icon: React.ReactNode, label: string, indent = false) => (
+  // Each kind of document has its own color, so the menu reads at a glance
+  const TONES = {
+    sky: { head: 'bg-sky-600', rail: 'border-sky-400', dot: 'bg-sky-400' },
+    violet: { head: 'bg-violet-600', rail: 'border-violet-400', dot: 'bg-violet-400' },
+    orange: { head: 'bg-orange-600', rail: 'border-orange-400', dot: 'bg-orange-400' },
+  } as const
+  type Tone = keyof typeof TONES
+
+  // The page you are on is a solid white row: easy to tell apart from the rest
+  const navLink = (href: string, icon: React.ReactNode, label: string, tone?: Tone) => (
     <Link
       href={href}
       onClick={onClose}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${indent ? 'ml-6' : ''
-        } ${isActive(href)
-          ? 'bg-blue-800 text-white border border-blue-300'
-          : 'text-white hover:text-white hover:bg-white/5'
+      aria-current={isActive(href) ? 'page' : undefined}
+      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-all ${isActive(href)
+        ? 'bg-white text-slate-950 font-bold shadow'
+        : 'text-white font-medium hover:bg-white/10'
         }`}
     >
-      {icon}
+      {tone ? <span className={`w-2 h-2 rounded-full flex-shrink-0 ${TONES[tone].dot}`} /> : icon}
       {label}
     </Link>
   )
 
-  const sectionHeader = (key: string, icon: React.ReactNode, label: string) => (
-    <button
-      onClick={() => toggleSection(key)}
-      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-white hover:text-white hover:bg-white/5 transition-all"
-    >
-      <span className="flex items-center gap-3">{icon} {label}</span>
-      {expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-    </button>
+  const section = (key: string, tone: Tone, step: number, icon: React.ReactNode, label: string, links: [string, string][]) => (
+    <div className="pt-2">
+      <button
+        onClick={() => toggleSection(key)}
+        aria-expanded={!!expandedSections[key]}
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-white ${TONES[tone].head}`}
+      >
+        <span className="flex items-center gap-2.5"><span className="w-5 h-5 rounded-full bg-white text-slate-950 text-xs font-extrabold flex items-center justify-center">{step}</span>{icon} {label}</span>
+        {expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+      </button>
+      {expandedSections[key] && (
+        <div className={`ml-3 mt-1 pl-2 border-l-4 space-y-0.5 ${TONES[tone].rail}`}>
+          {links.map(([href, text]) => <div key={href}>{navLink(href, null, text, tone)}</div>)}
+        </div>
+      )}
+    </div>
   )
 
   return (
@@ -77,33 +95,26 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
       {/* Nav */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {navLink('/admin', <LayoutDashboard className="w-4 h-4" />, 'Dashboard')}
-        {navLink('/admin/field-notes', <Camera className="w-4 h-4" />, 'Field Estimates')}
 
-        <div className="pt-3">
-          {sectionHeader('invoices', <Receipt className="w-4 h-4" />, 'Invoices')}
-          {expandedSections.invoices && (
-            <div className="space-y-0.5 mt-0.5">
-              {navLink('/admin/invoices', <FilePlus className="w-4 h-4" />, 'Generate Invoice', true)}
-              {navLink('/admin/invoices/drafts', <FileText className="w-4 h-4" />, 'Drafts', true)}
-              {navLink('/admin/invoices/sent', <FolderOpen className="w-4 h-4" />, 'Sent Invoices', true)}
-            </div>
-          )}
-        </div>
-
-        <div className="pt-1">
-          {sectionHeader('contracts', <Briefcase className="w-4 h-4" />, 'Contracts')}
-          {expandedSections.contracts && (
-            <div className="space-y-0.5 mt-0.5">
-              {navLink('/admin/contracts', <FilePlus className="w-4 h-4" />, 'Generate Contract', true)}
-              {navLink('/admin/contracts/drafts', <FileText className="w-4 h-4" />, 'Drafts', true)}
-              {navLink('/admin/contracts/sent', <FolderOpen className="w-4 h-4" />, 'Sent Contracts', true)}
-            </div>
-          )}
-        </div>
+        {/* The three documents, in the order a job moves through them */}
+        {section('estimates', 'sky', 1, <Camera className="w-4 h-4" />, 'Estimates', [
+          ['/admin/estimates/new', 'Generate Estimate'],
+          ['/admin/estimates/drafts', 'Draft Estimates'],
+          ['/admin/estimates/sent', 'Sent Estimates'],
+        ])}
+        {section('contracts', 'violet', 2, <Briefcase className="w-4 h-4" />, 'Contracts', [
+          ['/admin/contracts', 'Generate Contract'],
+          ['/admin/contracts/drafts', 'Draft Contracts'],
+          ['/admin/contracts/sent', 'Sent Contracts'],
+        ])}
+        {section('invoices', 'orange', 3, <Receipt className="w-4 h-4" />, 'Invoices', [
+          ['/admin/invoices/drafts', 'Invoices to Approve'],
+          ['/admin/invoices/sent', 'Sent Invoices'],
+        ])}
 
         <div className="pt-3 border-t border-white/25 mt-3">
           {navLink('/admin/documents', <FileSignature className="w-4 h-4" />, 'Signed Documents')}
-          {navLink('/admin/leads', <FileText className="w-4 h-4" />, 'Leads')}
+          {navLink('/admin/leads', <FileText className="w-4 h-4" />, 'Leads and Referrals')}
           {navLink('/admin/messages', <MessageSquare className="w-4 h-4" />, 'Client Messages')}
           {navLink('/admin/past-projects', <Images className="w-4 h-4" />, 'Past Projects')}
         </div>
