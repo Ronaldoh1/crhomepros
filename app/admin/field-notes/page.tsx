@@ -14,6 +14,7 @@ import { adminFetch } from '@/lib/admin-api'
 import { shrinkPhoto } from '@/lib/shrink-photo'
 import { emailKey, phoneKey } from '@/lib/client-keys'
 import { useToast } from '../_components/Toast'
+import { SendSummary } from '../_components/SendSummary'
 import { ConfirmDialog, useUnsavedWarning } from '../_components/DocumentGuards'
 
 const emptyForm = {
@@ -441,15 +442,20 @@ export default function FieldEstimatesPage() {
         </div>
       )}
 
-      <ConfirmDialog
-        open={!!toShare}
-        title={`Send this estimate to ${toShare?.clientName || 'the client'}?`}
-        confirmLabel="Yes, send it" onCancel={() => setToShare(null)} onConfirm={() => toShare && shareWithClient(toShare)}
-      >
-        <p>{toShare?.clientEmail} gets an email with a private link to their page.</p>
-        <p>There they see the <strong>job name, your price, the next steps and the photos</strong>. They do not see your site notes, measurements or materials.</p>
-        <p>They can write you a note from that page. You will see it on your dashboard.</p>
-      </ConfirmDialog>
+      <SendSummary
+        open={!!toShare} kind="Estimate"
+        clientName={toShare?.clientName || ''} clientEmail={toShare?.clientEmail || ''} project={toShare?.projectName}
+        rows={[
+          { label: 'Photos the client will see', value: String(toShare?.photos?.length || 0) },
+          ...(toShare?.nextSteps ? [{ label: 'Next steps', value: toShare.nextSteps }] : []),
+          { label: 'Kept private', value: 'Site notes, measurements, materials' },
+        ]}
+        totalLabel="Estimated price" total={toShare?.estimatedCost || 'Not set'}
+        note="The client gets an email with a private link to their page, where they can see this and write you a note."
+        checks={[!toShare?.estimatedCost && 'There is no estimated price on this estimate.']}
+        sending={false} sendLabel="Send estimate"
+        onEdit={() => { const n = toShare; setToShare(null); if (n) startEdit(n) }} onSend={() => toShare && shareWithClient(toShare)}
+      />
 
       <ConfirmDialog
         open={!!toDiscard} danger

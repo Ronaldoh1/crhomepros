@@ -15,6 +15,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../_components/Toast'
 import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
+import { SendSummary, PercentInput } from '../_components/SendSummary'
 
 interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
 
@@ -303,11 +304,17 @@ export default function InvoicesPage() {
             </div>
             <button onClick={addItem} className="mt-4 flex items-center gap-2 text-sm text-blue-300 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-700"><Plus className="w-4 h-4" /> Add Line Item</button>
             <div className="mt-6 pt-4 border-t border-white/25 space-y-2 text-right">
-              <div className="text-white text-sm">Subtotal: <span className="text-white font-medium ml-2">{fmt(subtotal)}</span></div>
+              <div className="text-white">Subtotal: <span className="font-semibold ml-2">{fmt(subtotal)}</span></div>
               <div className="flex items-center justify-end gap-2">
-                <span className="text-white text-sm">Tax</span>
-                <input type="number" value={inv.taxRate} onChange={e => updateField('taxRate', Number(e.target.value))} className="w-16 bg-slate-800 border border-white/25 rounded-lg px-2 py-1 text-white text-sm text-center" />
-                <span className="text-white text-sm">%: <span className="text-white font-medium ml-1">{fmt(tax)}</span></span>
+                <label className="text-white">Sales tax</label>
+                <PercentInput value={inv.taxRate} onChange={n => updateField('taxRate', n)} className="w-24 bg-slate-800 border-2 border-white/40 rounded-lg px-3 py-2 text-white text-base text-right font-semibold outline-none focus:border-blue-400" />
+                <span className="text-white text-lg font-semibold">%</span>
+              </div>
+              <p className="text-sm text-white">Type the number only: 6 means 6.00%, 6.5 means 6.50%. Leave it empty for no tax.</p>
+              {/* what is being charged, spelled out */}
+              <div className={`ml-auto w-full sm:w-80 rounded-xl border-2 p-3 text-left ${inv.taxRate > 0 ? 'border-amber-300 bg-amber-800' : 'border-white/30 bg-slate-800'}`}>
+                <div className="flex items-center justify-between gap-3 text-white"><span className="text-sm font-medium">Tax rate</span><span className="text-lg font-bold">{inv.taxRate.toFixed(2)}%</span></div>
+                <div className="flex items-center justify-between gap-3 text-white mt-1"><span className="text-sm font-medium">Tax you are charging</span><span className="text-lg font-bold">{fmt(tax)}</span></div>
               </div>
               <div className="text-lg font-bold text-white pt-2 border-t border-white/25">Total: {fmt(total)}</div>
             </div>
@@ -352,7 +359,7 @@ export default function InvoicesPage() {
             </table>
             <div className="flex justify-end mb-8"><div className="w-64 space-y-1.5 text-sm">
               <div className="flex justify-between text-slate-600"><span>Subtotal</span><span>{fmt(subtotal)}</span></div>
-              {inv.taxRate > 0 && <div className="flex justify-between text-slate-600"><span>Tax ({inv.taxRate}%)</span><span>{fmt(tax)}</span></div>}
+              {inv.taxRate > 0 && <div className="flex justify-between text-slate-600"><span>Tax ({inv.taxRate.toFixed(2)}%)</span><span>{fmt(tax)}</span></div>}
               <div className="flex justify-between text-lg font-bold text-blue-900 pt-2 border-t-2 border-blue-900"><span>TOTAL</span><span>{fmt(total)}</span></div>
             </div></div>
             {inv.notes && <div className="bg-slate-50 rounded-xl p-4 mb-8"><p className="text-xs font-bold text-blue-900 uppercase mb-2">Notes</p><p className="text-sm text-slate-600 whitespace-pre-line">{inv.notes}</p></div>}
@@ -368,24 +375,21 @@ export default function InvoicesPage() {
         </div>
       )}
 
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/25 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-300" /> Send Invoice</h3>
-            <div className="space-y-4">
-              <div><label className={lc}>To</label><input value={inv.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
-              <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
-              <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
-              <SendChecks items={[!inv.signatureData && 'There is no signature on this invoice.', total <= 0 && 'The total is $0.00.', inv.isCorrection && 'This goes out marked as a CORRECTION.']} />
-              <p className="text-xs text-white">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-sm">Cancel</button>
-              <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SendSummary
+        open={showEmailModal} kind={inv.isCorrection ? 'Corrected Invoice' : 'Invoice'} number={inv.number}
+        clientName={inv.clientName} clientEmail={inv.clientEmail} project={inv.projectName}
+        rows={[
+          { label: `${inv.items.filter(i => i.description || i.unitPrice).length} line item${inv.items.filter(i => i.description || i.unitPrice).length === 1 ? '' : 's'}`, value: fmt(subtotal) },
+          { label: `Sales tax (${inv.taxRate.toFixed(2)}%)`, value: fmt(tax), highlight: inv.taxRate > 0 },
+          ...(inv.dueDate ? [{ label: 'Due', value: inv.dueDate }] : []),
+        ]}
+        totalLabel="Total due" total={fmt(total)}
+        note="The PDF is attached to the email. You get a copy, and replies come to crhomepros@gmail.com."
+        checks={[!inv.signatureData && 'There is no signature on this invoice.', total <= 0 && 'The total is $0.00.', inv.isCorrection && 'This goes out marked as a CORRECTION.']}
+        subject={emailSubject} onSubject={setEmailSubject} message={emailBody} onMessage={setEmailBody}
+        sending={sending} sendLabel={inv.isCorrection ? 'Send correction' : 'Send invoice'}
+        onEdit={() => setShowEmailModal(false)} onSend={handleSend}
+      />
       <ConfirmDialog
         open={confirmCorrection}
         title="This invoice was already sent"

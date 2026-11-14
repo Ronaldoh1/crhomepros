@@ -14,6 +14,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../_components/Toast'
 import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
+import { SendSummary } from '../_components/SendSummary'
 
 interface ScopeItem { id: string; description: string }
 
@@ -411,24 +412,21 @@ export default function ContractsPage() {
         </div>
       )}
 
-      {showEmailModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/25 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-300" /> Send Contract</h3>
-            <div className="space-y-4">
-              <div><label className={lc}>To</label><input value={ct.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
-              <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
-              <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
-              <SendChecks items={[!ct.signatureData && 'There is no signature on this contract.', ct.isCorrection && 'This goes out marked as a CORRECTION.']} />
-              <p className="text-xs text-white">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
-            </div>
-            <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-sm">Cancel</button>
-              <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
-            </div>
-          </div>
-        </div>
-      )}
+      <SendSummary
+        open={showEmailModal} kind={ct.isCorrection ? 'Corrected Contract' : 'Contract'} number={ct.number}
+        clientName={ct.clientName} clientEmail={ct.clientEmail} project={ct.projectTitle || ct.projectName}
+        rows={[
+          { label: 'Scope of work', value: `${ct.scopeItems.filter(x => x.description).length} item${ct.scopeItems.filter(x => x.description).length === 1 ? '' : 's'}` },
+          ...(ct.propertyAddress ? [{ label: 'Job address', value: ct.propertyAddress }] : []),
+          { label: 'Payments', value: `${ct.paymentStructure.split('\n').filter(l => l.trim()).length} step${ct.paymentStructure.split('\n').filter(l => l.trim()).length === 1 ? '' : 's'}`, highlight: !!paymentMismatch },
+        ]}
+        totalLabel="Contract total" total={fmt(ct.totalAmount)}
+        note="The client gets the PDF and a button to review and sign it online. You are told the moment they sign."
+        checks={[!ct.signatureData && 'There is no signature on this contract.', ct.totalAmount <= 0 && 'The total is $0.00.', !!paymentMismatch && `The payments add up to ${fmt(paymentMismatch)}, not the contract total.`, ct.isCorrection && 'This goes out marked as a CORRECTION.']}
+        subject={emailSubject} onSubject={setEmailSubject} message={emailBody} onMessage={setEmailBody}
+        sending={sending} sendLabel={ct.isCorrection ? 'Send correction' : 'Send contract'}
+        onEdit={() => setShowEmailModal(false)} onSend={handleSend}
+      />
       <ConfirmDialog
         open={confirmCorrection}
         title="This contract was already sent"

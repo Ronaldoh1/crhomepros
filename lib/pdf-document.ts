@@ -230,7 +230,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
     right(`Subtotal:  ${money(subtotal)}`, W - M, y, 10, font, GRAY)
     y -= 16
     if (taxRate > 0) {
-      right(`Tax (${taxRate}%):  ${money(tax)}`, W - M, y, 10, font, GRAY)
+      right(`Tax (${taxRate.toFixed(2)}%):  ${money(tax)}`, W - M, y, 10, font, GRAY)
       y -= 16
     }
     y -= 16
