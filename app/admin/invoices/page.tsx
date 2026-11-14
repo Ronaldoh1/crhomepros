@@ -221,28 +221,28 @@ export default function InvoicesPage() {
   }
 
   const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  const ic = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
+  const ic = "w-full bg-slate-800 border border-white/25 rounded-xl px-4 py-3 text-white placeholder-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
   const dic = ic + " [color-scheme:dark]"
-  const lc = "text-sm font-medium text-slate-300 mb-1.5 block"
+  const lc = "text-sm font-medium text-white mb-1.5 block"
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <DollarSign className="w-6 h-6 text-blue-400" />
+            <DollarSign className="w-6 h-6 text-blue-300" />
             {inv.isCorrection ? 'Correction Invoice' : 'Create Invoice'}
           </h1>
-          <p className="text-slate-300 text-sm mt-1">Generate professional invoices for your clients</p>
+          <p className="text-white text-sm mt-1">Generate professional invoices for your clients</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Link href="/admin/invoices/drafts" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2">
+          <Link href="/admin/invoices/drafts" className="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-2">
             <Pencil className="w-4 h-4" /> Drafts
           </Link>
-          <Link href="/admin/invoices/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2">
+          <Link href="/admin/invoices/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-2">
             <FileText className="w-4 h-4" /> Sent
           </Link>
-          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-300 text-sm ${wasSent ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
+          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-800 text-white text-sm ${wasSent ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <input type="checkbox" checked={inv.isCorrection || wasSent} disabled={wasSent} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
             <AlertTriangle className="w-3.5 h-3.5" /> Correction
           </label>
@@ -251,23 +251,23 @@ export default function InvoicesPage() {
 
       {wasSent && <SentNotice what="invoice" />}
       {estimate && (
-        <div className="mb-6 rounded-xl border border-blue-400/40 bg-blue-500/10 p-4 text-sm text-blue-50">
+        <div className="mb-6 rounded-xl border border-blue-300 bg-blue-800 p-4 text-sm text-white">
           <p className="font-semibold text-white">Made from the field estimate for {estimate.clientName || 'this client'}.</p>
           <p className="mt-1">One estimate gets one invoice. {savedId ? 'They are now linked.' : 'They are linked when you save.'} {estimate.reopened && 'The client declined this estimate at first and later came back.'}</p>
           {!savedId && estimate.cost && <p className="mt-1">Estimated cost on the estimate: <strong className="text-white">{estimate.cost}</strong>. Check the price below before you send.</p>}
-          <Link href="/admin/field-notes" className="mt-2 inline-block text-blue-200 underline">Back to Field Estimates</Link>
+          <Link href="/admin/field-notes" className="mt-2 inline-block text-white underline">Back to Field Estimates</Link>
         </div>
       )}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
-        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
-        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
+        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
+        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
       </div>
 
       {tab === 'edit' ? (
         <div className="space-y-6">
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Invoice Details</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-300" /> Invoice Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <div><label className={lc}>Invoice #</label><input value={inv.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={inv.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
@@ -275,8 +275,8 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /> Client Information</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-300" /> Client Information</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div><label className={lc}>Full Name</label><input value={inv.clientName} onChange={e => updateField('clientName', e.target.value)} placeholder="Monica McNutt" className={ic} /></div>
               <div><label className={lc}>Email</label><input type="email" value={inv.clientEmail} onChange={e => updateField('clientEmail', e.target.value)} placeholder="client@email.com" className={ic} /></div>
@@ -286,42 +286,42 @@ export default function InvoicesPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" /> Line Items</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-300" /> Line Items</h2>
             <div className="space-y-3">
               {inv.items.map((item, idx) => (
                 <div key={item.id} className="flex gap-3 items-start">
-                  <span className="text-slate-400 text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
+                  <span className="text-white text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
                   <div className="flex-1 grid sm:grid-cols-[1fr_80px_120px] gap-3">
                     <input value={item.description} onChange={e => updateItem(item.id, 'description', e.target.value)} placeholder="Power wash garage..." className={ic} />
                     <input type="number" value={item.quantity} onChange={e => updateItem(item.id, 'quantity', Number(e.target.value))} min={1} className={ic + ' text-center'} placeholder="Qty" />
                     <input type="number" value={item.unitPrice || ''} onChange={e => updateItem(item.id, 'unitPrice', Math.round(Number(e.target.value) * 100) / 100)} className={ic + ' text-right'} placeholder="$ 0.00" step="0.01" />
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="mt-3 text-red-400 hover:text-red-300 p-1" disabled={inv.items.length === 1}><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => removeItem(item.id)} className="mt-3 text-red-300 hover:text-red-300 p-1" disabled={inv.items.length === 1}><Trash2 className="w-4 h-4" /></button>
                 </div>
               ))}
             </div>
-            <button onClick={addItem} className="mt-4 flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-600/10"><Plus className="w-4 h-4" /> Add Line Item</button>
-            <div className="mt-6 pt-4 border-t border-white/5 space-y-2 text-right">
-              <div className="text-slate-300 text-sm">Subtotal: <span className="text-white font-medium ml-2">{fmt(subtotal)}</span></div>
+            <button onClick={addItem} className="mt-4 flex items-center gap-2 text-sm text-blue-300 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-700"><Plus className="w-4 h-4" /> Add Line Item</button>
+            <div className="mt-6 pt-4 border-t border-white/25 space-y-2 text-right">
+              <div className="text-white text-sm">Subtotal: <span className="text-white font-medium ml-2">{fmt(subtotal)}</span></div>
               <div className="flex items-center justify-end gap-2">
-                <span className="text-slate-300 text-sm">Tax</span>
-                <input type="number" value={inv.taxRate} onChange={e => updateField('taxRate', Number(e.target.value))} className="w-16 bg-slate-800 border border-white/10 rounded-lg px-2 py-1 text-white text-sm text-center" />
-                <span className="text-slate-300 text-sm">%: <span className="text-white font-medium ml-1">{fmt(tax)}</span></span>
+                <span className="text-white text-sm">Tax</span>
+                <input type="number" value={inv.taxRate} onChange={e => updateField('taxRate', Number(e.target.value))} className="w-16 bg-slate-800 border border-white/25 rounded-lg px-2 py-1 text-white text-sm text-center" />
+                <span className="text-white text-sm">%: <span className="text-white font-medium ml-1">{fmt(tax)}</span></span>
               </div>
-              <div className="text-lg font-bold text-white pt-2 border-t border-white/10">Total: {fmt(total)}</div>
+              <div className="text-lg font-bold text-white pt-2 border-t border-white/25">Total: {fmt(total)}</div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6"><label className={lc}>Notes</label><textarea value={inv.notes} onChange={e => updateField('notes', e.target.value)} rows={3} className={ic} /></div>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6"><label className={lc}>Notes</label><textarea value={inv.notes} onChange={e => updateField('notes', e.target.value)} rows={3} className={ic} /></div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
             {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
-            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600/30 text-sm"><Eye className="w-4 h-4" /> Preview</button>
+            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
             <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!inv.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
           </div>
@@ -370,17 +370,17 @@ export default function InvoicesPage() {
 
       {showEmailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-400" /> Send Invoice</h3>
+          <div className="bg-slate-900 border border-white/25 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-300" /> Send Invoice</h3>
             <div className="space-y-4">
               <div><label className={lc}>To</label><input value={inv.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
               <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
               <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
               <SendChecks items={[!inv.signatureData && 'There is no signature on this invoice.', total <= 0 && 'The total is $0.00.', inv.isCorrection && 'This goes out marked as a CORRECTION.']} />
-              <p className="text-xs text-slate-300">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
+              <p className="text-xs text-white">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm">Cancel</button>
+              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-sm">Cancel</button>
               <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
             </div>
           </div>

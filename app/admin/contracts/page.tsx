@@ -259,20 +259,20 @@ export default function ContractsPage() {
   }
 
   const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  const ic = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
+  const ic = "w-full bg-slate-800 border border-white/25 rounded-xl px-4 py-3 text-white placeholder-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
   const dic = ic + " [color-scheme:dark]"
-  const lc = "text-sm font-medium text-slate-300 mb-1.5 block"
+  const lc = "text-sm font-medium text-white mb-1.5 block"
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Briefcase className="w-6 h-6 text-blue-400" /> {ct.isCorrection ? 'Corrected Contract' : 'Create Contract'}</h1>
-          <p className="text-slate-300 text-sm mt-1">Professional scope of work and agreement</p>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Briefcase className="w-6 h-6 text-blue-300" /> {ct.isCorrection ? 'Corrected Contract' : 'Create Contract'}</h1>
+          <p className="text-white text-sm mt-1">Professional scope of work and agreement</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Link href="/admin/contracts/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2"><FileText className="w-4 h-4" /> Sent</Link>
-          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-300 text-sm ${wasSent ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
+          <Link href="/admin/contracts/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-2"><FileText className="w-4 h-4" /> Sent</Link>
+          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-800 text-white text-sm ${wasSent ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <input type="checkbox" checked={ct.isCorrection || wasSent} disabled={wasSent} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
             <AlertTriangle className="w-3.5 h-3.5" /> Correction
           </label>
@@ -280,21 +280,21 @@ export default function ContractsPage() {
       </div>
 
       {signedBy ? (
-        <div className="mb-6 rounded-xl border border-green-400/50 bg-green-500/15 p-4 text-sm text-green-50">
+        <div className="mb-6 rounded-xl border border-green-300 bg-green-800 p-4 text-sm text-white">
           <p className="font-semibold text-white">In contract: signed by {signedBy.name || 'the client'}{signedBy.signedAt ? ` on ${new Date(signedBy.signedAt).toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}` : ''}.</p>
           <p className="mt-1">A signed contract cannot be changed or sent again. You can still open the PDF, which shows both signatures. If the job changes, make a new contract.</p>
         </div>
       ) : wasSent && <SentNotice what="contract" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
-        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
-        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
+        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
+        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
       </div>
 
       {tab === 'edit' ? (
         <div className="space-y-6">
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Contract Details</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-300" /> Contract Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <div><label className={lc}>Contract #</label><input value={ct.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={ct.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
@@ -302,8 +302,8 @@ export default function ContractsPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /> Client & Property</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-300" /> Client & Property</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div><label className={lc}>Client Name</label><input value={ct.clientName} onChange={e => updateField('clientName', e.target.value)} placeholder="Ishaan Tharoor" className={ic} /></div>
               <div><label className={lc}>Email</label><input type="email" value={ct.clientEmail} onChange={e => updateField('clientEmail', e.target.value)} className={ic} /></div>
@@ -314,52 +314,52 @@ export default function ContractsPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" /> Scope of Work</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-300" /> Scope of Work</h2>
             <div className="space-y-3">
               {ct.scopeItems.map((item, idx) => (
                 <div key={item.id} className="flex gap-3 items-start">
-                  <span className="text-slate-300 text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
+                  <span className="text-white text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
                   <textarea value={item.description} onChange={e => updateScope(item.id, e.target.value)} placeholder="Protect all furniture with plastic and floors with drop cloth..." rows={2} className={ic + ' flex-1'} />
-                  <button onClick={() => removeScope(item.id)} className="mt-3 text-red-400 hover:text-red-300 p-1" disabled={ct.scopeItems.length === 1}><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => removeScope(item.id)} className="mt-3 text-red-300 hover:text-red-300 p-1" disabled={ct.scopeItems.length === 1}><Trash2 className="w-4 h-4" /></button>
                 </div>
               ))}
             </div>
-            <button onClick={addScope} className="mt-4 flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-600/10"><Plus className="w-4 h-4" /> Add Scope Item</button>
+            <button onClick={addScope} className="mt-4 flex items-center gap-2 text-sm text-blue-300 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-700"><Plus className="w-4 h-4" /> Add Scope Item</button>
             <div className="mt-4"><label className={lc}>Scope Note</label><textarea value={ct.scopeNote} onChange={e => updateField('scopeNote', e.target.value)} rows={2} className={ic} /></div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4">Payment Structure</h2>
-            <p className="text-sm text-slate-100 mb-3">Pick a split to fill it in from the total, then change the wording any way you like. Nothing here is fixed.</p>
+            <p className="text-sm text-white mb-3">Pick a split to fill it in from the total, then change the wording any way you like. Nothing here is fixed.</p>
             <div className="flex flex-wrap gap-2 mb-3">
               {PAYMENT_PRESETS.map(preset => (
                 <button key={preset.label} type="button" disabled={!ct.totalAmount} onClick={() => updateField('paymentStructure', paymentText(ct.totalAmount, preset.parts))}
                   className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 disabled:opacity-50">{preset.label}</button>
               ))}
-              <button type="button" onClick={() => updateField('paymentStructure', '')} className="text-sm px-3 py-2 rounded-lg bg-slate-800 border border-white/15 text-white hover:bg-slate-700">Clear and write my own</button>
+              <button type="button" onClick={() => updateField('paymentStructure', '')} className="text-sm px-3 py-2 rounded-lg bg-slate-800 border border-white/30 text-white hover:bg-slate-700">Clear and write my own</button>
             </div>
             <textarea value={ct.paymentStructure} onChange={e => updateField('paymentStructure', e.target.value)} rows={5} placeholder="Example: $5,000.00 USD when client authorizes work agreement..." className={ic} />
-            {!ct.totalAmount && <p className="text-sm text-slate-100 mt-2">Enter the contract total first to use the buttons.</p>}
+            {!ct.totalAmount && <p className="text-sm text-white mt-2">Enter the contract total first to use the buttons.</p>}
             {paymentMismatch && (
-              <p className="mt-2 rounded-lg border border-amber-400/50 bg-amber-500/15 px-3 py-2 text-sm text-amber-50">The payments written here add up to <strong className="text-white">{fmt(paymentMismatch)}</strong>, but the contract total is <strong className="text-white">{fmt(ct.totalAmount)}</strong>. Check the amounts or press a split button again.</p>
+              <p className="mt-2 rounded-lg border border-amber-300 bg-amber-800 px-3 py-2 text-sm text-white">The payments written here add up to <strong className="text-white">{fmt(paymentMismatch)}</strong>, but the contract total is <strong className="text-white">{fmt(ct.totalAmount)}</strong>. Check the amounts or press a split button again.</p>
             )}
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4">Terms & Conditions</h2>
             <textarea value={ct.contractTerms} onChange={e => updateField('contractTerms', e.target.value)} rows={6} className={ic} />
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6"><label className={lc}>Additional Notes</label><textarea value={ct.notes} onChange={e => updateField('notes', e.target.value)} rows={2} className={ic} /></div>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6"><label className={lc}>Additional Notes</label><textarea value={ct.notes} onChange={e => updateField('notes', e.target.value)} rows={2} className={ic} /></div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
             {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
-            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600/30 text-sm"><Eye className="w-4 h-4" /> Preview</button>
+            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
             {!signedBy && <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>}
           </div>
@@ -413,17 +413,17 @@ export default function ContractsPage() {
 
       {showEmailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-400" /> Send Contract</h3>
+          <div className="bg-slate-900 border border-white/25 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-300" /> Send Contract</h3>
             <div className="space-y-4">
               <div><label className={lc}>To</label><input value={ct.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
               <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
               <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
               <SendChecks items={[!ct.signatureData && 'There is no signature on this contract.', ct.isCorrection && 'This goes out marked as a CORRECTION.']} />
-              <p className="text-xs text-slate-200">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
+              <p className="text-xs text-white">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm">Cancel</button>
+              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-sm">Cancel</button>
               <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
             </div>
           </div>

@@ -34,11 +34,11 @@ export function PdfDialog({ pdf, onClose }: { pdf: ReadyPdf | null; onClose: () 
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="PDF ready">
-      <div className="bg-slate-900 border border-white/15 rounded-2xl p-5 sm:p-6 w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl">
+      <div className="bg-slate-900 border border-white/30 rounded-2xl p-5 sm:p-6 w-full max-w-2xl max-h-[92vh] flex flex-col shadow-2xl">
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-green-500/25 flex items-center justify-center flex-shrink-0"><FileText className="w-5 h-5 text-green-200" /></div>
-            <div className="min-w-0"><h3 className="text-lg font-bold text-white">Your PDF is ready</h3><p className="text-sm text-slate-100 truncate">{pdf.filename}</p></div>
+            <div className="w-10 h-10 rounded-xl bg-green-800 flex items-center justify-center flex-shrink-0"><FileText className="w-5 h-5 text-white" /></div>
+            <div className="min-w-0"><h3 className="text-lg font-bold text-white">Your PDF is ready</h3><p className="text-sm text-white truncate">{pdf.filename}</p></div>
           </div>
           <button onClick={onClose} aria-label="Close" className="text-white p-1"><X className="w-6 h-6" /></button>
         </div>

@@ -73,14 +73,14 @@ export function AdminTour() {
 
   return (
     <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Admin portal walkthrough">
-      <div className="bg-slate-900 border border-blue-400/40 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+      <div className="bg-slate-900 border border-blue-300 rounded-2xl p-6 max-w-md w-full shadow-2xl">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-blue-200">Step {step + 1} of {STEPS.length}</p>
-          <button onClick={() => setOpen(false)} aria-label="Close walkthrough" className="text-slate-200 hover:text-white"><X className="w-5 h-5" /></button>
+          <p className="text-xs font-semibold uppercase tracking-wide text-white">Step {step + 1} of {STEPS.length}</p>
+          <button onClick={() => setOpen(false)} aria-label="Close walkthrough" className="text-white hover:text-white"><X className="w-5 h-5" /></button>
         </div>
-        <div className="w-12 h-12 rounded-xl bg-blue-600/30 flex items-center justify-center mb-4"><Icon className="w-6 h-6 text-blue-200" /></div>
+        <div className="w-12 h-12 rounded-xl bg-blue-800 flex items-center justify-center mb-4"><Icon className="w-6 h-6 text-white" /></div>
         <h3 className="text-xl font-bold text-white mb-2">{s.title}</h3>
-        <p className="text-base text-slate-100 leading-relaxed">{s.body}</p>
+        <p className="text-base text-white leading-relaxed">{s.body}</p>
 
         <div className="flex gap-1.5 mt-5" aria-hidden="true">
           {STEPS.map((_, i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i <= step ? 'bg-blue-400' : 'bg-slate-700'}`} />)}
@@ -93,7 +93,7 @@ export function AdminTour() {
           <button onClick={() => (last ? setOpen(false) : setStep(step + 1))} className="flex-1 px-4 py-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 text-sm font-medium">{last ? 'Got it' : 'Next'}</button>
         </div>
 
-        <p className="mt-4 text-sm text-amber-100">
+        <p className="mt-4 text-sm text-white">
           {showNumber === 0
             ? 'You opened this from the menu. You can open it again any time.'
             : left > 0

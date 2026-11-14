@@ -50,9 +50,9 @@ export default function LeadsPage() {
   }
   const ClientBadge = ({ email, phone }: { email?: string; phone?: string }) => {
     const level = clientLevel(email, phone)
-    return level === 'in-contract' ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-500/25 text-green-100 text-sm"><CheckCircle className="w-3.5 h-3.5" /> Past client: signed a contract with you</span>
-      : level === 'client' ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/25 text-blue-100 text-sm"><CheckCircle className="w-3.5 h-3.5" /> In your records: has an invoice or contract</span>
-      : <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-600/60 text-white text-sm"><HelpCircle className="w-3.5 h-3.5" /> Not found in your clients</span>
+    return level === 'in-contract' ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-800 text-white text-sm"><CheckCircle className="w-3.5 h-3.5" /> Past client: signed a contract with you</span>
+      : level === 'client' ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-800 text-white text-sm"><CheckCircle className="w-3.5 h-3.5" /> In your records: has an invoice or contract</span>
+      : <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-700 text-white text-sm"><HelpCircle className="w-3.5 h-3.5" /> Not found in your clients</span>
   }
 
   const setStatus = async (r: Row, status: string) => {
@@ -65,7 +65,7 @@ export default function LeadsPage() {
   }
   const name = (r: Row) => [r.firstName, r.lastName].filter(Boolean).join(' ') || r.name || r.email
 
-  const card = 'bg-slate-800/50 border border-white/10 rounded-2xl p-4 sm:p-5'
+  const card = 'bg-slate-800/50 border border-white/25 rounded-2xl p-4 sm:p-5'
   const btn = 'text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5'
   const contactButtons = (phone?: string, email?: string) => (
     <div className="flex flex-wrap gap-2 mt-3">
@@ -89,36 +89,36 @@ export default function LeadsPage() {
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Users className="w-6 h-6 text-cyan-300" /> Leads and Referrals</h1>
-      <p className="text-slate-100 text-sm mt-1 mb-5">Everyone who asked for an estimate or wrote from the website, and every referral.</p>
+      <p className="text-white text-sm mt-1 mb-5">Everyone who asked for an estimate or wrote from the website, and every referral.</p>
 
       <div className="flex flex-wrap items-center gap-2 mb-5">
-        <button onClick={() => setTab('leads')} className={`px-4 py-2 rounded-full text-sm font-medium border ${tab === 'leads' ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/15'}`}>Requests {newLeads > 0 && <span className="ml-1 px-1.5 rounded-full bg-red-600 text-white text-xs">{newLeads}</span>}</button>
-        <button onClick={() => setTab('referrals')} className={`px-4 py-2 rounded-full text-sm font-medium border ${tab === 'referrals' ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/15'}`}>Referrals {newRefs > 0 && <span className="ml-1 px-1.5 rounded-full bg-red-600 text-white text-xs">{newRefs}</span>}</button>
-        <label className="ml-auto text-sm text-slate-100 flex items-center gap-2"><input type="checkbox" checked={showClosed} onChange={e => setShowClosed(e.target.checked)} className="w-4 h-4" /> Show won and lost</label>
+        <button onClick={() => setTab('leads')} className={`px-4 py-2 rounded-full text-sm font-medium border ${tab === 'leads' ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/30'}`}>Requests {newLeads > 0 && <span className="ml-1 px-1.5 rounded-full bg-red-600 text-white text-xs">{newLeads}</span>}</button>
+        <button onClick={() => setTab('referrals')} className={`px-4 py-2 rounded-full text-sm font-medium border ${tab === 'referrals' ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/30'}`}>Referrals {newRefs > 0 && <span className="ml-1 px-1.5 rounded-full bg-red-600 text-white text-xs">{newRefs}</span>}</button>
+        <label className="ml-auto text-sm text-white flex items-center gap-2"><input type="checkbox" checked={showClosed} onChange={e => setShowClosed(e.target.checked)} className="w-4 h-4" /> Show won and lost</label>
       </div>
 
-      {loading ? <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
-        : error ? <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-red-50">Leads could not be loaded. {error}</div>
+      {loading ? <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-300" /></div>
+        : error ? <div className="rounded-xl border border-red-300 bg-red-800 p-4 text-white">Leads could not be loaded. {error}</div>
         : tab === 'leads' ? (
-          shownRows.length === 0 ? <div className={card + ' text-center text-slate-100 py-10'}>No open requests.</div> : (
+          shownRows.length === 0 ? <div className={card + ' text-center text-white py-10'}>No open requests.</div> : (
             <div className="space-y-3">
               {shownRows.map(r => (
                 <div key={`${r.kind}-${r.id}`} className={card}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="font-semibold text-white text-lg">{name(r)}</h3>
-                      <p className="text-sm text-slate-100">{r.kind === 'lead' ? 'Estimate request' : 'Contact message'} · {day(r.createdAt)}</p>
+                      <p className="text-sm text-white">{r.kind === 'lead' ? 'Estimate request' : 'Contact message'} · {day(r.createdAt)}</p>
                     </div>
                     {select(r.status || 'new', LEAD_STATUS, s => setStatus(r, s))}
                   </div>
                   {(r.services?.length || r.service) && <p className="mt-2 text-white font-medium">{(r.services || [r.service]).filter(Boolean).join(', ')}</p>}
-                  {(r.projectDescription || r.message) && <p className="mt-1 text-slate-100 text-sm whitespace-pre-line">{r.projectDescription || r.message}</p>}
-                  {(r.timeline || r.budget) && <p className="mt-1 text-sm text-slate-100">{[r.timeline && `When: ${r.timeline}`, r.budget && `Budget: ${r.budget}`].filter(Boolean).join(' · ')}</p>}
-                  {r.address && <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-100"><MapPin className="w-4 h-4 text-blue-300" />{[r.address, r.city, r.state, r.zip].filter(Boolean).join(', ')}</p>}
+                  {(r.projectDescription || r.message) && <p className="mt-1 text-white text-sm whitespace-pre-line">{r.projectDescription || r.message}</p>}
+                  {(r.timeline || r.budget) && <p className="mt-1 text-sm text-white">{[r.timeline && `When: ${r.timeline}`, r.budget && `Budget: ${r.budget}`].filter(Boolean).join(' · ')}</p>}
+                  {r.address && <p className="mt-2 flex items-center gap-1.5 text-sm text-white"><MapPin className="w-4 h-4 text-blue-300" />{[r.address, r.city, r.state, r.zip].filter(Boolean).join(', ')}</p>}
                   {r.referredBy?.name || r.referredBy?.email || r.referredBy?.phone ? (
-                    <div className="mt-3 rounded-xl border border-purple-400/50 bg-purple-500/15 p-3">
-                      <p className="text-sm font-semibold text-white flex items-center gap-2"><UserPlus className="w-4 h-4 text-purple-200" /> Referred by {r.referredBy.name || r.referredBy.email || r.referredBy.phone}</p>
-                      <p className="text-sm text-purple-50">{[r.referredBy.phone, r.referredBy.email].filter(Boolean).join(' · ')}</p>
+                    <div className="mt-3 rounded-xl border border-purple-300 bg-purple-800 p-3">
+                      <p className="text-sm font-semibold text-white flex items-center gap-2"><UserPlus className="w-4 h-4 text-white" /> Referred by {r.referredBy.name || r.referredBy.email || r.referredBy.phone}</p>
+                      <p className="text-sm text-white">{[r.referredBy.phone, r.referredBy.email].filter(Boolean).join(' · ')}</p>
                       <div className="mt-1.5"><ClientBadge email={r.referredBy.email} phone={r.referredBy.phone} /></div>
                     </div>
                   ) : null}
@@ -128,22 +128,22 @@ export default function LeadsPage() {
             </div>
           )
         ) : (
-          shownRefs.length === 0 ? <div className={card + ' text-center text-slate-100 py-10'}>No open referrals.</div> : (
+          shownRefs.length === 0 ? <div className={card + ' text-center text-white py-10'}>No open referrals.</div> : (
             <div className="space-y-3">
               {shownRefs.map(r => (
                 <div key={r.id} className={card}>
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <h3 className="font-semibold text-white text-lg">{r.referralName}</h3>
-                      <p className="text-sm text-slate-100">Referral · {day(r.createdAt)}{r.source === 'client-page' ? ' · sent from a client page' : r.source === 'estimate-form' ? ' · said so on the estimate form' : ''}</p>
+                      <p className="text-sm text-white">Referral · {day(r.createdAt)}{r.source === 'client-page' ? ' · sent from a client page' : r.source === 'estimate-form' ? ' · said so on the estimate form' : ''}</p>
                     </div>
                     {select(r.status || 'pending', REF_STATUS, s => setRefStatus(r, s))}
                   </div>
-                  {(r.projectType || r.projectDetails) && <p className="mt-2 text-slate-100 text-sm whitespace-pre-line">{[r.projectType, r.projectDetails].filter(Boolean).join(': ')}</p>}
+                  {(r.projectType || r.projectDetails) && <p className="mt-2 text-white text-sm whitespace-pre-line">{[r.projectType, r.projectDetails].filter(Boolean).join(': ')}</p>}
                   {contactButtons(r.referralPhone, r.referralEmail)}
-                  <div className="mt-3 rounded-xl border border-purple-400/50 bg-purple-500/15 p-3">
-                    <p className="text-sm font-semibold text-white flex items-center gap-2"><UserPlus className="w-4 h-4 text-purple-200" /> Referred by {r.referrerName || r.referrerEmail || r.referrerPhone}</p>
-                    <p className="text-sm text-purple-50">{[r.referrerPhone, r.referrerEmail].filter(Boolean).join(' · ')}</p>
+                  <div className="mt-3 rounded-xl border border-purple-300 bg-purple-800 p-3">
+                    <p className="text-sm font-semibold text-white flex items-center gap-2"><UserPlus className="w-4 h-4 text-white" /> Referred by {r.referrerName || r.referrerEmail || r.referrerPhone}</p>
+                    <p className="text-sm text-white">{[r.referrerPhone, r.referrerEmail].filter(Boolean).join(' · ')}</p>
                     <div className="mt-1.5"><ClientBadge email={r.referrerEmail} phone={r.referrerPhone} /></div>
                   </div>
                 </div>

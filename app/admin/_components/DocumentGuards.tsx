@@ -20,14 +20,14 @@ export function ConfirmDialog({
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" role="alertdialog" aria-modal="true" aria-label={title}>
-      <div className="bg-slate-900 border border-amber-400/40 rounded-2xl p-6 max-w-md w-full shadow-2xl">
+      <div className="bg-slate-900 border border-amber-300 rounded-2xl p-6 max-w-md w-full shadow-2xl">
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-amber-800 flex items-center justify-center flex-shrink-0">
             <AlertTriangle className="w-5 h-5 text-amber-300" />
           </div>
           <h3 className="text-lg font-bold text-white pt-1.5">{title}</h3>
         </div>
-        <div className="text-sm text-slate-100 leading-relaxed space-y-2">{children}</div>
+        <div className="text-sm text-white leading-relaxed space-y-2">{children}</div>
         <div className="flex gap-3 mt-6">
           <button onClick={onCancel} autoFocus className="flex-1 px-4 py-2.5 rounded-xl bg-slate-700 text-white hover:bg-slate-600 text-sm font-medium">{cancelLabel}</button>
           <button onClick={onConfirm} disabled={busy} className={`flex-1 px-4 py-2.5 rounded-xl text-white font-medium text-sm disabled:opacity-50 ${danger ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700'}`}>{confirmLabel}</button>
@@ -40,9 +40,9 @@ export function ConfirmDialog({
 /** Banner shown at the top of a document that has already been sent. */
 export function SentNotice({ what }: { what: string }) {
   return (
-    <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-400/40 bg-amber-500/10 p-4">
+    <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-300 bg-amber-800 p-4">
       <AlertTriangle className="w-5 h-5 text-amber-300 flex-shrink-0 mt-0.5" />
-      <div className="text-sm text-amber-50">
+      <div className="text-sm text-white">
         <p className="font-semibold text-white">This {what} was already sent to the client.</p>
         <p className="mt-1">You can look at it and download the PDF. If you change something and send it again, it goes out marked as a <strong>correction</strong>, so the client knows it replaces the first one.</p>
       </div>
@@ -55,9 +55,9 @@ export function SendChecks({ items }: { items: Array<string | false | null | und
   const list = items.filter(Boolean) as string[]
   if (!list.length) return null
   return (
-    <div className="rounded-xl border border-amber-400/40 bg-amber-500/10 p-3">
+    <div className="rounded-xl border border-amber-300 bg-amber-800 p-3">
       <p className="text-sm font-semibold text-white flex items-center gap-2"><AlertTriangle className="w-4 h-4 text-amber-300" /> Check before you send</p>
-      <ul className="mt-1.5 list-disc pl-5 text-sm text-amber-50 space-y-0.5">
+      <ul className="mt-1.5 list-disc pl-5 text-sm text-white space-y-0.5">
         {list.map(t => <li key={t}>{t}</li>)}
       </ul>
     </div>

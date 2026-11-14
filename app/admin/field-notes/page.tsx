@@ -24,13 +24,13 @@ type Form = typeof emptyForm
 
 // ── Status of an estimate ────────────────────
 const STATUS: Record<EstimateStatus, { label: string; hint: string; chip: string }> = {
-  new:       { label: 'New',       hint: 'Just created at the visit',               chip: 'bg-blue-500/25 text-blue-100 border-blue-400/40' },
-  quoted:    { label: 'Price given', hint: 'You told the client the price',         chip: 'bg-indigo-500/25 text-indigo-100 border-indigo-400/40' },
-  accepted:  { label: 'Accepted',  hint: 'The client said yes',                     chip: 'bg-green-500/25 text-green-100 border-green-400/40' },
-  invoiced:  { label: 'Invoiced',  hint: 'An invoice was made from it',             chip: 'bg-emerald-600/40 text-white border-emerald-300/50' },
-  declined:  { label: 'Declined',  hint: 'The client said no, for now',             chip: 'bg-orange-500/25 text-orange-100 border-orange-400/40' },
-  reopened:  { label: 'Reopened',  hint: 'The client said no, then came back',      chip: 'bg-amber-500/25 text-amber-100 border-amber-400/40' },
-  discarded: { label: 'Discarded', hint: 'Closed for good',                         chip: 'bg-slate-600/60 text-white border-slate-400/40' },
+  new:       { label: 'New',       hint: 'Just created at the visit',               chip: 'bg-blue-800 text-white border-blue-300' },
+  quoted:    { label: 'Price given', hint: 'You told the client the price',         chip: 'bg-indigo-800 text-white border-indigo-300' },
+  accepted:  { label: 'Accepted',  hint: 'The client said yes',                     chip: 'bg-green-800 text-white border-green-300' },
+  invoiced:  { label: 'Invoiced',  hint: 'An invoice was made from it',             chip: 'bg-emerald-800 text-white border-emerald-300' },
+  declined:  { label: 'Declined',  hint: 'The client said no, for now',             chip: 'bg-orange-800 text-white border-orange-300' },
+  reopened:  { label: 'Reopened',  hint: 'The client said no, then came back',      chip: 'bg-amber-800 text-white border-amber-300' },
+  discarded: { label: 'Discarded', hint: 'Closed for good',                         chip: 'bg-slate-700 text-white border-slate-400/40' },
 }
 /** What each status can change to by hand. "Invoiced" is set by creating the invoice. */
 const NEXT: Record<EstimateStatus, EstimateStatus[]> = {
@@ -208,9 +208,9 @@ export default function FieldEstimatesPage() {
     }
   }
 
-  const ic = 'w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3.5 text-white text-base placeholder-slate-400 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none'
-  const lc = 'text-sm font-medium text-slate-100 mb-1.5 block'
-  const card = 'bg-slate-800/50 border border-white/10 rounded-2xl p-4 sm:p-6'
+  const ic = 'w-full bg-slate-800 border border-white/25 rounded-xl px-4 py-3.5 text-white text-base placeholder-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none'
+  const lc = 'text-sm font-medium text-white mb-1.5 block'
+  const card = 'bg-slate-800/50 border border-white/25 rounded-2xl p-4 sm:p-6'
 
   // ── Editor ────────────────────────────────
   if (editing) return (
@@ -240,7 +240,7 @@ export default function FieldEstimatesPage() {
               ))}
             </div>
           )}
-          <p className="text-sm text-slate-100 mt-3">{photos.length === 0 ? 'No photos yet.' : `${photos.length} photo${photos.length === 1 ? '' : 's'}. They are made smaller automatically so they upload fast.`}</p>
+          <p className="text-sm text-white mt-3">{photos.length === 0 ? 'No photos yet.' : `${photos.length} photo${photos.length === 1 ? '' : 's'}. They are made smaller automatically so they upload fast.`}</p>
         </div>
 
         <div className={card}>
@@ -256,7 +256,7 @@ export default function FieldEstimatesPage() {
               </select>
             </div>
             {referredBy(form.clientEmail, form.clientPhone) && (
-              <div className="sm:col-span-2 rounded-xl border border-purple-400/50 bg-purple-500/15 p-3 text-sm text-purple-50">
+              <div className="sm:col-span-2 rounded-xl border border-purple-300 bg-purple-800 p-3 text-sm text-white">
                 <p className="font-semibold text-white">This person was referred by {referredBy(form.clientEmail, form.clientPhone).referrerName || 'a client'}.</p>
                 <p>{[referredBy(form.clientEmail, form.clientPhone).referrerPhone, referredBy(form.clientEmail, form.clientPhone).referrerEmail].filter(Boolean).join(' · ')}{referredBy(form.clientEmail, form.clientPhone).referrerIsClient ? ' · past client' : ''}</p>
               </div>
@@ -280,12 +280,12 @@ export default function FieldEstimatesPage() {
           <div className="space-y-4">
             <div><label className={lc}>Estimated cost</label><input value={form.estimatedCost} onChange={e => set('estimatedCost', e.target.value)} placeholder="Example: $15,000 to $20,000" className={ic} /></div>
             <div><label className={lc}>Next steps</label><textarea value={form.nextSteps} onChange={e => set('nextSteps', e.target.value)} rows={2} className={ic} /></div>
-            <div><label className={lc}>Follow up with the client on</label><input type="date" value={form.followUpDate} onChange={e => set('followUpDate', e.target.value)} className={ic} /><p className="text-sm text-slate-100 mt-1.5">Optional. The list reminds you when this day arrives.</p></div>
+            <div><label className={lc}>Follow up with the client on</label><input type="date" value={form.followUpDate} onChange={e => set('followUpDate', e.target.value)} className={ic} /><p className="text-sm text-white mt-1.5">Optional. The list reminds you when this day arrives.</p></div>
           </div>
         </div>
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 lg:left-64 z-30 bg-slate-950/95 backdrop-blur border-t border-white/10 p-3">
+      <div className="fixed bottom-0 inset-x-0 lg:left-64 z-30 bg-slate-950/95 backdrop-blur border-t border-white/25 p-3">
         <div className="max-w-2xl mx-auto">
           <button onClick={handleSave} disabled={!!progress} className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-green-600 text-white text-base font-semibold hover:bg-green-700 disabled:opacity-80">
             {progress ? <><Loader2 className="w-5 h-5 animate-spin" /> {progress}</> : <><Save className="w-5 h-5" /> Save estimate and photos</>}
@@ -312,7 +312,7 @@ export default function FieldEstimatesPage() {
       <div className="flex items-center justify-between gap-4 mb-5">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3"><ClipboardList className="w-6 h-6 text-blue-300" /> Field Estimates</h1>
-          <p className="text-slate-100 text-sm mt-1">Photos and notes from a job visit. Send one to the client, then turn it into a contract or an invoice.</p>
+          <p className="text-white text-sm mt-1">Photos and notes from a job visit. Send one to the client, then turn it into a contract or an invoice.</p>
         </div>
         <button onClick={startNew} className="flex-shrink-0 px-4 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700 flex items-center gap-2"><Plus className="w-5 h-5" /> New</button>
       </div>
@@ -320,18 +320,18 @@ export default function FieldEstimatesPage() {
       {!loading && !loadError && notes.length > 0 && (
         <>
           <div className="grid grid-cols-3 gap-2 mb-4">
-            <button onClick={() => setFilter('open')} className="rounded-xl bg-slate-800/70 border border-white/10 p-3 text-left"><span className="block text-2xl font-bold text-white">{count('open')}</span><span className="text-xs text-slate-100">Open</span></button>
-            <button onClick={() => setFilter('open')} className={`rounded-xl border p-3 text-left ${dueCount ? 'bg-amber-500/15 border-amber-400/50' : 'bg-slate-800/70 border-white/10'}`}><span className="block text-2xl font-bold text-white">{dueCount}</span><span className="text-xs text-slate-100">Follow-ups due</span></button>
-            <button onClick={() => setFilter('invoiced')} className="rounded-xl bg-slate-800/70 border border-white/10 p-3 text-left"><span className="block text-2xl font-bold text-white">{count('invoiced')}</span><span className="text-xs text-slate-100">Invoiced</span></button>
+            <button onClick={() => setFilter('open')} className="rounded-xl bg-slate-800/70 border border-white/25 p-3 text-left"><span className="block text-2xl font-bold text-white">{count('open')}</span><span className="text-xs text-white">Open</span></button>
+            <button onClick={() => setFilter('open')} className={`rounded-xl border p-3 text-left ${dueCount ? 'bg-amber-800 border-amber-300' : 'bg-slate-800/70 border-white/25'}`}><span className="block text-2xl font-bold text-white">{dueCount}</span><span className="text-xs text-white">Follow-ups due</span></button>
+            <button onClick={() => setFilter('invoiced')} className="rounded-xl bg-slate-800/70 border border-white/25 p-3 text-left"><span className="block text-2xl font-bold text-white">{count('invoiced')}</span><span className="text-xs text-white">Invoiced</span></button>
           </div>
           <div className="relative mb-3">
-            <Search className="w-5 h-5 text-slate-300 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-5 h-5 text-white absolute left-3 top-1/2 -translate-y-1/2" />
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by client, job, address or phone" className={ic + ' pl-11'} />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-2 mb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
             {filters.filter(f => f === 'open' || f === 'all' || count(f) > 0).map(f => (
-              <button key={f} onClick={() => setFilter(f)} className={`flex-shrink-0 px-3.5 py-2 rounded-full text-sm font-medium border ${filter === f ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/15'}`}>
-                {f === 'open' ? 'Open' : f === 'all' ? 'All' : STATUS[f].label} <span className={filter === f ? 'text-slate-700' : 'text-slate-200'}>{count(f)}</span>
+              <button key={f} onClick={() => setFilter(f)} className={`flex-shrink-0 px-3.5 py-2 rounded-full text-sm font-medium border ${filter === f ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/30'}`}>
+                {f === 'open' ? 'Open' : f === 'all' ? 'All' : STATUS[f].label} <span className={filter === f ? 'text-slate-700' : 'text-white'}>{count(f)}</span>
               </button>
             ))}
           </div>
@@ -339,20 +339,20 @@ export default function FieldEstimatesPage() {
       )}
 
       {loading ? (
-        <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
+        <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-300" /></div>
       ) : loadError ? (
-        <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-red-50">The estimates could not be loaded. {loadError}</div>
+        <div className="rounded-xl border border-red-300 bg-red-800 p-4 text-white">The estimates could not be loaded. {loadError}</div>
       ) : notes.length === 0 ? (
         <div className={card + ' text-center py-12'}>
-          <Camera className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+          <Camera className="w-12 h-12 text-white mx-auto mb-3" />
           <p className="text-white text-lg">No field estimates yet</p>
-          <p className="text-slate-100 text-sm mt-1 mb-5">At a job visit, press New, take your photos and write what you see.</p>
+          <p className="text-white text-sm mt-1 mb-5">At a job visit, press New, take your photos and write what you see.</p>
           <button onClick={startNew} className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-semibold hover:bg-green-700"><Plus className="w-5 h-5" /> New field estimate</button>
         </div>
       ) : shown.length === 0 ? (
         <div className={card + ' text-center py-10'}>
           <p className="text-white">Nothing here.</p>
-          <button onClick={() => { setFilter('all'); setSearch('') }} className="mt-3 text-blue-200 underline">Show all estimates</button>
+          <button onClick={() => { setFilter('all'); setSearch('') }} className="mt-3 text-white underline">Show all estimates</button>
         </div>
       ) : (
         <div className="space-y-3">
@@ -365,21 +365,21 @@ export default function FieldEstimatesPage() {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="font-semibold text-white text-lg truncate">{n.clientName || 'No name'}</h3>
-                  <p className="text-slate-100 text-sm">{n.projectName}{n.createdAt ? ` · ${formatDate(n.createdAt)}` : ''}</p>
+                  <p className="text-white text-sm">{n.projectName}{n.createdAt ? ` · ${formatDate(n.createdAt)}` : ''}</p>
                 </div>
                 <span className={`flex-shrink-0 px-3 py-1 rounded-full border text-sm font-semibold flex items-center gap-1.5 ${STATUS[st].chip}`}>{locked && <Lock className="w-3.5 h-3.5" />}{STATUS[st].label}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
-                {n.estimatedCost && <span className="px-2.5 py-0.5 rounded-full bg-green-500/20 text-green-100 font-semibold">{n.estimatedCost}</span>}
-                {n.sharedWithClient && <span className="px-2.5 py-0.5 rounded-full bg-blue-500/25 text-blue-100">Client can see it{n.sharedAt ? ` since ${shortDay(n.sharedAt)}` : ''}</span>}
-                {referredBy(n.clientEmail, n.clientPhone) && <span className="px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-100">Referred by {referredBy(n.clientEmail, n.clientPhone).referrerName || 'a client'}</span>}
-                {n.wasReopened && st !== 'reopened' && <span className="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-100">Came back after declining</span>}
+                {n.estimatedCost && <span className="px-2.5 py-0.5 rounded-full bg-green-800 text-white font-semibold">{n.estimatedCost}</span>}
+                {n.sharedWithClient && <span className="px-2.5 py-0.5 rounded-full bg-blue-800 text-white">Client can see it{n.sharedAt ? ` since ${shortDay(n.sharedAt)}` : ''}</span>}
+                {referredBy(n.clientEmail, n.clientPhone) && <span className="px-2.5 py-0.5 rounded-full bg-purple-800 text-white">Referred by {referredBy(n.clientEmail, n.clientPhone).referrerName || 'a client'}</span>}
+                {n.wasReopened && st !== 'reopened' && <span className="px-2.5 py-0.5 rounded-full bg-amber-800 text-white">Came back after declining</span>}
                 {n.followUpDate && OPEN.includes(st) && (
                   <span className={`px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${isDue(n) ? 'bg-red-600 text-white font-semibold' : 'bg-slate-700 text-white'}`}><CalendarClock className="w-3.5 h-3.5" />{isDue(n) ? `Follow up now (${shortDay(n.followUpDate)})` : `Follow up ${shortDay(n.followUpDate)}`}</span>
                 )}
-                {n.statusChangedAt && st !== 'new' && <span className="text-slate-100">since {shortDay(n.statusChangedAt)}</span>}
+                {n.statusChangedAt && st !== 'new' && <span className="text-white">since {shortDay(n.statusChangedAt)}</span>}
               </div>
-              {n.address && <p className="flex items-center gap-1.5 text-sm text-slate-100 mt-2"><MapPin className="w-4 h-4 text-blue-300 flex-shrink-0" />{n.address}</p>}
+              {n.address && <p className="flex items-center gap-1.5 text-sm text-white mt-2"><MapPin className="w-4 h-4 text-blue-300 flex-shrink-0" />{n.address}</p>}
               {(n.clientPhone || n.address) && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {n.clientPhone && <a href={`tel:${n.clientPhone}`} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Phone className="w-4 h-4" /> Call</a>}
@@ -387,7 +387,7 @@ export default function FieldEstimatesPage() {
                   {n.address && <a href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(n.address)}`} target="_blank" rel="noopener noreferrer" className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Navigation className="w-4 h-4" /> Directions</a>}
                 </div>
               )}
-              {n.notes && <p className="text-slate-100 text-sm mt-3 whitespace-pre-line line-clamp-3">{n.notes}</p>}
+              {n.notes && <p className="text-white text-sm mt-3 whitespace-pre-line line-clamp-3">{n.notes}</p>}
               {n.photos?.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-3">
                   {n.photos.slice(0, 4).map((p, i) => (
@@ -401,15 +401,15 @@ export default function FieldEstimatesPage() {
               )}
 
               {/* Status and invoice */}
-              <div className="mt-4 pt-3 border-t border-white/10 grid sm:grid-cols-2 gap-2">
+              <div className="mt-4 pt-3 border-t border-white/25 grid sm:grid-cols-2 gap-2">
                 {locked ? (
-                  <p className="sm:col-span-2 text-sm text-slate-100 flex items-center gap-2"><Lock className="w-4 h-4" /> Discarded{n.statusChangedAt ? ` on ${shortDay(n.statusChangedAt)}` : ''}. It is closed for good and cannot be changed or invoiced.</p>
+                  <p className="sm:col-span-2 text-sm text-white flex items-center gap-2"><Lock className="w-4 h-4" /> Discarded{n.statusChangedAt ? ` on ${shortDay(n.statusChangedAt)}` : ''}. It is closed for good and cannot be changed or invoiced.</p>
                 ) : st === 'invoiced' ? (
-                  <p className="text-sm text-slate-100 self-center">Invoice {n.invoiceNumber || ''} was made from this estimate.</p>
+                  <p className="text-sm text-white self-center">Invoice {n.invoiceNumber || ''} was made from this estimate.</p>
                 ) : (
-                  <label className="text-sm text-slate-100">
+                  <label className="text-sm text-white">
                     <span className="block mb-1">Change status</span>
-                    <select value="" onChange={e => { const to = e.target.value as EstimateStatus; if (!to) return; to === 'discarded' ? setToDiscard(n) : changeStatus(n, to) }} className="w-full bg-slate-800 border border-white/15 rounded-lg px-3 py-2.5 text-white text-base">
+                    <select value="" onChange={e => { const to = e.target.value as EstimateStatus; if (!to) return; to === 'discarded' ? setToDiscard(n) : changeStatus(n, to) }} className="w-full bg-slate-800 border border-white/30 rounded-lg px-3 py-2.5 text-white text-base">
                       <option value="">{STATUS[st].label} (now)</option>
                       {NEXT[st].map(to => <option key={to} value={to}>{STATUS[to].label}: {STATUS[to].hint.toLowerCase()}</option>)}
                     </select>
@@ -423,7 +423,7 @@ export default function FieldEstimatesPage() {
                     <a href={`/admin/invoices?fromEstimate=${n.id}`} className="px-3 py-2.5 rounded-lg bg-green-600 text-white font-medium hover:bg-green-700 flex items-center justify-center gap-2"><Receipt className="w-4 h-4" /> Create invoice</a>
                   </div>
                 ) : st === 'declined' ? (
-                  <p className="self-end text-sm text-slate-100">To invoice it, change the status to Reopened first.</p>
+                  <p className="self-end text-sm text-white">To invoice it, change the status to Reopened first.</p>
                 ) : null}
               </div>
 
@@ -434,7 +434,7 @@ export default function FieldEstimatesPage() {
                   </button>
                 )}
                 {!locked && <button onClick={() => startEdit(n)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Open / edit</button>}
-                <button onClick={() => setToDelete(n)} className="text-sm px-3 py-2 rounded-lg bg-red-600/20 text-red-200 hover:bg-red-600/30 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
+                <button onClick={() => setToDelete(n)} className="text-sm px-3 py-2 rounded-lg bg-red-800 text-white hover:bg-red-700 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
               </div>
             </div>
           )})}

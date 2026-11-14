@@ -189,23 +189,23 @@ export default function ChangeOrdersPage() {
   }
 
   const fmt = (n: number) => `$${(Math.round(n * 100) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-  const ic = "w-full bg-slate-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
+  const ic = "w-full bg-slate-800 border border-white/25 rounded-xl px-4 py-3 text-white placeholder-slate-300 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-sm"
   const dic = ic + " [color-scheme:dark]"
-  const lc = "text-sm font-medium text-slate-300 mb-1.5 block"
+  const lc = "text-sm font-medium text-white mb-1.5 block"
 
   return (
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white flex items-center gap-3">
-            <ClipboardList className="w-6 h-6 text-blue-400" />
+            <ClipboardList className="w-6 h-6 text-blue-300" />
             {co.isCorrection ? 'Corrected Change Order' : 'Create Change Order'}
           </h1>
-          <p className="text-slate-300 text-sm mt-1">Document additional work for existing contracts</p>
+          <p className="text-white text-sm mt-1">Document additional work for existing contracts</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <Link href="/admin/change-orders/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-slate-300 text-sm hover:bg-slate-700 flex items-center gap-2"><FileText className="w-4 h-4" /> Sent</Link>
-          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-600/20 text-amber-300 text-sm ${wasSent ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
+          <Link href="/admin/change-orders/sent" className="px-3 py-2 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700 flex items-center gap-2"><FileText className="w-4 h-4" /> Sent</Link>
+          <label title={wasSent ? 'Already sent: anything you send now is a correction' : undefined} className={`flex items-center gap-2 px-3 py-2 rounded-xl bg-amber-800 text-white text-sm ${wasSent ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
             <input type="checkbox" checked={co.isCorrection || wasSent} disabled={wasSent} onChange={e => updateField('isCorrection', e.target.checked)} className="rounded" />
             <AlertTriangle className="w-3.5 h-3.5" /> Correction
           </label>
@@ -215,14 +215,14 @@ export default function ChangeOrdersPage() {
       {wasSent && <SentNotice what="change order" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
-        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
-        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
+        <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
+        <button onClick={() => setTab('preview')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'preview' ? 'bg-blue-600 text-white' : 'text-white hover:text-white'}`}><Eye className="w-3.5 h-3.5 inline mr-1.5" />Preview</button>
       </div>
 
       {tab === 'edit' ? (
         <div className="space-y-6">
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-400" /> Change Order Details</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><Calendar className="w-4 h-4 text-blue-300" /> Change Order Details</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <div><label className={lc}>CO #</label><input value={co.number} placeholder="Assigned automatically" onChange={e => updateField('number', e.target.value)} className={ic} /></div>
               <div><label className={lc}>Date</label><input type="date" value={co.date} onChange={e => updateField('date', e.target.value)} className={dic} /></div>
@@ -230,8 +230,8 @@ export default function ChangeOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-400" /> Client & Property</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><User className="w-4 h-4 text-blue-300" /> Client & Property</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div><label className={lc}>Client Name</label><input value={co.clientName} onChange={e => updateField('clientName', e.target.value)} placeholder="Monica McNutt" className={ic} /></div>
               <div><label className={lc}>Email</label><input type="email" value={co.clientEmail} onChange={e => updateField('clientEmail', e.target.value)} className={ic} /></div>
@@ -242,7 +242,7 @@ export default function ChangeOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <h2 className="font-semibold text-white mb-4">Original Contract</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               <div><label className={lc}>Previous Contract Amount</label><input type="number" value={co.previousContractAmount || ''} onChange={e => updateField('previousContractAmount', Number(e.target.value))} className={ic} step="0.01" /></div>
@@ -251,39 +251,39 @@ export default function ChangeOrdersPage() {
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-400" /> Change Items</h2>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
+            <h2 className="font-semibold text-white mb-4 flex items-center gap-2"><FileText className="w-4 h-4 text-blue-300" /> Change Items</h2>
             <div className="space-y-3">
               {co.items.map((item, idx) => (
                 <div key={item.id} className="flex gap-3 items-start">
-                  <span className="text-slate-300 text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
+                  <span className="text-white text-sm mt-3 w-6 text-right flex-shrink-0">{idx + 1}.</span>
                   <div className="flex-1 grid sm:grid-cols-[1fr_120px] gap-3">
                     <input value={item.description} onChange={e => updateItem(item.id, 'description', e.target.value)} placeholder="Power wash garage brick walls and columns" className={ic} />
                     <input type="number" value={item.unitPrice || ''} onChange={e => updateItem(item.id, 'unitPrice', Math.round(Number(e.target.value) * 100) / 100)} className={ic + ' text-right'} placeholder="$ 0.00" step="0.01" />
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="mt-3 text-red-400 hover:text-red-300 p-1" disabled={co.items.length === 1}><Trash2 className="w-4 h-4" /></button>
+                  <button onClick={() => removeItem(item.id)} className="mt-3 text-red-300 hover:text-red-300 p-1" disabled={co.items.length === 1}><Trash2 className="w-4 h-4" /></button>
                 </div>
               ))}
             </div>
-            <button onClick={addItem} className="mt-4 flex items-center gap-2 text-sm text-blue-400 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-600/10"><Plus className="w-4 h-4" /> Add Change Item</button>
+            <button onClick={addItem} className="mt-4 flex items-center gap-2 text-sm text-blue-300 hover:text-blue-300 px-3 py-2 rounded-lg hover:bg-blue-700"><Plus className="w-4 h-4" /> Add Change Item</button>
 
-            <div className="mt-6 pt-4 border-t border-white/5 space-y-2 text-right text-sm">
-              <div className="text-slate-300">Change Order Total: <span className="text-white font-medium ml-2">{fmt(changeTotal)}</span></div>
-              <div className="text-slate-300">Previous Contract: <span className="text-white font-medium ml-2">{fmt(co.previousContractAmount)}</span></div>
-              {co.depositAmount > 0 && <div className="text-slate-300">Deposit: <span className="text-green-400 font-medium ml-2">-{fmt(co.depositAmount)}</span></div>}
-              <div className="text-lg font-bold text-white pt-2 border-t border-white/10">Total After Change Order: {fmt(totalAfterChange)}</div>
+            <div className="mt-6 pt-4 border-t border-white/25 space-y-2 text-right text-sm">
+              <div className="text-white">Change Order Total: <span className="text-white font-medium ml-2">{fmt(changeTotal)}</span></div>
+              <div className="text-white">Previous Contract: <span className="text-white font-medium ml-2">{fmt(co.previousContractAmount)}</span></div>
+              {co.depositAmount > 0 && <div className="text-white">Deposit: <span className="text-green-300 font-medium ml-2">-{fmt(co.depositAmount)}</span></div>}
+              <div className="text-lg font-bold text-white pt-2 border-t border-white/25">Total After Change Order: {fmt(totalAfterChange)}</div>
             </div>
           </div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6"><label className={lc}>Notes</label><textarea value={co.notes} onChange={e => updateField('notes', e.target.value)} rows={3} className={ic} /></div>
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6"><label className={lc}>Notes</label><textarea value={co.notes} onChange={e => updateField('notes', e.target.value)} rows={3} className={ic} /></div>
 
-          <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
+          <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
             {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
-            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600/30 text-sm"><Eye className="w-4 h-4" /> Preview</button>
+            <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
             <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!co.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
           </div>
@@ -330,17 +330,17 @@ export default function ChangeOrdersPage() {
 
       {showEmailModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-white/10 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-400" /> Send Change Order</h3>
+          <div className="bg-slate-900 border border-white/25 rounded-2xl p-6 max-w-lg w-full shadow-2xl">
+            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2"><Mail className="w-5 h-5 text-blue-300" /> Send Change Order</h3>
             <div className="space-y-4">
               <div><label className={lc}>To</label><input value={co.clientEmail} readOnly className={ic + ' opacity-60'} /></div>
               <div><label className={lc}>Subject</label><input value={emailSubject} onChange={e => setEmailSubject(e.target.value)} className={ic} /></div>
               <div><label className={lc}>Message</label><textarea value={emailBody} onChange={e => setEmailBody(e.target.value)} rows={8} className={ic} /></div>
               <SendChecks items={[!co.signatureData && 'There is no signature on this change order.', changeTotal <= 0 && 'The total is $0.00.', co.isCorrection && 'This goes out marked as a CORRECTION.']} />
-              <p className="text-xs text-slate-200">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
+              <p className="text-xs text-white">Sends the email from CR Home Pros with the PDF attached. You get a copy, and replies come to crhomepros@gmail.com.</p>
             </div>
             <div className="flex gap-3 mt-6">
-              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm">Cancel</button>
+              <button onClick={() => setShowEmailModal(false)} className="flex-1 px-4 py-2.5 rounded-xl bg-slate-800 text-white hover:bg-slate-700 text-sm">Cancel</button>
               <button onClick={handleSend} disabled={sending} className="flex-1 px-4 py-2.5 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm flex items-center justify-center gap-2">{sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {sending ? 'Sending…' : 'Send Email'}</button>
             </div>
           </div>

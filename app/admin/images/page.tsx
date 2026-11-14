@@ -288,8 +288,8 @@ export default function AdminImagesPage() {
               <div className={cn(
                 'mb-4 p-4 rounded-xl flex items-center gap-3',
                 results.errors > 0 
-                  ? 'bg-red-900/20 border border-red-500/30 text-red-300'
-                  : 'bg-green-900/20 border border-green-500/30 text-green-300'
+                  ? 'bg-red-900 border border-red-300 text-red-300'
+                  : 'bg-green-900 border border-green-300 text-green-300'
               )}>
                 {results.errors > 0 ? (
                   <AlertCircle className="w-5 h-5 flex-shrink-0" />
@@ -310,8 +310,8 @@ export default function AdminImagesPage() {
                   key={i}
                   className={cn(
                     'relative group rounded-xl overflow-hidden border-2 transition-all',
-                    fileObj.status === 'done' && 'border-green-500/50',
-                    fileObj.status === 'error' && 'border-red-500/50',
+                    fileObj.status === 'done' && 'border-green-300',
+                    fileObj.status === 'error' && 'border-red-300',
                     fileObj.status === 'uploading' && 'border-gold-500/50',
                     fileObj.status === 'pending' && 'border-dark-600',
                   )}
@@ -337,7 +337,7 @@ export default function AdminImagesPage() {
                       </div>
                     )}
                     {fileObj.status === 'error' && (
-                      <div className="absolute inset-0 bg-red-900/60 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-red-900 flex items-center justify-center">
                         <AlertCircle className="w-8 h-8 text-red-300" />
                       </div>
                     )}
@@ -373,7 +373,7 @@ export default function AdminImagesPage() {
                     .filter(f => f.status === 'done' && f.url)
                     .map((f, i) => (
                       <div key={i} className="flex items-center gap-2">
-                        <code className="text-green-400 flex-1 truncate">{f.url}</code>
+                        <code className="text-green-300 flex-1 truncate">{f.url}</code>
                         <button
                           onClick={() => navigator.clipboard.writeText(f.url || '')}
                           className="text-dark-200 hover:text-white flex-shrink-0 px-2 py-1 rounded bg-dark-700 text-xs"

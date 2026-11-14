@@ -33,8 +33,8 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
       onClick={onClose}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${indent ? 'ml-6' : ''
         } ${isActive(href)
-          ? 'bg-blue-600/20 text-blue-300 border border-blue-500/20'
-          : 'text-slate-400 hover:text-white hover:bg-white/5'
+          ? 'bg-blue-800 text-white border border-blue-300'
+          : 'text-white hover:text-white hover:bg-white/5'
         }`}
     >
       {icon}
@@ -45,7 +45,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
   const sectionHeader = (key: string, icon: React.ReactNode, label: string) => (
     <button
       onClick={() => toggleSection(key)}
-      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-slate-300 hover:text-white hover:bg-white/5 transition-all"
+      className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-semibold text-white hover:text-white hover:bg-white/5 transition-all"
     >
       <span className="flex items-center gap-3">{icon} {label}</span>
       {expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
@@ -53,9 +53,9 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
   )
 
   return (
-    <div className={`${mobile ? 'w-full' : 'w-64 min-h-screen'} bg-slate-900 border-r border-white/5 flex flex-col`}>
+    <div className={`${mobile ? 'w-full' : 'w-64 min-h-screen'} bg-slate-900 border-r border-white/25 flex flex-col`}>
       {/* Logo / Brand */}
-      <div className="px-5 py-5 border-b border-white/5">
+      <div className="px-5 py-5 border-b border-white/25">
         <div className="flex items-center justify-between">
           <Link href="/admin" onClick={onClose} className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
@@ -63,11 +63,11 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
             </div>
             <div>
               <p className="font-bold text-white text-sm">Admin Portal</p>
-              <p className="text-[11px] text-slate-500">CRGS, Inc.</p>
+              <p className="text-[11px] text-white">CRGS, Inc.</p>
             </div>
           </Link>
           {mobile && (
-            <button onClick={onClose} className="text-slate-400 hover:text-white">
+            <button onClick={onClose} className="text-white hover:text-white">
               <X className="w-5 h-5" />
             </button>
           )}
@@ -101,7 +101,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
           )}
         </div>
 
-        <div className="pt-3 border-t border-white/5 mt-3">
+        <div className="pt-3 border-t border-white/25 mt-3">
           {navLink('/admin/documents', <FileSignature className="w-4 h-4" />, 'Signed Documents')}
           {navLink('/admin/leads', <FileText className="w-4 h-4" />, 'Leads')}
           {navLink('/admin/messages', <MessageSquare className="w-4 h-4" />, 'Client Messages')}
@@ -110,30 +110,30 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
       </nav>
 
       {/* Footer */}
-      <div className="px-3 py-4 border-t border-white/5 space-y-2">
+      <div className="px-3 py-4 border-t border-white/25 space-y-2">
         <Link
           href="/"
-          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-500 hover:text-white hover:bg-white/5 transition-all"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white hover:text-white hover:bg-white/5 transition-all"
         >
           <Home className="w-4 h-4" />
           Back to Site
         </Link>
         <button
           onClick={() => { onClose?.(); window.dispatchEvent(new Event(TOUR_EVENT)) }}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-slate-200 hover:text-white hover:bg-white/5 transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-white hover:text-white hover:bg-white/5 transition-all"
         >
           <HelpCircle className="w-4 h-4" />
           Show walkthrough
         </button>
         <button
           onClick={signOut}
-          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all"
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-red-300 hover:text-red-300 hover:bg-red-700 transition-all"
         >
           <LogOut className="w-4 h-4" />
           Sign Out
         </button>
         {user && (
-          <p className="px-3 text-[11px] text-slate-600 truncate">{user.email}</p>
+          <p className="px-3 text-[11px] text-white truncate">{user.email}</p>
         )}
       </div>
     </div>
@@ -153,7 +153,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-slate-950 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+        <Loader2 className="w-8 h-8 text-blue-300 animate-spin" />
       </div>
     )
   }
@@ -185,8 +185,8 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       {/* Main Content */}
       <div className="flex-1 lg:ml-64 min-h-screen">
         {/* Mobile Header */}
-        <header className="lg:hidden sticky top-0 z-20 bg-slate-900/80 backdrop-blur-xl border-b border-white/5 px-4 py-3 flex items-center justify-between">
-          <button onClick={() => setMobileMenuOpen(true)} className="text-slate-400 hover:text-white">
+        <header className="lg:hidden sticky top-0 z-20 bg-slate-900/80 backdrop-blur-xl border-b border-white/25 px-4 py-3 flex items-center justify-between">
+          <button onClick={() => setMobileMenuOpen(true)} className="text-white hover:text-white">
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex items-center gap-2">

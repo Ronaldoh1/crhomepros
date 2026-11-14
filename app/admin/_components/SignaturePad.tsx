@@ -161,7 +161,7 @@ export function SignaturePad({ onSignatureChange, savedSignatureUrl, label = 'Si
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <label className={`text-sm font-medium flex items-center gap-2 ${admin ? 'text-slate-100' : 'text-slate-900'}`}><Pencil className="w-3.5 h-3.5" />{label}</label>
+        <label className={`text-sm font-medium flex items-center gap-2 ${admin ? 'text-white' : 'text-slate-900'}`}><Pencil className="w-3.5 h-3.5" />{label}</label>
         {!useSaved && (
           <div className="flex items-center gap-2">
             {tabBtn('draw', <PenLine className="w-4 h-4" />, T.draw)}
@@ -197,21 +197,21 @@ export function SignaturePad({ onSignatureChange, savedSignatureUrl, label = 'Si
               </button>
             )}
           </div>
-          <p className={`text-xs text-center ${admin ? 'text-slate-200' : 'text-slate-700'}`}>{tab === 'draw' ? T.hintDraw : T.hintType}</p>
+          <p className={`text-xs text-center ${admin ? 'text-white' : 'text-slate-700'}`}>{tab === 'draw' ? T.hintDraw : T.hintType}</p>
         </>
       )}
 
       {admin && askDefault && hasInk && (
-        <div className="rounded-xl border border-blue-400/50 bg-blue-500/15 p-3">
+        <div className="rounded-xl border border-blue-300 bg-blue-800 p-3">
           <p className="text-sm font-semibold text-white">Use this as your default signature?</p>
-          <p className="text-sm text-blue-50 mt-0.5">It will be added automatically to your next documents. You can change it any time.</p>
+          <p className="text-sm text-white mt-0.5">It will be added automatically to your next documents. You can change it any time.</p>
           <div className="flex gap-2 mt-2.5">
             <button type="button" onClick={saveDefault} disabled={saving} className="px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 flex items-center gap-1.5">{saving && <Loader2 className="w-4 h-4 animate-spin" />} Yes, save as default</button>
             <button type="button" onClick={() => { answered.current = true; setAskDefault(false) }} className="px-4 py-2 rounded-lg bg-slate-700 text-white text-sm font-medium hover:bg-slate-600">No, just this document</button>
           </div>
         </div>
       )}
-      {savedNote && <p className="text-sm text-green-200 flex items-center gap-1.5"><CheckCircle className="w-4 h-4" /> {savedNote}</p>}
+      {savedNote && <p className="text-sm text-white flex items-center gap-1.5"><CheckCircle className="w-4 h-4" /> {savedNote}</p>}
     </div>
   )
 }
