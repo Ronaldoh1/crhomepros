@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createLeadInDrive, isDriveConfigured } from '@/lib/google-drive'
 import { sendNewLeadNotification, sendLeadConfirmation, isEmailConfigured } from '@/lib/email'
-import { saveLead } from '@/lib/firebase-admin-server'
+import { saveLead, saveToFirestore } from '@/lib/firebase-admin-server'
+import { pastClientCheck } from '@/lib/portal-server'
+import { emailKey, phoneKey } from '@/lib/client-keys'
 import { isBundleLead, formatBundleEmailSubject, formatBundleEmailHeader } from '@/lib/banners'
 
 export async function POST(request: NextRequest) {
@@ -13,6 +15,7 @@ export async function POST(request: NextRequest) {
       address, city, state, zip, services,
       projectDescription, timeline, budget,
       additionalNotes, howDidYouHear,
+      referrerName, referrerEmail, referrerPhone,
       images,
       bannerId, promoCode, discountPercent, isBundle: isBundleFlag,
     } = body
@@ -27,6 +30,24 @@ export async function POST(request: NextRequest) {
 
     console.log(`\n🏠 New Lead: ${firstName} ${lastName} — ${services.join(', ')}`)
 
+    // Did someone refer them? Check whether that person has been a client.
+    const short = (v: unknown, n: number) => String(v || '').trim().slice(0, n)
+    const ref = { name: short(referrerName, 120), email: short(referrerEmail, 160), phone: short(referrerPhone, 40) }
+    let referredBy: Record<string, string> | undefined
+    if (ref.name || ref.email || ref.phone) {
+      let check: { status: string; name?: string } = { status: 'none' }
+      try { check = await pastClientCheck(ref.email, ref.phone) } catch (e: any) { console.error('Referrer check failed:', e?.message) }
+      referredBy = { ...ref, check: check.status, clientName: check.name || '' }
+      try {
+        await saveToFirestore('referrals', {
+          referrerName: ref.name || check.name || '', referrerEmail: ref.email, referrerEmailKey: emailKey(ref.email), referrerPhone: ref.phone,
+          referralName: `${firstName} ${lastName}`.trim(), referralEmail: email, referralEmailKey: emailKey(email), referralPhone: phone, referralPhoneKey: phoneKey(phone),
+          projectType: (services || []).join(', '), projectDetails: projectDescription || '',
+          referrerIsClient: check.status !== 'none', status: 'pending', source: 'estimate-form',
+        })
+      } catch (e: any) { console.error('Referral save failed:', e?.message) }
+    }
+
     // Save to Firebase (primary data store)
     try {
       await saveLead({
@@ -34,7 +55,7 @@ export async function POST(request: NextRequest) {
         address, city, state, zip, services,
         projectDescription, timeline, budget,
         howDidYouHear, additionalNotes,
-        
+        ...(referredBy ? { referredBy } : {}),
       })
     } catch (fbError: any) {
       console.error('❌ Firebase save error (non-fatal):', fbError?.message || fbError)

@@ -7,9 +7,10 @@ import { useState } from 'react'
 import {
   LayoutDashboard, FileText, FilePlus, FileSignature,
   FolderOpen, LogOut, Menu, X, ChevronDown, ChevronRight,
-  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera
+  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera, MessageSquare, Images
 } from 'lucide-react'
 import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
+import { ToastProvider } from './_components/Toast'
 
 function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
   const pathname = usePathname()
@@ -90,17 +91,6 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
         </div>
 
         <div className="pt-1">
-          {sectionHeader('changeOrders', <ClipboardList className="w-4 h-4" />, 'Change Orders')}
-          {expandedSections.changeOrders && (
-            <div className="space-y-0.5 mt-0.5">
-              {navLink('/admin/change-orders', <FilePlus className="w-4 h-4" />, 'Generate Change Order', true)}
-              {navLink('/admin/change-orders/drafts', <FileText className="w-4 h-4" />, 'Drafts', true)}
-              {navLink('/admin/change-orders/sent', <FolderOpen className="w-4 h-4" />, 'Sent Change Orders', true)}
-            </div>
-          )}
-        </div>
-
-        <div className="pt-1">
           {sectionHeader('contracts', <Briefcase className="w-4 h-4" />, 'Contracts')}
           {expandedSections.contracts && (
             <div className="space-y-0.5 mt-0.5">
@@ -114,7 +104,8 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
         <div className="pt-3 border-t border-white/5 mt-3">
           {navLink('/admin/documents', <FileSignature className="w-4 h-4" />, 'Signed Documents')}
           {navLink('/admin/leads', <FileText className="w-4 h-4" />, 'Leads')}
-          {navLink('/admin/projects', <Briefcase className="w-4 h-4" />, 'Projects')}
+          {navLink('/admin/messages', <MessageSquare className="w-4 h-4" />, 'Client Messages')}
+          {navLink('/admin/past-projects', <Images className="w-4 h-4" />, 'Past Projects')}
         </div>
       </nav>
 
@@ -215,7 +206,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <AdminShell>{children}</AdminShell>
+      <ToastProvider><AdminShell>{children}</AdminShell></ToastProvider>
     </AuthProvider>
   )
 }

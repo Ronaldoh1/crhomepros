@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 import { buildDocumentPdf } from '@/lib/pdf-document'
 import { verifyAdminRequest } from '@/lib/verify-admin'
+import { getOrCreateClient, portalUrl, emailShell } from '@/lib/portal-server'
 
 export const runtime = 'nodejs'
 
@@ -24,8 +25,16 @@ export async function POST(request: NextRequest) {
 
     const pdf = await buildDocumentPdf(type, data || {})
     const filename = `${type}-${String(data?.number || 'document').replace(/[^\w.-]/g, '_')}.pdf`
-    const body = String(message || '')
-    const html = `<div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#0f172a;max-width:640px">${esc(body).replace(/\n/g, '<br>')}</div>`
+    // Every client gets a private page; contracts are signed there
+    let link = ''
+    try { link = portalUrl((await getOrCreateClient(to, data?.clientName, data?.clientPhone)).token) } catch (e: any) { console.error('Client page link not created:', e?.message) }
+    const isContract = type === 'contract'
+    const linkLine = link ? (isContract ? `\n\nReview and sign it online here:\n${link}` : `\n\nSee all your documents here:\n${link}`) : ''
+    const body = String(message || '') + linkLine
+    const html = emailShell(
+      `<div>${esc(String(message || '')).replace(/\n/g, '<br>')}</div>`,
+      link ? { label: isContract ? 'Review and sign your contract' : 'See your documents', url: link } : undefined,
+    )
 
     const resend = new Resend(key)
     const { data: sent, error } = await resend.emails.send({

@@ -88,7 +88,6 @@ export async function GET() {
   if (isEmailConfigured() && (!resendKey.startsWith('re_') || resendKey.length < 30)) problems.push(`RESEND_API_KEY looks wrong (${resendKey.length} characters; real keys start with "re_" and are about 36). Create a new key at resend.com.`)
   if ((env.EMAIL_FROM || '').includes('resend.dev') || !env.EMAIL_FROM) problems.push('EMAIL_FROM uses Resend\'s test address, which can only email the Resend account owner. Verify crhomepros.com in Resend and set EMAIL_FROM to e.g. "CR Home Pros <noreply@crhomepros.com>".')
   if (!isEmailConfigured()) problems.push('RESEND_API_KEY missing or invalid: no lead emails or invoice emails are sent.')
-  if (!isDriveConfigured()) problems.push('Google Drive not connected (optional backup of leads/documents).')
 
   const status = {
     overall: problems.length === 0 ? '✅ ALL SYSTEMS READY' : `⚠️ ${problems.length} problem(s)`,
@@ -103,6 +102,7 @@ export async function GET() {
       storage_bucket: JSON.stringify(bucket) || '(not set)',
       storage_test: storageCheck,
       admin_login: 'Google sign-in, crhomepros@gmail.com only',
+      client_pages: 'private link per client at /portal/<link>',
     },
     email: {
       provider: 'Resend',
@@ -111,7 +111,7 @@ export async function GET() {
       status: isEmailConfigured() ? '✅ READY' : '❌ MISSING OR INVALID API KEY',
     },
     google_drive: {
-      status: isDriveConfigured() ? '✅ READY' : '❌ NOT CONNECTED',
+      status: isDriveConfigured() ? 'connected (optional)' : 'not connected (not needed: everything is saved in the database)',
       refresh_token_present: !!(env.GOOGLE_DRIVE_REFRESH_TOKEN && env.GOOGLE_DRIVE_REFRESH_TOKEN.length > 10),
     },
   }

@@ -5,6 +5,7 @@ import { getDocumentsByType, deleteDocument, updateFieldNote, type DocumentRecor
 import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, DollarSign, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from './DocumentGuards'
+import { useToast } from './Toast'
 
 const STATUS_STYLES: Record<string, string> = {
   draft: 'bg-amber-500/20 text-amber-300',
@@ -36,6 +37,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
   const [loading, setLoading] = useState(true)
   const [deleting, setDeleting] = useState<string | null>(null)
   const [toDelete, setToDelete] = useState<DocumentRecord | null>(null)
+  const toast = useToast()
   const isDraft = (d: DocumentRecord) => (d.status || 'draft') === 'draft'
   const docs = allDocs.filter(d => (view === 'drafts' ? isDraft(d) : !isDraft(d)))
   const draftCount = allDocs.filter(isDraft).length
@@ -64,6 +66,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
       // free the field estimate so a new invoice can be made from it
       if (linked) await updateFieldNote(linked, { invoiceId: null, invoiceNumber: null, status: 'accepted', statusChangedAt: new Date().toISOString().split('T')[0] }).catch(() => {})
       setDocs(prev => prev.filter(d => d.id !== id))
+      toast('Deleted')
     } catch (err) {
       console.error('Failed to delete:', err)
       alert(`This could not be deleted. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -144,7 +147,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                       <h3 className="font-semibold text-white truncate">{doc.number}</h3>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[doc.status] || STATUS_STYLES.draft}`}>
                         <StatusIcon className="w-3 h-3" />
-                        {doc.status}
+                        {doc.type === 'contract' && doc.status === 'signed' ? 'In contract' : doc.type === 'contract' && doc.status === 'sent' ? 'Waiting for signature' : doc.status}
                       </span>
                     </div>
                     <p className="text-slate-300 text-sm">{doc.clientName}</p>

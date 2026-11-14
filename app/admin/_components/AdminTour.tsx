@@ -12,32 +12,32 @@ const STEPS = [
   {
     icon: LayoutDashboard,
     title: 'Welcome to your admin portal',
-    body: 'This is where you make invoices, change orders and contracts, send them to clients, and see the people who asked for an estimate. The menu is on the left (on a phone, tap the three lines at the top).',
-  },
-  {
-    icon: Receipt,
-    title: 'Making a document',
-    body: 'Pick "Generate Invoice", "Generate Change Order" or "Generate Contract". Fill in the client, the work and the prices. "Preview" shows how it will look, and "Generate PDF" opens the PDF so you can check it or print it.',
+    body: 'The dashboard shows what needs your attention: new requests, client notes and questions, signed contracts, referrals and follow-ups. The menu is on the left (on a phone, tap the three lines at the top).',
   },
   {
     icon: Camera,
     title: 'Estimates at the job site',
-    body: 'On your phone, open "Field Estimates" and press New. Take photos with the camera, then write the measurements, materials and your price. When you save, everything is kept here and a folder with the photos and notes is made in your Google Drive, ready when you get home.',
+    body: 'On your phone, open "Field Estimates" and press New. Take photos, then write the measurements, materials and your price. "Send to client" emails the client a private link where they see the price and photos and can write you a note.',
   },
   {
     icon: FileText,
-    title: 'Drafts and Sent',
-    body: '"Save Draft" keeps your work without sending anything. Find it later under "Drafts" and continue. Once you send a document, it moves to "Sent".',
+    title: 'Contracts signed online',
+    body: 'From an estimate press "Create contract". When you send it, the client gets a link to review it, ask questions and sign on their phone or computer. Once signed it shows "In contract" and a past project is started for you.',
+  },
+  {
+    icon: Receipt,
+    title: 'Invoices',
+    body: '"Create invoice" on an estimate fills in the client and price. Sending emails the PDF right away and takes you to the Sent list, with a green message confirming it went out. Drafts wait under "Drafts".',
   },
   {
     icon: Send,
-    title: 'Sending to a client',
-    body: '"Send to Client" emails the client right away with the PDF attached. You get a copy at crhomepros@gmail.com, and when the client replies, the reply comes to that inbox. Check the email address and the total before you press Send. An email cannot be taken back.',
+    title: 'Messages and referrals',
+    body: 'Client notes and questions arrive under "Client Messages". Answer there and the client gets an email. Clients can also refer friends from their page: referrals show under "Leads and Referrals" with a note on whether the person who referred is a past client.',
   },
   {
     icon: AlertTriangle,
-    title: 'Fixing something already sent',
-    body: 'Open it from "Sent", make the change, and press "Send Correction". The client gets a new email marked as a correction that replaces the first one. The portal warns you before it sends, and before you delete anything or leave a page with unsaved changes.',
+    title: 'Fixing and warnings',
+    body: 'To fix a sent invoice, open it from "Sent" and press "Send Correction". A signed contract cannot be changed. The portal warns you before it sends a correction, deletes anything, or leaves a page with unsaved changes.',
   },
 ]
 

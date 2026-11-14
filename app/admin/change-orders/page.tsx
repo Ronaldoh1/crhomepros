@@ -11,6 +11,8 @@ import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, n
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useToast } from '../_components/Toast'
 
 interface LineItem { id: string; description: string; quantity: number; unitPrice: number }
 
@@ -40,6 +42,8 @@ export default function ChangeOrdersPage() {
   const [generating, setGenerating] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const toast = useToast()
+  const router = useRouter()
   const [savedSigUrl, setSavedSigUrl] = useState<string | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [emailSubject, setEmailSubject] = useState('')
@@ -112,6 +116,7 @@ export default function ChangeOrdersPage() {
       const id = await saveDocument(docData)
       setSavedId(id)
       markSaved()
+      if (status === 'draft') toast(`Draft ${num} saved. Find it under Drafts.`)
       if (status !== 'draft') { setWasSent(true); setCo(prev => ({ ...prev, isCorrection: true })) }
     } catch (err) {
       console.error('Save failed:', err)
@@ -167,7 +172,9 @@ export default function ChangeOrdersPage() {
       })
       await handleSave('sent')
       setSent(true); setShowEmailModal(false)
-      setTimeout(() => setSent(false), 4000)
+      // say what happened, then show it in the Sent list
+      toast(`Change order ${co.number} sent to ${co.clientEmail.trim()}`)
+      router.push('/admin/change-orders/sent')
     } catch (err) {
       console.error('Send failed:', err)
       alert(`The email was not sent.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -265,7 +272,7 @@ export default function ChangeOrdersPage() {
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6"><label className={lc}>Notes</label><textarea value={co.notes} onChange={e => updateField('notes', e.target.value)} rows={3} className={ic} /></div>
 
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} label="Carlos Hernandez — President, CRGS Inc." />
+            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">

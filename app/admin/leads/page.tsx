@@ -1,456 +1,156 @@
 'use client'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { 
-  Target, 
-  Filter, 
-  RefreshCw, 
-  MapPin, 
-  Clock, 
-  DollarSign,
-  ExternalLink,
-  Send,
-  Star,
-  StarOff,
-  CheckCircle,
-  XCircle,
-  ChevronDown,
-  Search,
-  Zap,
-  ArrowLeft
-} from 'lucide-react'
-import { cn } from '@/lib/utils'
+import { useEffect, useState } from 'react'
+import { Users, Loader2, Phone, MessageSquare, Mail, MapPin, UserPlus, CheckCircle, HelpCircle } from 'lucide-react'
+import { getLeads, getContacts, getReferrals, updateLeadStatus, getAllDocuments, type LeadRecord } from '@/lib/firebase-auth'
+import { emailKey, phoneKey } from '@/lib/client-keys'
+import { useToast } from '../_components/Toast'
 
-// Mock lead data - this would come from scraping API
-const mockLeads = [
-  {
-    id: 1,
-    title: 'Looking for kitchen remodel contractor',
-    description: 'Need full kitchen renovation including cabinets, countertops, backsplash, and new appliances. Budget around $30-40k. Looking to start in February.',
-    source: 'craigslist',
-    sourceUrl: 'https://washingtondc.craigslist.org/...',
-    location: 'Bethesda, MD',
-    distance: '8 miles',
-    postedAt: '2 hours ago',
-    budgetRange: '$30k - $40k',
-    category: 'Kitchen',
-    status: 'new',
-    hot: true,
-    contactMethod: 'email',
-  },
-  {
-    id: 2,
-    title: 'Bathroom renovation needed ASAP',
-    description: 'Master bathroom needs complete overhaul. Shower leak causing water damage. Need someone who can start within 2 weeks. Please provide references.',
-    source: 'craigslist',
-    sourceUrl: 'https://washingtondc.craigslist.org/...',
-    location: 'Silver Spring, MD',
-    distance: '5 miles',
-    postedAt: '3 hours ago',
-    budgetRange: '$15k - $25k',
-    category: 'Bathroom',
-    status: 'new',
-    hot: true,
-    contactMethod: 'phone',
-  },
-  {
-    id: 3,
-    title: 'Deck repair or replacement',
-    description: 'Existing deck is about 15 years old with some rotted boards. Need assessment on whether to repair or fully replace. Approximately 400 sq ft.',
-    source: 'nextdoor',
-    sourceUrl: 'https://nextdoor.com/...',
-    location: 'Arlington, VA',
-    distance: '12 miles',
-    postedAt: '5 hours ago',
-    budgetRange: '$5k - $15k',
-    category: 'Deck',
-    status: 'new',
-    hot: false,
-    contactMethod: 'message',
-  },
-  {
-    id: 4,
-    title: 'Basement finishing project',
-    description: 'Unfinished basement, approximately 800 sq ft. Want to add a bedroom, bathroom, and living area. Need full permits and inspections.',
-    source: 'website',
-    sourceUrl: '/admin/leads',
-    location: 'Rockville, MD',
-    distance: '10 miles',
-    postedAt: '6 hours ago',
-    budgetRange: '$40k - $60k',
-    category: 'Basement',
-    status: 'new',
-    hot: true,
-    contactMethod: 'email',
-  },
-  {
-    id: 5,
-    title: 'Interior painting - whole house',
-    description: '4 bedroom colonial, approximately 2800 sq ft. All rooms need painting including trim and ceilings. We will provide paint colors.',
-    source: 'craigslist',
-    sourceUrl: 'https://washingtondc.craigslist.org/...',
-    location: 'Potomac, MD',
-    distance: '15 miles',
-    postedAt: '8 hours ago',
-    budgetRange: '$5k - $8k',
-    category: 'Painting',
-    status: 'new',
-    hot: false,
-    contactMethod: 'email',
-  },
-  {
-    id: 6,
-    title: 'Roof replacement needed',
-    description: 'Shingle roof on single family home, approximately 2000 sq ft. Multiple leaks after last storm. Insurance claim filed. Need estimate ASAP.',
-    source: 'nextdoor',
-    sourceUrl: 'https://nextdoor.com/...',
-    location: 'College Park, MD',
-    distance: '7 miles',
-    postedAt: '1 day ago',
-    budgetRange: '$10k - $18k',
-    category: 'Roofing',
-    status: 'contacted',
-    hot: true,
-    contactMethod: 'phone',
-  },
-]
+type Row = LeadRecord & { kind: 'lead' | 'contact'; referredBy?: { name?: string; email?: string; phone?: string; check?: string; clientName?: string } }
+const LEAD_STATUS = ['new', 'contacted', 'quoted', 'won', 'lost']
+const REF_STATUS = ['pending', 'contacted', 'won', 'lost']
+const label = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
+const ms = (t: any) => (t?.toDate ? t.toDate().getTime() : t ? new Date(t).getTime() : 0)
+const day = (t: any) => (ms(t) ? new Date(ms(t)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '')
 
-const sources = [
-  { id: 'all', name: 'All Sources', count: 15 },
-  { id: 'website', name: 'CR Home Pros Website', count: 4 },
-  { id: 'craigslist', name: 'Craigslist', count: 8 },
-  { id: 'nextdoor', name: 'NextDoor', count: 3 },
-]
+/** Real estimate requests, contact messages and referrals from the website */
+export default function LeadsPage() {
+  const toast = useToast()
+  const [tab, setTab] = useState<'leads' | 'referrals'>('leads')
+  const [rows, setRows] = useState<Row[]>([])
+  const [referrals, setReferrals] = useState<any[]>([])
+  const [clients, setClients] = useState<{ emails: Map<string, string>; phones: Map<string, string> }>({ emails: new Map(), phones: new Map() })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [showClosed, setShowClosed] = useState(false)
 
-const categories = ['All', 'Kitchen', 'Bathroom', 'Basement', 'Deck', 'Roofing', 'Painting', 'Flooring']
+  useEffect(() => {
+    (async () => {
+      try {
+        const [leads, contacts, refs, docs] = await Promise.all([getLeads(), getContacts(), getReferrals(), getAllDocuments().catch(() => [])])
+        setRows([...leads.map(l => ({ ...l, kind: 'lead' as const })), ...contacts.map(c => ({ ...c, kind: 'contact' as const }))].sort((a, b) => ms(b.createdAt) - ms(a.createdAt)))
+        setReferrals(refs)
+        // who has been a client: 'in-contract' beats 'client'
+        const emails = new Map<string, string>(); const phones = new Map<string, string>()
+        docs.forEach(d => {
+          const level = d.type === 'contract' && d.status === 'signed' ? 'in-contract' : 'client'
+          const ek = emailKey(d.clientEmail); const pk = phoneKey(d.clientPhone)
+          if (ek && emails.get(ek) !== 'in-contract') emails.set(ek, level)
+          if (pk && phones.get(pk) !== 'in-contract') phones.set(pk, level)
+        })
+        setClients({ emails, phones })
+      } catch (e) { setError(e instanceof Error ? e.message : String(e)) }
+      setLoading(false)
+    })()
+  }, [])
 
-const statusOptions = [
-  { id: 'new', label: 'New', color: 'bg-blue-100 text-blue-700' },
-  { id: 'contacted', label: 'Contacted', color: 'bg-yellow-100 text-yellow-700' },
-  { id: 'quoted', label: 'Quoted', color: 'bg-purple-100 text-purple-700' },
-  { id: 'won', label: 'Won', color: 'bg-green-100 text-green-700' },
-  { id: 'lost', label: 'Lost', color: 'bg-red-100 text-red-700' },
-]
-
-export default function LeadHunterPage() {
-  const [selectedSource, setSelectedSource] = useState('all')
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [searchQuery, setSearchQuery] = useState('')
-  const [showFilters, setShowFilters] = useState(false)
-  const [leads, setLeads] = useState(mockLeads)
-  const [selectedLead, setSelectedLead] = useState<typeof mockLeads[0] | null>(null)
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
-  const filteredLeads = leads.filter((lead) => {
-    if (selectedSource !== 'all' && lead.source !== selectedSource) return false
-    if (selectedCategory !== 'All' && lead.category !== selectedCategory) return false
-    if (searchQuery && !lead.title.toLowerCase().includes(searchQuery.toLowerCase())) return false
-    return true
-  })
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true)
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 2000))
-    setIsRefreshing(false)
+  const clientLevel = (email?: string, phone?: string) => {
+    const a = clients.emails.get(emailKey(email)); const b = clients.phones.get(phoneKey(phone))
+    return a === 'in-contract' || b === 'in-contract' ? 'in-contract' : a || b || 'none'
+  }
+  const ClientBadge = ({ email, phone }: { email?: string; phone?: string }) => {
+    const level = clientLevel(email, phone)
+    return level === 'in-contract' ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-green-500/25 text-green-100 text-sm"><CheckCircle className="w-3.5 h-3.5" /> Past client: signed a contract with you</span>
+      : level === 'client' ? <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-500/25 text-blue-100 text-sm"><CheckCircle className="w-3.5 h-3.5" /> In your records: has an invoice or contract</span>
+      : <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-600/60 text-white text-sm"><HelpCircle className="w-3.5 h-3.5" /> Not found in your clients</span>
   }
 
-  const handleStatusChange = (leadId: number, newStatus: string) => {
-    setLeads(leads.map((l) => l.id === leadId ? { ...l, status: newStatus } : l))
+  const setStatus = async (r: Row, status: string) => {
+    setRows(prev => prev.map(x => (x.id === r.id ? { ...x, status } : x)))
+    try { await updateLeadStatus(r.id!, status, r.kind === 'lead' ? 'leads' : 'contacts'); toast(`${name(r)}: marked ${label(status)}`) } catch (e) { toast(e instanceof Error ? e.message : 'Not saved', 'error') }
   }
+  const setRefStatus = async (r: any, status: string) => {
+    setReferrals(prev => prev.map(x => (x.id === r.id ? { ...x, status } : x)))
+    try { await updateLeadStatus(r.id, status, 'referrals'); toast(`Referral for ${r.referralName}: marked ${label(status)}`) } catch (e) { toast(e instanceof Error ? e.message : 'Not saved', 'error') }
+  }
+  const name = (r: Row) => [r.firstName, r.lastName].filter(Boolean).join(' ') || r.name || r.email
 
-  const getSourceLogo = (source: string) => {
-    const logos: Record<string, string> = {
-      website: '🌐',
-      craigslist: '📋',
-      nextdoor: '🏘️',
-    }
-    return logos[source] || '📄'
-  }
+  const card = 'bg-slate-800/50 border border-white/10 rounded-2xl p-4 sm:p-5'
+  const btn = 'text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5'
+  const contactButtons = (phone?: string, email?: string) => (
+    <div className="flex flex-wrap gap-2 mt-3">
+      {phone && <a href={`tel:${phone}`} className={btn}><Phone className="w-4 h-4" /> Call {phone}</a>}
+      {phone && <a href={`sms:${phone}`} className={btn}><MessageSquare className="w-4 h-4" /> Text</a>}
+      {email && <a href={`mailto:${email}`} className={btn}><Mail className="w-4 h-4" /> {email}</a>}
+    </div>
+  )
+  const select = (value: string, options: string[], onChange: (s: string) => void) => (
+    <select value={value} onChange={e => onChange(e.target.value)} className="flex-shrink-0 bg-slate-800 border border-white/20 rounded-lg px-3 py-2 text-white text-sm font-medium">
+      {options.map(o => <option key={o} value={o}>{label(o)}</option>)}
+    </select>
+  )
+
+  const closed = (s?: string) => s === 'won' || s === 'lost'
+  const shownRows = rows.filter(r => showClosed || !closed(r.status))
+  const shownRefs = referrals.filter(r => showClosed || !closed(r.status))
+  const newRefs = referrals.filter(r => (r.status || 'pending') === 'pending').length
+  const newLeads = rows.filter(r => (r.status || 'new') === 'new').length
 
   return (
-    <div className="min-h-screen bg-dark-50">
-      {/* Header */}
-      <header className="bg-white border-b border-dark-100 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <Link href="/admin" className="p-2 hover:bg-dark-50 rounded-lg">
-                <ArrowLeft className="w-5 h-5" />
-              </Link>
-              <div>
-                <h1 className="text-xl font-display font-bold text-dark-900 flex items-center gap-2">
-                  <Target className="w-6 h-6 text-primary-600" />
-                  Lead Hunter
-                </h1>
-                <p className="text-sm text-dark-500">Find and respond to job opportunities</p>
-              </div>
-            </div>
-            <button
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="btn-primary"
-            >
-              <RefreshCw className={cn('w-5 h-5', isRefreshing && 'animate-spin')} />
-              {isRefreshing ? 'Scanning...' : 'Refresh Leads'}
-            </button>
-          </div>
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Users className="w-6 h-6 text-cyan-300" /> Leads and Referrals</h1>
+      <p className="text-slate-100 text-sm mt-1 mb-5">Everyone who asked for an estimate or wrote from the website, and every referral.</p>
 
-          {/* Search & Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-dark-400" />
-              <input
-                type="text"
-                placeholder="Search leads..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-dark-50 rounded-lg border border-dark-100 focus:border-primary-500 focus:outline-none"
-              />
-            </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="btn-outline"
-            >
-              <Filter className="w-5 h-5" />
-              Filters
-              <ChevronDown className={cn('w-4 h-4 transition-transform', showFilters && 'rotate-180')} />
-            </button>
-          </div>
+      <div className="flex flex-wrap items-center gap-2 mb-5">
+        <button onClick={() => setTab('leads')} className={`px-4 py-2 rounded-full text-sm font-medium border ${tab === 'leads' ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/15'}`}>Requests {newLeads > 0 && <span className="ml-1 px-1.5 rounded-full bg-red-600 text-white text-xs">{newLeads}</span>}</button>
+        <button onClick={() => setTab('referrals')} className={`px-4 py-2 rounded-full text-sm font-medium border ${tab === 'referrals' ? 'bg-white text-slate-900 border-white' : 'bg-slate-800 text-white border-white/15'}`}>Referrals {newRefs > 0 && <span className="ml-1 px-1.5 rounded-full bg-red-600 text-white text-xs">{newRefs}</span>}</button>
+        <label className="ml-auto text-sm text-slate-100 flex items-center gap-2"><input type="checkbox" checked={showClosed} onChange={e => setShowClosed(e.target.checked)} className="w-4 h-4" /> Show won and lost</label>
+      </div>
 
-          {/* Filter Panel */}
-          {showFilters && (
-            <div className="mt-4 p-4 bg-dark-50 rounded-xl">
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-dark-700 mb-2 block">Source</label>
-                  <div className="flex flex-wrap gap-2">
-                    {sources.map((source) => (
-                      <button
-                        key={source.id}
-                        onClick={() => setSelectedSource(source.id)}
-                        className={cn(
-                          'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                          selectedSource === source.id
-                            ? 'bg-primary-600 text-white'
-                            : 'bg-white text-dark-600 hover:bg-dark-100'
-                        )}
-                      >
-                        {source.name} ({source.count})
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-dark-700 mb-2 block">Category</label>
-                  <div className="flex flex-wrap gap-2">
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        onClick={() => setSelectedCategory(cat)}
-                        className={cn(
-                          'px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
-                          selectedCategory === cat
-                            ? 'bg-gold-500 text-dark-900'
-                            : 'bg-white text-dark-600 hover:bg-dark-100'
-                        )}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </header>
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Lead List */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center justify-between">
-              <p className="text-dark-500">
-                <span className="font-semibold text-dark-900">{filteredLeads.length}</span> leads found
-              </p>
-              <div className="flex items-center gap-2 text-sm text-dark-500">
-                <Zap className="w-4 h-4 text-gold-500" />
-                Last updated: 2 mins ago
-              </div>
-            </div>
-
-            {filteredLeads.map((lead) => (
-              <div
-                key={lead.id}
-                onClick={() => setSelectedLead(lead)}
-                className={cn(
-                  'bg-white rounded-xl border p-5 cursor-pointer transition-all hover:shadow-md',
-                  selectedLead?.id === lead.id
-                    ? 'border-primary-500 shadow-md'
-                    : 'border-dark-100'
-                )}
-              >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getSourceLogo(lead.source)}</span>
-                    <div>
-                      <h3 className="font-semibold text-dark-900 flex items-center gap-2">
-                        {lead.title}
-                        {lead.hot && (
-                          <span className="px-2 py-0.5 bg-red-100 text-red-600 text-xs font-bold rounded-full animate-pulse">
-                            🔥 HOT
-                          </span>
-                        )}
-                      </h3>
-                      <p className="text-sm text-dark-500">{lead.source.replace('_', ' ')} • {lead.postedAt}</p>
+      {loading ? <div className="flex justify-center py-16"><Loader2 className="w-8 h-8 animate-spin text-blue-400" /></div>
+        : error ? <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-4 text-red-50">Leads could not be loaded. {error}</div>
+        : tab === 'leads' ? (
+          shownRows.length === 0 ? <div className={card + ' text-center text-slate-100 py-10'}>No open requests.</div> : (
+            <div className="space-y-3">
+              {shownRows.map(r => (
+                <div key={`${r.kind}-${r.id}`} className={card}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-white text-lg">{name(r)}</h3>
+                      <p className="text-sm text-slate-100">{r.kind === 'lead' ? 'Estimate request' : 'Contact message'} · {day(r.createdAt)}</p>
                     </div>
+                    {select(r.status || 'new', LEAD_STATUS, s => setStatus(r, s))}
                   </div>
-                  <span className={cn(
-                    'px-2 py-1 text-xs font-medium rounded-full',
-                    statusOptions.find((s) => s.id === lead.status)?.color
-                  )}>
-                    {statusOptions.find((s) => s.id === lead.status)?.label}
-                  </span>
+                  {(r.services?.length || r.service) && <p className="mt-2 text-white font-medium">{(r.services || [r.service]).filter(Boolean).join(', ')}</p>}
+                  {(r.projectDescription || r.message) && <p className="mt-1 text-slate-100 text-sm whitespace-pre-line">{r.projectDescription || r.message}</p>}
+                  {(r.timeline || r.budget) && <p className="mt-1 text-sm text-slate-100">{[r.timeline && `When: ${r.timeline}`, r.budget && `Budget: ${r.budget}`].filter(Boolean).join(' · ')}</p>}
+                  {r.address && <p className="mt-2 flex items-center gap-1.5 text-sm text-slate-100"><MapPin className="w-4 h-4 text-blue-300" />{[r.address, r.city, r.state, r.zip].filter(Boolean).join(', ')}</p>}
+                  {r.referredBy?.name || r.referredBy?.email || r.referredBy?.phone ? (
+                    <div className="mt-3 rounded-xl border border-purple-400/50 bg-purple-500/15 p-3">
+                      <p className="text-sm font-semibold text-white flex items-center gap-2"><UserPlus className="w-4 h-4 text-purple-200" /> Referred by {r.referredBy.name || r.referredBy.email || r.referredBy.phone}</p>
+                      <p className="text-sm text-purple-50">{[r.referredBy.phone, r.referredBy.email].filter(Boolean).join(' · ')}</p>
+                      <div className="mt-1.5"><ClientBadge email={r.referredBy.email} phone={r.referredBy.phone} /></div>
+                    </div>
+                  ) : null}
+                  {contactButtons(r.phone, r.email)}
                 </div>
-
-                <p className="text-dark-600 text-sm mb-4 line-clamp-2">{lead.description}</p>
-
-                <div className="flex flex-wrap gap-4 text-sm text-dark-500">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-4 h-4" />
-                    {lead.location} ({lead.distance})
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <DollarSign className="w-4 h-4" />
-                    {lead.budgetRange}
-                  </span>
-                  <span className="px-2 py-0.5 bg-primary-50 text-primary-700 rounded text-xs font-medium">
-                    {lead.category}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Lead Detail Panel */}
-          <div className="lg:col-span-1">
-            {selectedLead ? (
-              <div className="bg-white rounded-xl border border-dark-100 p-6 sticky top-32">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-2xl">{getSourceLogo(selectedLead.source)}</span>
-                  <a
-                    href={selectedLead.sourceUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary-600 hover:text-primary-700 flex items-center gap-1 text-sm"
-                  >
-                    View Original
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-
-                <h2 className="text-xl font-display font-bold text-dark-900 mb-2">
-                  {selectedLead.title}
-                </h2>
-
-                <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="flex items-center gap-1 text-sm text-dark-500">
-                    <MapPin className="w-4 h-4" />
-                    {selectedLead.location}
-                  </span>
-                  <span className="flex items-center gap-1 text-sm text-dark-500">
-                    <Clock className="w-4 h-4" />
-                    {selectedLead.postedAt}
-                  </span>
-                </div>
-
-                <div className="bg-dark-50 rounded-lg p-4 mb-6">
-                  <p className="text-dark-700 text-sm leading-relaxed">
-                    {selectedLead.description}
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-green-50 rounded-lg p-3">
-                    <p className="text-xs text-green-600 mb-1">Budget Range</p>
-                    <p className="font-bold text-green-700">{selectedLead.budgetRange}</p>
+              ))}
+            </div>
+          )
+        ) : (
+          shownRefs.length === 0 ? <div className={card + ' text-center text-slate-100 py-10'}>No open referrals.</div> : (
+            <div className="space-y-3">
+              {shownRefs.map(r => (
+                <div key={r.id} className={card}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-white text-lg">{r.referralName}</h3>
+                      <p className="text-sm text-slate-100">Referral · {day(r.createdAt)}{r.source === 'client-page' ? ' · sent from a client page' : r.source === 'estimate-form' ? ' · said so on the estimate form' : ''}</p>
+                    </div>
+                    {select(r.status || 'pending', REF_STATUS, s => setRefStatus(r, s))}
                   </div>
-                  <div className="bg-primary-50 rounded-lg p-3">
-                    <p className="text-xs text-primary-600 mb-1">Category</p>
-                    <p className="font-bold text-primary-700">{selectedLead.category}</p>
+                  {(r.projectType || r.projectDetails) && <p className="mt-2 text-slate-100 text-sm whitespace-pre-line">{[r.projectType, r.projectDetails].filter(Boolean).join(': ')}</p>}
+                  {contactButtons(r.referralPhone, r.referralEmail)}
+                  <div className="mt-3 rounded-xl border border-purple-400/50 bg-purple-500/15 p-3">
+                    <p className="text-sm font-semibold text-white flex items-center gap-2"><UserPlus className="w-4 h-4 text-purple-200" /> Referred by {r.referrerName || r.referrerEmail || r.referrerPhone}</p>
+                    <p className="text-sm text-purple-50">{[r.referrerPhone, r.referrerEmail].filter(Boolean).join(' · ')}</p>
+                    <div className="mt-1.5"><ClientBadge email={r.referrerEmail} phone={r.referrerPhone} /></div>
                   </div>
                 </div>
-
-                {/* Status Update */}
-                <div className="mb-6">
-                  <label className="text-sm font-medium text-dark-700 mb-2 block">Update Status</label>
-                  <div className="flex flex-wrap gap-2">
-                    {statusOptions.map((status) => (
-                      <button
-                        key={status.id}
-                        onClick={() => handleStatusChange(selectedLead.id, status.id)}
-                        className={cn(
-                          'px-3 py-1.5 rounded-lg text-xs font-medium transition-all',
-                          selectedLead.status === status.id
-                            ? status.color
-                            : 'bg-dark-100 text-dark-500 hover:bg-dark-200'
-                        )}
-                      >
-                        {status.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className="space-y-3">
-                  <button className="btn-gold w-full">
-                    <Send className="w-5 h-5" />
-                    Send Quote / Respond
-                  </button>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button className="btn-outline btn-sm">
-                      <Star className="w-4 h-4" />
-                      Save
-                    </button>
-                    <button className="btn-outline btn-sm text-red-600 border-red-200 hover:bg-red-50">
-                      <XCircle className="w-4 h-4" />
-                      Dismiss
-                    </button>
-                  </div>
-                </div>
-
-                {/* Quick Response Templates */}
-                <div className="mt-6 pt-6 border-t border-dark-100">
-                  <p className="text-sm font-medium text-dark-700 mb-3">Quick Response Templates</p>
-                  <div className="space-y-2">
-                    <button className="w-full text-left p-3 bg-dark-50 rounded-lg text-sm text-dark-600 hover:bg-dark-100 transition-colors">
-                      📧 Standard Introduction
-                    </button>
-                    <button className="w-full text-left p-3 bg-dark-50 rounded-lg text-sm text-dark-600 hover:bg-dark-100 transition-colors">
-                      📞 Request Phone Call
-                    </button>
-                    <button className="w-full text-left p-3 bg-dark-50 rounded-lg text-sm text-dark-600 hover:bg-dark-100 transition-colors">
-                      📅 Schedule Site Visit
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white rounded-xl border border-dark-100 p-8 text-center">
-                <Target className="w-12 h-12 text-dark-300 mx-auto mb-4" />
-                <h3 className="font-semibold text-dark-900 mb-2">Select a Lead</h3>
-                <p className="text-dark-500 text-sm">
-                  Click on a lead to see details and respond
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
+              ))}
+            </div>
+          )
+        )}
     </div>
   )
 }

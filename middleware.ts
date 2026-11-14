@@ -30,6 +30,7 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/robots') ||
     pathname.startsWith('/sitemap') ||
     pathname.startsWith('/admin') ||
+    pathname.startsWith('/portal') ||
     pathname.includes('.')
   ) {
     return NextResponse.next()

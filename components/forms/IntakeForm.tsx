@@ -63,6 +63,10 @@ const makeIntakeSchema = (es: boolean) => z.object({
   
   // Step 5: Additional
   howDidYouHear: z.string().optional(),
+  // filled in when someone referred them
+  referrerName: z.string().max(120).optional(),
+  referrerEmail: z.string().max(160).optional(),
+  referrerPhone: z.string().max(40).optional(),
   additionalNotes: z.string().optional(),
 })
 
@@ -104,6 +108,7 @@ export function IntakeForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [uploadedPhotos, setUploadedPhotos] = useState<File[]>([])
+  const [wasReferred, setWasReferred] = useState(false)
 
   const {
     register,
@@ -221,6 +226,7 @@ export function IntakeForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
+          ...(wasReferred ? {} : { referrerName: '', referrerEmail: '', referrerPhone: '' }),
           images,
           bannerId: bannerId || undefined,
           promoCode: promoCode || undefined,
@@ -545,6 +551,31 @@ export function IntakeForm() {
                   <option key={source} value={source}>{es ? REFERRAL_ES[source] ?? source : source}</option>
                 ))}
               </select>
+            </div>
+            <div className="rounded-xl border border-dark-200 bg-dark-50 p-4">
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input type="checkbox" checked={wasReferred} onChange={(e) => setWasReferred(e.target.checked)} className="mt-1 w-5 h-5 flex-shrink-0" />
+                <span className="text-dark-900 font-medium">{es ? 'Alguien me recomendó CR Home Pros' : 'Someone referred me to CR Home Pros'}</span>
+              </label>
+              {wasReferred && (
+                <div className="mt-4 space-y-3">
+                  <p className="text-sm text-dark-700">{es ? 'Díganos quién lo recomendó para poder agradecerle. Con el correo o el teléfono es suficiente.' : 'Tell us who referred you so we can thank them. An email or a phone number is enough.'}</p>
+                  <div>
+                    <label className="label">{es ? 'Nombre de quien lo recomendó' : 'Name of the person who referred you'}</label>
+                    <input {...register('referrerName')} className="input" autoComplete="off" />
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="label">{es ? 'Su correo electrónico' : 'Their email'}</label>
+                      <input {...register('referrerEmail')} type="email" className="input" autoComplete="off" />
+                    </div>
+                    <div>
+                      <label className="label">{es ? 'Su teléfono' : 'Their phone'}</label>
+                      <input {...register('referrerPhone')} type="tel" className="input" autoComplete="off" />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             <div>
               <label className="label">{es ? '📸 Suba Fotos de Su Proyecto (Opcional)' : '📸 Upload Photos of Your Project (Optional)'}</label>

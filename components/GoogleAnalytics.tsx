@@ -9,9 +9,12 @@ export function GoogleAnalytics() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
+  // Private pages (client links, admin) are never sent to analytics
+  const isPrivate = !!pathname && (pathname.startsWith('/portal') || pathname.startsWith('/admin'))
+
   // Track page views on route change
   useEffect(() => {
-    if (pathname) {
+    if (pathname && !isPrivate) {
       gtag('config', GA_ID, {
         page_path: pathname,
       })
@@ -47,6 +50,8 @@ export function GoogleAnalytics() {
     document.addEventListener('click', handleClick)
     return () => document.removeEventListener('click', handleClick)
   }, [])
+
+  if (isPrivate) return null
 
   return (
     <>

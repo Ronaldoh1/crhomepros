@@ -1,10 +1,11 @@
 // ============================================
-// PDF builder for invoices, change orders and contracts
+// PDF builder for invoices, change orders and contracts (branded layout)
 // ============================================
 // Pure JavaScript (pdf-lib), so it runs on Vercel. Replaces the old Python
 // script, which failed in production because the server has no python3.
 
 import { PDFDocument, StandardFonts, rgb, type PDFFont, type PDFPage } from 'pdf-lib'
+import { LOGO_PNG_BASE64 } from './logo-data'
 
 export type PdfDocType = 'invoice' | 'change-order' | 'contract'
 
@@ -26,6 +27,8 @@ export interface PdfDocData {
   notes?: string
   /** PNG data URL of Carlos's signature */
   signatureData?: string | null
+  /** The client's electronic signature (contracts signed on their page) */
+  clientSignature?: { dataUrl?: string; name?: string; signedAt?: string; ip?: string } | null
 }
 
 const W = 612
@@ -35,8 +38,9 @@ const hex = (h: string) => {
   const n = parseInt(h.replace('#', ''), 16)
   return rgb(((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255)
 }
-const BLUE = hex('#1e3a5f')
-const GOLD = hex('#c4a45f')
+const BLUE = hex('#0b1b33') // brand navy
+const GOLD = hex('#fd9b14') // brand orange (from the logo)
+const GOLD_DARK = hex('#b45309') // orange that reads on white
 const DARK = hex('#0f172a')
 const GRAY = hex('#475569')
 const LIGHT = hex('#cbd5e1')
@@ -101,8 +105,9 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
 
   const footer = () => {
     page.drawRectangle({ x: 0, y: 0, width: W, height: 40, color: BLUE })
-    center('C&R GENERAL SERVICES INC.  |  We Are In This Business For You', 22, 8, bold, GOLD)
-    center('(571) 237-7164  |  crhomepros@gmail.com  |  MHIC #05-132359', 10, 7, font, LIGHT)
+    page.drawRectangle({ x: 0, y: 40, width: W, height: 2, color: GOLD })
+    center('CR HOME PROS  |  C&R General Services Inc.', 23, 8, bold, WHITE)
+    center('(571) 237-7164  |  crhomepros@gmail.com  |  crhomepros.com  |  MHIC #05-132359', 11, 7, font, WHITE)
   }
   const newPage = () => {
     page = pdf.addPage([W, H])
@@ -115,8 +120,9 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   }
   const heading = (s: string, size = 11) => {
     need(40)
-    text(s, M, y, size, bold, BLUE)
-    y -= 17
+    page.drawRectangle({ x: M, y: y - 1, width: 14, height: 3, color: GOLD })
+    text(s, M + 20, y - 3, size, bold, BLUE)
+    y -= 20
   }
   const paragraph = (s: string, size: number, color = DARK, lead = size + 4.5, x = M) => {
     for (const line of wrap(s, W - M - x, size)) {
@@ -128,52 +134,55 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
 
   // ── Header ──────────────────────────────────
   newPage()
-  page.drawRectangle({ x: 0, y: H - 120, width: W, height: 120, color: BLUE })
-  text('C&R', M, H - 55, 26, bold, WHITE)
-  text('General Services Inc.', M, H - 72, 11, font, WHITE)
-  text('Licensed  |  Insured  |  Bonded', M, H - 86, 8, font, GOLD)
-  text('www.crgenserv.com  |  (571) 237-7164  |  crhomepros@gmail.com', M, H - 100, 7, font, LIGHT)
-  right(label, W - M, H - 55, corrected ? 15 : 18, bold, GOLD)
-  right(`#${d.number || ''}`, W - M, H - 75, 10, font, WHITE)
-  page.drawRectangle({ x: 0, y: H - 124, width: W, height: 4, color: GOLD })
-
-  y = H - 155
-  text(`Date: ${d.date || ''}`, M, y, 10)
-  if (d.dueDate) right(`Due: ${d.dueDate}`, W - M, y, 10)
-  y -= 30
-
-  // ── Client / property ───────────────────────
-  const topY = y
-  text('CLIENT', M, y, 11, bold, BLUE)
-  y -= 16
-  text(d.clientName || '', M, y, 12, bold)
-  y -= 15
-  for (const line of wrap(d.clientAddress || '', 220, 10)) {
-    if (!line) continue
-    text(line, M, y, 10, font, GRAY)
-    y -= 14
+  const HEAD = 118
+  page.drawRectangle({ x: 0, y: H - HEAD, width: W, height: HEAD, color: BLUE })
+  page.drawRectangle({ x: 0, y: H - HEAD - 3, width: W, height: 3, color: GOLD })
+  try {
+    const logo = await pdf.embedPng(Buffer.from(LOGO_PNG_BASE64, 'base64'))
+    const lw = 150
+    page.drawImage(logo, { x: M - 4, y: H - 98, width: lw, height: (logo.height / logo.width) * lw })
+  } catch {
+    text('CR HOME PROS', M, H - 62, 22, bold, WHITE)
   }
-  if (d.clientPhone) { text(`Phone: ${d.clientPhone}`, M, y, 10, font, GRAY); y -= 14 }
-  if (d.clientEmail) { text(`Email: ${d.clientEmail}`, M, y, 10, font, GRAY); y -= 14 }
+  right(label, W - M, H - 50, corrected ? 15 : 22, bold, GOLD)
+  right(`No. ${d.number || ''}`, W - M, H - 68, 10, bold, WHITE)
+  right('Licensed  |  Insured  |  Bonded', W - M, H - 86, 7.5, font, WHITE)
+  right('MHIC #05-132359  |  #109350', W - M, H - 97, 7.5, font, WHITE)
 
-  if (d.propertyAddress) {
-    let py = topY
-    text('PROPERTY', 320, py, 11, bold, BLUE)
-    py -= 16
-    for (const line of wrap(d.propertyAddress, W - M - 320, 10)) {
-      if (!line) continue
-      text(line, 320, py, 10)
-      py -= 14
-    }
-    y = Math.min(y, py)
+  // Date strip
+  y = H - HEAD - 30
+  const cell = (title: string, value: string, x: number) => {
+    text(title, x, y, 7, bold, GOLD_DARK)
+    text(value, x, y - 13, 10.5, bold)
   }
-  y -= 12
-
+  cell('DATE', d.date || '', M)
+  if (d.dueDate) cell('DUE', d.dueDate, M + 110)
   if (d.projectName) {
-    heading('PROJECT')
-    paragraph(d.projectName, 10)
-    y -= 8
+    const pj = wrap(d.projectName, W - M - (M + (d.dueDate ? 220 : 110)), 10.5, bold)[0] || ''
+    cell('PROJECT', pj, M + (d.dueDate ? 220 : 110))
   }
+  y -= 34
+
+  // ── Client / property cards ─────────────────
+  const clientLines = [
+    ...wrap(d.clientAddress || '', 205, 9.5).filter(Boolean),
+    ...(d.clientPhone ? [d.clientPhone] : []),
+    ...(d.clientEmail ? [d.clientEmail] : []),
+  ]
+  const propLines = d.propertyAddress ? wrap(d.propertyAddress, 205, 9.5).filter(Boolean) : []
+  const cardH = 44 + Math.max(clientLines.length, propLines.length) * 13
+  const cardW = (W - 2 * M - 16) / 2
+  const cardBox = (x: number, title: string, name: string, lines: string[]) => {
+    page.drawRectangle({ x, y: y - cardH, width: cardW, height: cardH, color: ROW, borderColor: LINE, borderWidth: 0.6 })
+    page.drawRectangle({ x, y: y - cardH, width: 3, height: cardH, color: GOLD })
+    text(title, x + 14, y - 16, 7, bold, GOLD_DARK)
+    if (name) text(name, x + 14, y - 31, 11.5, bold)
+    lines.forEach((l, i) => text(l, x + 14, y - (name ? 45 : 31) - i * 13, 9.5, font, GRAY))
+  }
+  cardBox(M, type === 'invoice' ? 'BILL TO' : 'CLIENT', d.clientName || '', clientLines)
+  if (propLines.length) cardBox(M + cardW + 16, 'JOB ADDRESS', '', propLines)
+  else cardBox(M + cardW + 16, 'FROM', 'CR Home Pros', ['C&R General Services Inc.', '(571) 237-7164', 'crhomepros@gmail.com'].slice(0, Math.max(3, clientLines.length)))
+  y -= cardH + 26
 
   // ── Items ───────────────────────────────────
   const items = (d.items || []).filter((i) => i && (i.description || i.unitPrice))
@@ -224,10 +233,12 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
       right(`Tax (${taxRate}%):  ${money(tax)}`, W - M, y, 10, font, GRAY)
       y -= 16
     }
-    y -= 6
-    page.drawRectangle({ x: W - M - 210, y: y - 8, width: 210, height: 26, color: BLUE })
-    right(`TOTAL:  ${money(total)}`, W - M - 8, y, 13, bold, WHITE)
-    y -= 38
+    y -= 16
+    page.drawRectangle({ x: W - M - 230, y: y - 12, width: 230, height: 34, color: BLUE })
+    page.drawRectangle({ x: W - M - 230, y: y - 12, width: 4, height: 34, color: GOLD })
+    text(type === 'invoice' ? 'TOTAL DUE' : 'TOTAL', W - M - 214, y, 9, bold, GOLD)
+    right(money(total), W - M - 12, y - 2, 15, bold, WHITE)
+    y -= 46
   } else if (items.length) {
     heading('SCOPE OF WORK')
     items.forEach((item, i) => {
@@ -248,37 +259,52 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   if (d.notes) { y -= 8; heading('NOTES', 10); paragraph(d.notes, 9, GRAY, 13) }
 
   // ── Signatures ──────────────────────────────
-  need(150)
+  const embedSig = async (src?: string | null) => {
+    if (!src) return null
+    try {
+      // Either a signature made in the portal (data URL) or the saved one (https link)
+      const bytes = src.startsWith('data:image/png')
+        ? Buffer.from(src.split(',')[1], 'base64')
+        : /^https:\/\/firebasestorage\.googleapis\.com\//.test(src)
+          ? Buffer.from(await (await fetch(src)).arrayBuffer())
+          : null
+      return bytes ? await pdf.embedPng(bytes) : null
+    } catch {
+      return null // unreadable signature image: leave the line blank
+    }
+  }
+  const cs = d.clientSignature || null
+  need(cs ? 175 : 150)
   y -= 20
   page.drawLine({ start: { x: M, y }, end: { x: W - M, y }, thickness: 0.5, color: LINE })
   y -= 26
-  text('Provided and Guaranteed by:', M, y, 10, bold)
-  text('Accepted and Agreed:', 320, y, 10, bold)
-  const sigLine = y - 42
-  if (d.signatureData) {
-    try {
-      // Either a drawn signature (data URL) or the saved one (https link)
-      const bytes = d.signatureData.startsWith('data:image/png')
-        ? Buffer.from(d.signatureData.split(',')[1], 'base64')
-        : /^https:\/\//.test(d.signatureData)
-          ? Buffer.from(await (await fetch(d.signatureData)).arrayBuffer())
-          : null
-      if (bytes) {
-        const png = await pdf.embedPng(bytes)
-        const scale = Math.min(180 / png.width, 36 / png.height)
-        page.drawImage(png, { x: M, y: sigLine + 2, width: png.width * scale, height: png.height * scale })
-      }
-    } catch {
-      // unreadable signature image: leave the line blank
-    }
+  text('PROVIDED AND GUARANTEED BY', M, y, 7.5, bold, GOLD_DARK)
+  text('ACCEPTED AND AGREED', 320, y, 7.5, bold, GOLD_DARK)
+  const sigLine = y - 46
+  const mine = await embedSig(d.signatureData)
+  if (mine) {
+    const scale = Math.min(180 / mine.width, 38 / mine.height)
+    page.drawImage(mine, { x: M, y: sigLine + 2, width: mine.width * scale, height: mine.height * scale })
+  }
+  const theirs = await embedSig(cs?.dataUrl)
+  if (theirs) {
+    const scale = Math.min(200 / theirs.width, 38 / theirs.height)
+    page.drawImage(theirs, { x: 320, y: sigLine + 2, width: theirs.width * scale, height: theirs.height * scale })
   }
   page.drawLine({ start: { x: M, y: sigLine }, end: { x: 250, y: sigLine }, thickness: 0.7, color: DARK })
   page.drawLine({ start: { x: 320, y: sigLine }, end: { x: W - M, y: sigLine }, thickness: 0.7, color: DARK })
   text('Carlos Hernandez', M, sigLine - 14, 10, bold)
   text('President, CRGS, Inc.', M, sigLine - 27, 9, font, GRAY)
-  text(`Date: ${d.signatureData ? d.date || '' : '_______________'}`, M, sigLine - 40, 9, font, GRAY)
-  text(d.clientName || '', 320, sigLine - 14, 10, bold)
-  text('Date: _______________', 320, sigLine - 27, 9, font, GRAY)
+  text(`Date: ${mine ? d.date || '' : '_______________'}`, M, sigLine - 40, 9, font, GRAY)
+  text(cs?.name || d.clientName || '', 320, sigLine - 14, 10, bold)
+  if (cs?.signedAt) {
+    const when = new Date(cs.signedAt)
+    const stamp = isNaN(when.getTime()) ? cs.signedAt : when.toLocaleString('en-US', { timeZone: 'America/New_York', dateStyle: 'long', timeStyle: 'short' }) + ' ET'
+    text(`Signed electronically: ${stamp}`, 320, sigLine - 27, 8.5, font, GRAY)
+    if (cs.ip) text(`From IP address ${cs.ip}`, 320, sigLine - 39, 7.5, font, GRAY)
+  } else {
+    text('Date: _______________', 320, sigLine - 27, 9, font, GRAY)
+  }
 
   return pdf.save()
 }

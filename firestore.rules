@@ -32,6 +32,9 @@ service cloud.firestore {
     match /referrals/{id}       { allow read, write: if isAdmin(); }
     match /field_notes/{id}     { allow read, write: if isAdmin(); }
     match /admin_documents/{id} { allow read, write: if isAdmin(); }  // invoices, contracts, change orders
+    match /clients/{id}         { allow read, write: if isAdmin(); }  // private client-page links
+    match /client_messages/{id} { allow read, write: if isAdmin(); }  // notes, questions, notifications
+    match /past_projects/{id}   { allow read, write: if isAdmin(); }  // private until published
 
     // Everything else: closed
     match /{document=**} { allow read, write: if false; }

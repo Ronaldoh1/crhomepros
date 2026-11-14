@@ -27,11 +27,13 @@ import {
   deleteField,
   query,
   orderBy,
+  limit,
   where,
   serverTimestamp,
   type Timestamp,
   type Firestore,
 } from 'firebase/firestore'
+import { emailKey, phoneKey } from './client-keys'
 import {
   getStorage,
   ref,
@@ -216,6 +218,8 @@ export interface DocumentRecord {
   estimateId?: string
   /** The client first declined the estimate and later came back */
   estimateReopened?: boolean
+  /** Set when the client signs a contract on their page */
+  clientSignature?: { dataUrl?: string; name?: string; signedAt?: string; ip?: string }
   signedFileUrl?: string
   signedFileName?: string
   emailSubject?: string
@@ -237,6 +241,9 @@ export async function saveDocument(docData: DocumentRecord): Promise<string> {
   const payload = {
     ...docData,
     id: docRef.id,
+    // how the client page finds this client's documents
+    clientEmailKey: emailKey(docData.clientEmail),
+    clientPhoneKey: phoneKey(docData.clientPhone),
     updatedAt: serverTimestamp(),
     ...(docData.id ? {} : { createdAt: serverTimestamp() }),
   }
@@ -481,6 +488,11 @@ export interface FieldNoteRecord {
   /** The one invoice made from this estimate */
   invoiceId?: string
   invoiceNumber?: string
+  /** Shown on the client's page (set by "Send to client") */
+  sharedWithClient?: boolean
+  sharedAt?: string
+  /** Contract made from this estimate */
+  contractId?: string
   createdAt?: any
   updatedAt?: any
 }
@@ -503,6 +515,8 @@ export async function saveFieldNote(noteData: FieldNoteRecord, isNew = !noteData
   await setDoc(docRef, {
     ...noteData,
     id: docRef.id,
+    clientEmailKey: emailKey(noteData.clientEmail),
+    clientPhoneKey: phoneKey(noteData.clientPhone),
     updatedAt: serverTimestamp(),
     ...(isNew ? { createdAt: serverTimestamp() } : {}),
   }, { merge: true })
@@ -546,4 +560,96 @@ export async function getFieldNotes(): Promise<FieldNoteRecord[]> {
 export async function deleteFieldNote(id: string): Promise<void> {
   const db = requireDb()
   await deleteDoc(doc(db, FIELD_NOTES_COLLECTION, id))
+}
+
+
+// ============================================
+// Client messages and notifications
+// ============================================
+// Notes and questions from the client page, Carlos's answers, and system
+// events (contract signed, referral sent). Written by the server.
+
+export interface ClientMessage {
+  id?: string
+  clientEmail: string
+  clientEmailKey: string
+  clientName?: string
+  from: 'client' | 'carlos' | 'system'
+  kind: 'note' | 'question' | 'reply' | 'signed' | 'referral'
+  docType?: string
+  docId?: string
+  docLabel?: string
+  text: string
+  read: boolean
+  createdAt?: any
+}
+
+export async function getClientMessages(max = 300): Promise<ClientMessage[]> {
+  const q = query(collection(requireDb(), 'client_messages'), orderBy('createdAt', 'desc'), limit(max))
+  return (await getDocs(q)).docs.map(d => ({ ...d.data(), id: d.id } as ClientMessage))
+}
+
+export async function markMessagesRead(ids: string[]): Promise<void> {
+  const db = requireDb()
+  await Promise.all(ids.map(id => setDoc(doc(db, 'client_messages', id), { read: true }, { merge: true })))
+}
+
+// ============================================
+// Past projects
+// ============================================
+// One per signed contract. "Before" photos come from the field estimate;
+// Carlos adds the "after" photos. Private until he marks one ready to publish.
+
+export interface PastProject {
+  id?: string
+  contractId?: string
+  contractNumber?: string
+  estimateId?: string
+  clientName: string
+  clientEmail?: string
+  clientEmailKey?: string
+  address?: string
+  title: string
+  workDone: string
+  beforePhotos: string[]
+  beforePaths?: string[]
+  afterPhotos: string[]
+  afterPaths?: string[]
+  status: 'in-progress' | 'completed'
+  /** Carlos marked it ready for the public gallery (nothing is public yet) */
+  published: boolean
+  /** Public wording, with no client details */
+  publicCity?: string
+  startedAt?: string
+  completedAt?: string
+  createdAt?: any
+  updatedAt?: any
+}
+
+export async function getPastProjects(): Promise<PastProject[]> {
+  const q = query(collection(requireDb(), 'past_projects'), orderBy('createdAt', 'desc'))
+  return (await getDocs(q)).docs.map(d => ({ ...d.data(), id: d.id } as PastProject))
+}
+
+export async function updatePastProject(id: string, patch: Partial<PastProject>): Promise<void> {
+  await setDoc(doc(requireDb(), 'past_projects', id), { ...patch, updatedAt: serverTimestamp() }, { merge: true })
+}
+
+export async function createPastProject(p: PastProject): Promise<string> {
+  const ref = p.id ? doc(requireDb(), 'past_projects', p.id) : doc(collection(requireDb(), 'past_projects'))
+  await setDoc(ref, { ...p, id: ref.id, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true })
+  return ref.id
+}
+
+export async function deletePastProject(id: string): Promise<void> {
+  await deleteDoc(doc(requireDb(), 'past_projects', id))
+}
+
+/** Upload one (already shrunk) project photo. Stored privately until published. */
+export async function uploadProjectPhoto(projectId: string, photo: Blob): Promise<{ url: string; path: string }> {
+  const s = requireStorage()
+  const path = `admin/past-projects/${projectId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`
+  const storageRef = ref(s, path)
+  await uploadBytes(storageRef, photo, { contentType: 'image/jpeg' })
+  return { url: await getDownloadURL(storageRef), path }
 }

@@ -109,6 +109,8 @@ export async function saveLead(data: {
   budget: string
   howDidYouHear?: string
   additionalNotes?: string
+  /** who referred them, and whether that person is a past client */
+  referredBy?: Record<string, string>
 }) {
   return saveToFirestore('leads', {
     ...data,
@@ -128,8 +130,12 @@ export async function saveReferral(data: {
   projectDetails?: string
   paymentMethod?: string
 }) {
+  const digits = (v?: string) => { const d = String(v || '').replace(/\D/g, ''); return d.length >= 10 ? d.slice(-10) : '' }
   return saveToFirestore('referrals', {
     ...data,
+    referrerEmailKey: String(data.referrerEmail || '').trim().toLowerCase(),
+    referralEmailKey: String(data.referralEmail || '').trim().toLowerCase(),
+    referralPhoneKey: digits(data.referralPhone),
     status: 'pending',
     source: 'referral-form',
   })

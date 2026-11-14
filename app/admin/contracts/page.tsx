@@ -11,6 +11,8 @@ import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, n
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useToast } from '../_components/Toast'
 
 interface ScopeItem { id: string; description: string }
 
@@ -51,6 +53,11 @@ export default function ContractsPage() {
   const [generating, setGenerating] = useState(false)
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
+  const toast = useToast()
+  // a contract the client already signed cannot be changed or sent again
+  const [signedBy, setSignedBy] = useState<{ name?: string; signedAt?: string } | null>(null)
+  const [estimateId, setEstimateId] = useState<string | null>(null)
+  const router = useRouter()
   const [savedSigUrl, setSavedSigUrl] = useState<string | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [emailSubject, setEmailSubject] = useState('')
@@ -67,6 +74,25 @@ export default function ContractsPage() {
   // Reopen a saved draft: /admin/...?id=<document id>
   useEffect(() => {
     const id = new URLSearchParams(window.location.search).get('id')
+    const fromEstimate = new URLSearchParams(window.location.search).get('fromEstimate')
+    if (!id && fromEstimate) {
+      // Contract started from a field estimate: client and job are filled in
+      getFieldNote(fromEstimate).then(async note => {
+        if (!note) { alert('That field estimate was not found.'); return }
+        const prices = (note.estimatedCost || '').match(/\d[\d,]*(\.\d+)?/g) || []
+        const number = await nextDocumentNumber('contract').catch(() => '')
+        setEstimateId(fromEstimate)
+        markSaved()
+        setCt(prev => ({
+          ...prev, number: prev.number || number,
+          clientName: note.clientName || '', clientEmail: note.clientEmail || '', clientPhone: note.clientPhone || '',
+          clientAddress: note.address || '', propertyAddress: note.address || '',
+          projectName: note.projectName || '', projectTitle: note.projectName || '',
+          totalAmount: prices.length === 1 ? Math.round(Number(prices[0].replace(/,/g, '')) * 100) / 100 : prev.totalAmount,
+        }))
+      }).catch(err => alert(`Could not open the field estimate.\n\n${err instanceof Error ? err.message : String(err)}`))
+      return
+    }
     if (!id) {
       // New document: take the next free number
       nextDocumentNumber('contract').then(n => { markSaved(); setCt(prev => (prev.number ? prev : { ...prev, number: n })) }).catch(() => {})
@@ -76,6 +102,8 @@ export default function ContractsPage() {
       if (!d) return
       setSavedId(id)
       const alreadySent = !!d.status && d.status !== 'draft'
+      if (d.status === 'signed') setSignedBy(d.clientSignature || {})
+      if (d.estimateId) setEstimateId(d.estimateId)
       setWasSent(alreadySent)
       markSaved()
       setCt(prev => ({
@@ -128,11 +156,14 @@ export default function ContractsPage() {
         paymentStructure: ct.paymentStructure, contractTerms: ct.contractTerms,
         notes: ct.notes, subtotal: ct.totalAmount, tax: 0, taxRate: 0, total: ct.totalAmount,
         signatureData: ct.signatureData, status,
+        ...(estimateId ? { estimateId } : {}),
         formData: { ...ct, number: num, signatureData: null },
       }
       const id = await saveDocument(docData)
+      if (estimateId && !savedId) await updateFieldNote(estimateId, { contractId: id }).catch(() => {})
       setSavedId(id)
       markSaved()
+      if (status === 'draft') toast(`Draft ${num} saved. Find it under Drafts.`)
       if (status !== 'draft') { setWasSent(true); setCt(prev => ({ ...prev, isCorrection: true })) }
     } catch (err) {
       console.error('Save failed:', err)
@@ -156,6 +187,7 @@ export default function ContractsPage() {
     contractTerms: ct.contractTerms,
     notes: ct.notes,
     signatureData: ct.signatureData,
+    ...(signedBy ? { clientSignature: signedBy } : {}),
   })
 
   const handleGeneratePdf = async () => {
@@ -178,7 +210,7 @@ export default function ContractsPage() {
       if (num !== ct.number) setCt(prev => ({ ...prev, number: num }))
     } catch (err) { alert(err instanceof Error ? err.message : String(err)); return }
     setEmailSubject(`${ct.isCorrection ? 'Corrected ' : ''}Contract ${num} — ${ct.projectName || 'CR Home Pros'}`)
-    setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal estimated cost: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nPlease review, sign, and return at your earliest convenience. If you have any questions, don't hesitate to reach out.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
+    setEmailBody(`Hi ${ct.clientName.split(' ')[0] || 'there'},\n\nPlease find attached the contract for ${ct.projectName || 'your project'} at ${ct.propertyAddress || 'your property'}.\n\nTotal estimated cost: $${ct.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}\n\nPlease review it and sign it online with the button in this email. You can also ask any question there before you sign.\n\nBest regards,\nCarlos Hernandez\nCR Home Pros\n(571) 237-7164`)
     if (ct.isCorrection) setEmailBody(b => b.replace('\n\n', '\n\nThis is a corrected version. It replaces the one we sent you before.\n\n'))
     setShowEmailModal(true)
   }
@@ -192,7 +224,9 @@ export default function ContractsPage() {
       })
       await handleSave('sent')
       setSent(true); setShowEmailModal(false)
-      setTimeout(() => setSent(false), 4000)
+      // say what happened, then show it in the Sent list
+      toast(`Contract ${ct.number} sent to ${ct.clientEmail.trim()}. They can sign it on their page.`)
+      router.push('/admin/contracts/sent')
     } catch (err) {
       console.error('Send failed:', err)
       alert(`The email was not sent.\n\n${err instanceof Error ? err.message : String(err)}`)
@@ -221,7 +255,12 @@ export default function ContractsPage() {
         </div>
       </div>
 
-      {wasSent && <SentNotice what="contract" />}
+      {signedBy ? (
+        <div className="mb-6 rounded-xl border border-green-400/50 bg-green-500/15 p-4 text-sm text-green-50">
+          <p className="font-semibold text-white">In contract: signed by {signedBy.name || 'the client'}{signedBy.signedAt ? ` on ${new Date(signedBy.signedAt).toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}` : ''}.</p>
+          <p className="mt-1">A signed contract cannot be changed or sent again. You can still open the PDF, which shows both signatures. If the job changes, make a new contract.</p>
+        </div>
+      ) : wasSent && <SentNotice what="contract" />}
 
       <div className="flex gap-1 bg-slate-800/50 p-1 rounded-xl mb-6 w-fit">
         <button onClick={() => setTab('edit')} className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${tab === 'edit' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}><Pencil className="w-3.5 h-3.5 inline mr-1.5" />Edit</button>
@@ -280,14 +319,14 @@ export default function ContractsPage() {
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6"><label className={lc}>Additional Notes</label><textarea value={ct.notes} onChange={e => updateField('notes', e.target.value)} rows={2} className={ic} /></div>
 
           <div className="bg-slate-800/50 border border-white/5 rounded-2xl p-6">
-            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} label="Carlos Hernandez — President, CRGS Inc." />
+            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
             {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
             <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600/20 text-blue-400 font-medium hover:bg-blue-600/30 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
-            <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
+            {!signedBy && <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>}
           </div>
         </div>
       ) : (
