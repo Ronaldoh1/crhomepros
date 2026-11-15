@@ -8,7 +8,7 @@ import { cn } from '@/lib/utils'
 import { resolveImageUrl } from '@/lib/resolve-images'
 import { useTranslation, useLocale } from '@/lib/i18n/provider'
 
-// REAL projects from crgenserv.com - Carlos's actual work
+// REAL projects from CR Home Pros - Carlos's actual work
 const projectImages = [
   {
     id: 'kitchen-full-renovation',

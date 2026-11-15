@@ -28,12 +28,15 @@ export async function POST(request: NextRequest) {
     // Every client gets a private page; contracts are signed there
     let link = ''
     try { link = portalUrl((await getOrCreateClient(to, data?.clientName, data?.clientPhone)).token) } catch (e: any) { console.error('Client page link not created:', e?.message) }
-    const isContract = type === 'contract'
-    const linkLine = link ? (isContract ? `\n\nReview and sign it online here:\n${link}` : `\n\nSee all your documents here:\n${link}`) : ''
+    // The link and button must name the document that is actually being sent
+    const docWord = type === 'contract' ? 'contract' : type === 'invoice' ? 'invoice' : type === 'change-order' ? 'change order' : 'estimate'
+    const linkText = type === 'contract' ? 'Review and sign your contract' : type === 'invoice' ? 'View your invoice' : type === 'change-order' ? 'View your change order' : 'View your estimate'
+    const linkLineText = type === 'contract' ? `\n\nReview and sign your contract online here:\n${link}` : `\n\nView your ${docWord} on your page here:\n${link}`
+    const linkLine = link ? linkLineText : ''
     const body = String(message || '') + linkLine
     const html = emailShell(
       `<div>${esc(String(message || '')).replace(/\n/g, '<br>')}</div>`,
-      link ? { label: isContract ? 'Review and sign your contract' : 'See your documents', url: link } : undefined,
+      link ? { label: linkText, url: link } : undefined,
     )
 
     const resend = new Resend(key)
@@ -42,7 +45,7 @@ export async function POST(request: NextRequest) {
       to: [to],
       bcc: [OFFICE_EMAIL],
       reply_to: OFFICE_EMAIL,
-      subject: String(subject || `${type} ${data?.number || ''}`),
+      subject: String(subject || `${docWord.charAt(0).toUpperCase()}${docWord.slice(1)} ${data?.number || ''} from CR Home Pros`),
       text: body,
       html,
       attachments: [{ filename, content: Buffer.from(pdf) }],

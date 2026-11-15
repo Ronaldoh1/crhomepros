@@ -292,7 +292,7 @@ export default function ChangeOrdersPage() {
         <div>
           <div className="bg-white rounded-2xl shadow-2xl p-8 sm:p-12 max-w-[800px] mx-auto text-slate-900">
             <div className="flex items-start justify-between border-b-4 border-blue-900 pb-6 mb-8">
-              <div><h2 className="text-3xl font-bold text-blue-900">C&R</h2><p className="text-sm text-slate-600">General Services Inc.</p><p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p></div>
+              <div><h2 className="text-3xl font-bold text-blue-900">CR Home Pros</h2><p className="text-sm text-slate-600">General Services Inc.</p><p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p></div>
               <div className="text-right"><h1 className="text-2xl font-bold text-amber-600">{co.isCorrection ? 'CORRECTED CHANGE ORDER' : 'CHANGE ORDER'}</h1><p className="text-sm text-slate-500 mt-1">#{co.number}</p><p className="text-sm text-slate-500">{co.date}</p></div>
             </div>
             <div className="grid sm:grid-cols-2 gap-8 mb-6">

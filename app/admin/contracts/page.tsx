@@ -41,7 +41,7 @@ All work guaranteed for one (1) year from completion date. Warranty covers workm
 
 Client agrees to provide reasonable access to the property during scheduled work hours. Any delays caused by client will extend the project timeline accordingly.
 
-CRGS, Inc. carries full liability insurance and workers' compensation coverage. MHIC License #05-132359.`
+CR Home Pros carries full liability insurance and workers' compensation coverage. MHIC License #05-132359.`
 
 const INITIAL: ContractData = {
   number: '', // unique number is assigned when the page opens and checked again on save
@@ -442,14 +442,14 @@ export default function ContractsPage() {
         <div>
           <div className="bg-white rounded-2xl shadow-2xl p-8 sm:p-12 max-w-[800px] mx-auto text-slate-900">
             <div className="flex items-start justify-between border-b-4 border-blue-900 pb-6 mb-8">
-              <div><h2 className="text-3xl font-bold text-blue-900">C&R</h2><p className="text-sm text-slate-600">General Services Inc.</p><p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p></div>
+              <div><h2 className="text-3xl font-bold text-blue-900">CR Home Pros</h2><p className="text-sm text-slate-600">General Services Inc.</p><p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p></div>
               <div className="text-right"><h1 className="text-xl font-bold text-amber-600">{ct.isCorrection ? 'CORRECTED CONTRACT' : 'CONTRACT'}</h1><p className="text-sm text-slate-500 mt-1">#{ct.number} • {ct.date}</p></div>
             </div>
             <div className="grid sm:grid-cols-2 gap-8 mb-6">
               <div><p className="text-xs font-bold text-blue-900 uppercase mb-2">Client</p><p className="font-semibold">{ct.clientName || '—'}</p>{ct.clientPhone && <p className="text-sm text-slate-600">{ct.clientPhone}</p>}</div>
               <div><p className="text-xs font-bold text-blue-900 uppercase mb-2">Property</p><p className="text-sm whitespace-pre-line">{ct.propertyAddress || '—'}</p></div>
             </div>
-            <p className="text-sm text-slate-600 mb-4">C&R General Services Inc. is pleased to submit the following scope of work for:</p>
+            <p className="text-sm text-slate-600 mb-4">CR Home Pros is pleased to submit the following scope of work for:</p>
             {ct.projectTitle && <h3 className="font-bold text-blue-900 text-center text-lg underline mb-6">{ct.projectTitle}</h3>}
             <div className="space-y-3 mb-6">
               {ct.scopeItems.map((item, idx) => (
@@ -472,7 +472,7 @@ export default function ContractsPage() {
               <div className="border-t pt-6"><h4 className="font-bold text-blue-900 uppercase text-xs mb-3">Terms & Conditions</h4><p className="text-xs text-slate-500 whitespace-pre-line leading-relaxed">{ct.contractTerms}</p></div>
             )}
             <div className="mt-8 text-center border-t pt-6">
-              <p className="text-xs font-bold text-blue-900">C&R GENERAL SERVICES INC.</p>
+              <p className="text-xs font-bold text-blue-900">CR HOME PROS</p>
               <p className="text-xs text-amber-600 italic">We Are In This Business For You</p>
               <p className="text-xs text-slate-400">(571) 237-7164 | crhomepros@gmail.com</p>
             </div>

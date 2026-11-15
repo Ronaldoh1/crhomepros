@@ -115,7 +115,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   const footer = () => {
     page.drawRectangle({ x: 0, y: 0, width: W, height: 40, color: BLUE })
     page.drawRectangle({ x: 0, y: 40, width: W, height: 2, color: GOLD })
-    center('CR HOME PROS  |  C&R General Services Inc.', 23, 8, bold, WHITE)
+    center('CR HOME PROS', 23, 9, bold, WHITE)
     center('(571) 237-7164  |  crhomepros@gmail.com  |  crhomepros.com  |  MHIC #05-132359', 11, 7, font, WHITE)
   }
   const newPage = () => {
@@ -191,7 +191,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   }
   cardBox(M, type === 'invoice' ? 'BILL TO' : 'CLIENT', d.clientName || '', clientLines)
   if (propLines.length) cardBox(M + cardW + 16, 'JOB ADDRESS', '', propLines)
-  else cardBox(M + cardW + 16, 'FROM', 'CR Home Pros', ['C&R General Services Inc.', '(571) 237-7164', 'crhomepros@gmail.com'])
+  else cardBox(M + cardW + 16, 'FROM', 'CR Home Pros', ['(571) 237-7164', 'crhomepros@gmail.com', 'crhomepros.com'])
   y -= cardH + 26
 
   // ── Items ───────────────────────────────────
@@ -344,7 +344,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   page.drawLine({ start: { x: M, y: sigLine }, end: { x: 250, y: sigLine }, thickness: 0.7, color: DARK })
   page.drawLine({ start: { x: 320, y: sigLine }, end: { x: W - M, y: sigLine }, thickness: 0.7, color: DARK })
   text('Carlos Hernandez', M, sigLine - 14, 10, bold)
-  text('President, CRGS, Inc.', M, sigLine - 27, 9, font, GRAY)
+  text('CR Home Pros', M, sigLine - 27, 9, font, GRAY)
   text(`Date: ${mine ? d.date || '' : '_______________'}`, M, sigLine - 40, 9, font, GRAY)
   text(cs?.name || d.clientName || '', 320, sigLine - 14, 10, bold)
   if (cs?.signedAt) {

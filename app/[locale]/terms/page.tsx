@@ -24,7 +24,7 @@ function TermsEs() {
         <div className="prose prose-lg max-w-none text-dark-700 space-y-8">
           <section>
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">1. Acerca de Nuestros Servicios</h2>
-            <p>CR Home Pros es un nombre comercial de C &amp; R General Services Inc, un contratista de mejoras del hogar con licencia que opera en el área del Distrito de Columbia, Maryland y Virginia (DMV). Contamos con las licencias de la Comisión de Mejoras del Hogar de Maryland (Maryland Home Improvement Commission) #05-132359 y #109350.</p>
+            <p>CR Home Pros es un contratista de mejoras del hogar con licencia que opera en el área del Distrito de Columbia, Maryland y Virginia (DMV). Contamos con las licencias de la Comisión de Mejoras del Hogar de Maryland (Maryland Home Improvement Commission) #05-132359 y #109350.</p>
             <p>Nuestro sitio web ofrece información sobre nuestros servicios y le permite solicitar presupuestos, enviar reseñas y referir a otras personas a nuestros servicios.</p>
           </section>
 
@@ -36,7 +36,7 @@ function TermsEs() {
 
           <section>
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">3. Acuerdos de Proyecto</h2>
-            <p>Todos los proyectos de mejoras del hogar se rigen por un contrato escrito separado entre C &amp; R General Services Inc y el propietario de la vivienda. Ese contrato establece el alcance específico del trabajo, los materiales, el cronograma, el calendario de pagos y los términos de la garantía. Los términos de este sitio web no reemplazan ni modifican ningún contrato de proyecto.</p>
+            <p>Todos los proyectos de mejoras del hogar se rigen por un contrato escrito separado entre CR Home Pros y el propietario de la vivienda. Ese contrato establece el alcance específico del trabajo, los materiales, el cronograma, el calendario de pagos y los términos de la garantía. Los términos de este sitio web no reemplazan ni modifican ningún contrato de proyecto.</p>
           </section>
 
           <section>
@@ -74,7 +74,7 @@ function TermsEs() {
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">10. Contacto</h2>
             <p>Si tiene preguntas sobre estos términos, comuníquese con nosotros en:</p>
             <p>
-              <strong>C &amp; R General Services Inc (CR Home Pros)</strong><br />
+              <strong>CR Home Pros</strong><br />
               Correo electrónico: {COMPANY.email}<br />
               Teléfono: {COMPANY.phoneFormatted}<br />
               Ubicación: Hyattsville, MD
@@ -97,7 +97,7 @@ export default function TermsPage({ params }: { params: { locale: string } }) {
         <div className="prose prose-lg max-w-none text-dark-700 space-y-8">
           <section>
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">1. About Our Services</h2>
-            <p>CR Home Pros is a trade name of C &amp; R General Services Inc, a licensed home improvement contractor operating in the District of Columbia, Maryland, and Virginia (DMV) area. We hold Maryland Home Improvement Commission licenses #05-132359 and #109350.</p>
+            <p>CR Home Pros is a licensed home improvement contractor operating in the District of Columbia, Maryland, and Virginia (DMV) area. We hold Maryland Home Improvement Commission licenses #05-132359 and #109350.</p>
             <p>Our website provides information about our services, allows you to request estimates, submit reviews, and refer others to our services.</p>
           </section>
 
@@ -109,7 +109,7 @@ export default function TermsPage({ params }: { params: { locale: string } }) {
 
           <section>
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">3. Project Agreements</h2>
-            <p>All home improvement projects are governed by a separate written contract between C &amp; R General Services Inc and the homeowner. That contract outlines the specific scope of work, materials, timeline, payment schedule, and warranty terms. The terms on this website do not replace or modify any project contract.</p>
+            <p>All home improvement projects are governed by a separate written contract between CR Home Pros and the homeowner. That contract outlines the specific scope of work, materials, timeline, payment schedule, and warranty terms. The terms on this website do not replace or modify any project contract.</p>
           </section>
 
           <section>
@@ -147,7 +147,7 @@ export default function TermsPage({ params }: { params: { locale: string } }) {
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">10. Contact</h2>
             <p>For questions about these terms, contact us at:</p>
             <p>
-              <strong>C &amp; R General Services Inc (CR Home Pros)</strong><br />
+              <strong>CR Home Pros</strong><br />
               Email: {COMPANY.email}<br />
               Phone: {COMPANY.phoneFormatted}<br />
               Location: Hyattsville, MD

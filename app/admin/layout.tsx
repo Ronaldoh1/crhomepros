@@ -7,7 +7,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard, FileText, FilePlus, FileSignature,
   FolderOpen, LogOut, Menu, X, ChevronDown, ChevronRight,
-  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera, MessageSquare, Images
+  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera, MessageSquare, Images, Store
 } from 'lucide-react'
 import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
 import { ToastProvider } from './_components/Toast'
@@ -34,6 +34,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
     sky: { head: 'bg-sky-600', rail: 'border-sky-400', dot: 'bg-sky-400' },
     violet: { head: 'bg-violet-600', rail: 'border-violet-400', dot: 'bg-violet-400' },
     orange: { head: 'bg-orange-600', rail: 'border-orange-400', dot: 'bg-orange-400' },
+    teal: { head: 'bg-teal-600', rail: 'border-teal-400', dot: 'bg-teal-400' },
   } as const
   type Tone = keyof typeof TONES
 
@@ -60,7 +61,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
         aria-expanded={!!expandedSections[key]}
         className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-white ${TONES[tone].head}`}
       >
-        <span className="flex items-center gap-2.5"><span className="w-5 h-5 rounded-full bg-white text-slate-950 text-xs font-extrabold flex items-center justify-center">{step}</span>{icon} {label}</span>
+        <span className="flex items-center gap-2.5">{step > 0 ? <span className="w-5 h-5 rounded-full bg-white text-slate-950 text-xs font-extrabold flex items-center justify-center">{step}</span> : icon} {step > 0 ? icon : null} {label}</span>
         {expandedSections[key] ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
       </button>
       {expandedSections[key] && (
@@ -82,7 +83,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
             </div>
             <div>
               <p className="font-bold text-white text-sm">Admin Portal</p>
-              <p className="text-[11px] text-white">CRGS, Inc.</p>
+              <p className="text-[11px] text-white">CR Home Pros</p>
             </div>
           </Link>
           {mobile && (
@@ -111,6 +112,14 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
         {section('invoices', 'orange', 3, <Receipt className="w-4 h-4" />, 'Invoices', [
           ['/admin/invoices/drafts', 'Invoices to Approve'],
           ['/admin/invoices/sent', 'Sent Invoices'],
+        ])}
+
+        {/* In-person transactions, kept separate from the digital flow */}
+        <div className="pt-3 border-t border-white/25 mt-3" />
+        {section('walkin', 'teal', 0, <Store className="w-4 h-4" />, 'Walk-in / In-Person', [
+          ['/admin/walkin/estimates', 'Walk-in Estimates'],
+          ['/admin/walkin/contracts', 'Walk-in Contracts'],
+          ['/admin/walkin/invoices', 'Walk-in Invoices'],
         ])}
 
         <div className="pt-3 border-t border-white/25 mt-3">

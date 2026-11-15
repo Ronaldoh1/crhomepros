@@ -91,7 +91,7 @@ export function emailShell(bodyHtml: string, button?: MailButton | MailButton[],
       ${opts.office ? '' : '<p style="font-size:12px;color:#334155">This is your private link. Please do not share it.</p>'}` : ''}
     </div>
     <div style="background:#0b1b33;color:#ffffff;padding:16px 28px;font-size:12px;line-height:1.6">
-      CR Home Pros &middot; C&amp;R General Services Inc. &middot; (571) 237-7164 &middot; crhomepros.com<br>Licensed, insured and bonded &middot; MHIC #05-132359
+      CR Home Pros &middot; (571) 237-7164 &middot; crhomepros.com<br>Licensed, insured and bonded &middot; MHIC #05-132359
     </div>
   </div></div>`
 }

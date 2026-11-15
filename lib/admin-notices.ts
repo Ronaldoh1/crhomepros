@@ -49,7 +49,7 @@ export async function loadAdminNotices(): Promise<{ notices: AdminNotice[]; stat
     else list.push({ ...base, kind: 'message', icon: 'MessageSquare', tone: 'bg-blue-800 text-white', title: `${who} ${m.kind === 'question' ? 'asked about' : 'sent a note on'} ${m.docLabel || 'a document'}`, detail: m.text, href: docLink(m), open: m.docType === 'contract' ? 'Open contract' : 'Open estimate', second: { href: '/admin/messages', label: 'Answer' } })
   })
 
-  docs.filter(d => d.type === 'invoice' && d.status === 'draft').forEach(d => list.push({ key: `inv-${d.id}`, kind: 'invoice', icon: 'Receipt', tone: 'bg-orange-700 text-white', title: `Invoice ${d.number} is ready to approve and send`, detail: `${d.clientName}: the contract is signed.`, href: `/admin/invoices?id=${d.id}`, open: 'Open invoice', when: ms(d.createdAt) }))
+  docs.filter(d => d.type === 'invoice' && d.status === 'draft' && !d.walkin).forEach(d => list.push({ key: `inv-${d.id}`, kind: 'invoice', icon: 'Receipt', tone: 'bg-orange-700 text-white', title: `Invoice ${d.number} is ready to approve and send`, detail: `${d.clientName}: the contract is signed.`, href: `/admin/invoices?id=${d.id}`, open: 'Open invoice', when: ms(d.createdAt) }))
 
   const newLeads = leads.filter(l => (l.status || 'new') === 'new')
   newLeads.slice(0, 5).forEach(l => list.push({ key: `lead-${l.id}`, kind: 'lead', icon: 'Users', tone: 'bg-cyan-800 text-white', title: `New estimate request: ${[l.firstName, l.lastName].filter(Boolean).join(' ') || l.name || l.email}`, detail: (l as any).referredBy?.name ? `Referred by ${(l as any).referredBy.name}` : (l.services || []).join(', '), href: '/admin/leads', open: 'Open leads', when: ms((l as any).createdAt) }))
@@ -60,7 +60,7 @@ export async function loadAdminNotices(): Promise<{ notices: AdminNotice[]; stat
   notes.filter(n => n.followUpDate && n.followUpDate <= today() && OPEN.includes(n.status as string))
     .forEach(n => list.push({ key: `fu-${n.id}`, kind: 'followup', icon: 'CalendarClock', tone: 'bg-red-800 text-white', title: `Follow up with ${n.clientName}`, detail: n.projectName, href: `/admin/estimates?open=${n.id}`, open: 'Open estimate', when: ms(n.followUpDate ? new Date(n.followUpDate) : n.updatedAt) }))
 
-  const invoiced = new Set(docs.filter(d => d.type === 'invoice' && d.status !== 'draft' && d.status !== 'void').map(d => (d as any).clientEmailKey).filter(Boolean))
+  const invoiced = new Set(docs.filter(d => d.type === 'invoice' && d.status !== 'draft' && d.status !== 'void' && !d.walkin).map(d => (d as any).clientEmailKey).filter(Boolean))
   projects.filter(p => !(p.afterPhotos || []).length && p.clientEmailKey && invoiced.has(p.clientEmailKey))
     .forEach(p => list.push({ key: `after-${p.id}`, kind: 'after', icon: 'Images', tone: 'bg-amber-800 text-white', title: `Add the "after" photos for ${p.title}`, detail: `You invoiced ${p.clientName}. Finished photos complete the project.`, href: `/admin/past-projects#p-${p.id}`, open: 'Open project', when: ms(p.updatedAt) }))
 
@@ -69,8 +69,8 @@ export async function loadAdminNotices(): Promise<{ notices: AdminNotice[]; stat
   const stats: AdminStats = {
     leads: newLeads.length,
     estimates: notes.filter(n => OPEN.includes(n.status as string)).length,
-    toSign: docs.filter(d => d.type === 'contract' && d.status === 'sent').length,
-    inContract: docs.filter(d => d.type === 'contract' && d.status === 'signed').length,
+    toSign: docs.filter(d => d.type === 'contract' && d.status === 'sent' && !d.walkin).length,
+    inContract: docs.filter(d => d.type === 'contract' && d.status === 'signed' && !d.walkin).length,
   }
   return { notices: list, stats }
 }

@@ -93,7 +93,7 @@ export default function AdminLoginPage() {
           {/* Footer */}
           <div className="px-8 pb-6 text-center">
             <p className="text-xs text-blue-100/80">
-              Authorized personnel only • CRGS, Inc.
+              Authorized personnel only • CR Home Pros
             </p>
           </div>
         </div>

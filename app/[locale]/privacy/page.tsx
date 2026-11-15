@@ -78,7 +78,7 @@ function PrivacyPolicyEs() {
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">9. Contáctenos</h2>
             <p>Si tiene preguntas sobre esta política de privacidad, comuníquese con nosotros en:</p>
             <p>
-              <strong>C &amp; R General Services Inc (CR Home Pros)</strong><br />
+              <strong>CR Home Pros</strong><br />
               Correo electrónico: {COMPANY.email}<br />
               Teléfono: {COMPANY.phoneFormatted}<br />
               Ubicación: Hyattsville, MD
@@ -155,7 +155,7 @@ export default function PrivacyPolicyPage({ params }: { params: { locale: string
             <h2 className="text-xl font-display font-bold text-dark-900 mt-8 mb-3">9. Contact Us</h2>
             <p>If you have questions about this privacy policy, contact us at:</p>
             <p>
-              <strong>C &amp; R General Services Inc (CR Home Pros)</strong><br />
+              <strong>CR Home Pros</strong><br />
               Email: {COMPANY.email}<br />
               Phone: {COMPANY.phoneFormatted}<br />
               Location: Hyattsville, MD
