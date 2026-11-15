@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
 import { ToastProvider } from './_components/Toast'
+import { NotificationsProvider, NotificationBanner } from './_components/Notifications'
 
 function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
   const pathname = usePathname()
@@ -208,6 +209,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
           <div className="w-6" />
         </header>
+        <NotificationBanner />
         <main>{children}</main>
       </div>
     </div>
@@ -217,7 +219,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthProvider>
-      <ToastProvider><AdminShell>{children}</AdminShell></ToastProvider>
+      <ToastProvider><NotificationsProvider><AdminShell>{children}</AdminShell></NotificationsProvider></ToastProvider>
     </AuthProvider>
   )
 }

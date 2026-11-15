@@ -1,18 +1,12 @@
 'use client'
 
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import {
-  Receipt, Briefcase, Users, Star, ArrowRight, Camera, Bell, MessageSquare, FileSignature, UserPlus, Images, CalendarClock,
+  Receipt, Briefcase, Users, Star, ArrowRight, Camera, Bell, MessageSquare, FileSignature, Images,
   CheckCircle, Loader2, Megaphone, Settings, ClipboardList,
 } from 'lucide-react'
-import {
-  getClientMessages, markMessagesRead, getLeads, getReferrals, getFieldNotes, getAllDocuments, getPastProjects,
-  type ClientMessage,
-} from '@/lib/firebase-auth'
 import { useToast } from './_components/Toast'
-
-interface Notice { key: string; icon: any; tone: string; title: string; detail?: string; href: string; open?: string; second?: { href: string; label: string }; when?: number; messageId?: string }
+import { useNotifications, noticeIcon } from './_components/Notifications'
 
 const quickActions = [
   { label: 'New estimate', href: '/admin/estimates/new', icon: Camera, desc: 'Photos and notes at a job visit', color: 'from-slate-600 to-slate-700' },
@@ -36,63 +30,18 @@ const today = () => new Date().toISOString().split('T')[0]
 
 export default function AdminDashboard() {
   const toast = useToast()
-  const [loading, setLoading] = useState(true)
-  const [notices, setNotices] = useState<Notice[]>([])
-  const [stats, setStats] = useState({ leads: 0, estimates: 0, toSign: 0, inContract: 0 })
+  const { notices, stats, loading, markAllRead } = useNotifications()
 
-  const load = async () => {
-    const safe = async <T,>(p: Promise<T[]>): Promise<T[]> => { try { return await p } catch (e) { console.error(e); return [] } }
-    const [messages, leads, referrals, notes, docs, projects] = await Promise.all([
-      safe(getClientMessages(100)), safe(getLeads()), safe(getReferrals()), safe(getFieldNotes()), safe(getAllDocuments()), safe(getPastProjects()),
-    ])
-    const list: Notice[] = []
-
-    // where a notification leads: straight to the document it is about
-    const docLink = (m: ClientMessage) => (m.docType === 'contract' && m.docId ? `/admin/contracts?id=${m.docId}` : m.docType === 'estimate' && m.docId ? `/admin/estimates?open=${m.docId}` : '/admin/messages')
-    messages.filter((m: ClientMessage) => !m.read && m.from !== 'carlos').forEach(m => {
-      const who = m.clientName || m.clientEmail
-      if (m.kind === 'signed' && m.docType === 'estimate') list.push({ key: m.id!, messageId: m.id, icon: CheckCircle, tone: 'bg-green-800 text-white', title: `${who} approved and signed an estimate`, detail: m.text, href: docLink(m), open: 'Open estimate', when: ms(m.createdAt) })
-      else if (m.kind === 'signed') list.push({ key: m.id!, messageId: m.id, icon: FileSignature, tone: 'bg-green-800 text-white', title: `${who} signed ${m.docLabel || 'a contract'}`, detail: m.text, href: docLink(m), open: 'Open contract', when: ms(m.createdAt) })
-      else if (m.kind === 'referral') list.push({ key: m.id!, messageId: m.id, icon: UserPlus, tone: 'bg-purple-800 text-white', title: `${who} sent a referral`, detail: m.text, href: '/admin/leads', open: 'Open referrals', when: ms(m.createdAt) })
-      else list.push({ key: m.id!, messageId: m.id, icon: MessageSquare, tone: 'bg-blue-800 text-white', title: `${who} ${m.kind === 'question' ? 'asked about' : 'sent a note on'} ${m.docLabel || 'a document'}`, detail: m.text, href: docLink(m), open: m.docType === 'contract' ? 'Open contract' : 'Open estimate', second: { href: '/admin/messages', label: 'Answer' }, when: ms(m.createdAt) })
-    })
-
-    // Invoices created by a signed contract, waiting for Carlos
-    docs.filter(d => d.type === 'invoice' && d.status === 'draft').forEach(d => list.push({ key: `inv-${d.id}`, icon: Receipt, tone: 'bg-orange-700 text-white', title: `Invoice ${d.number} is ready to approve and send`, detail: `${d.clientName}: the contract is signed.`, href: `/admin/invoices?id=${d.id}`, open: 'Open invoice', when: ms(d.createdAt) }))
-
-    const newLeads = leads.filter(l => (l.status || 'new') === 'new')
-    newLeads.slice(0, 5).forEach(l => list.push({ key: `lead-${l.id}`, icon: Users, tone: 'bg-cyan-800 text-white', title: `New estimate request: ${[l.firstName, l.lastName].filter(Boolean).join(' ') || l.name || l.email}`, detail: (l as any).referredBy?.name ? `Referred by ${(l as any).referredBy.name}` : (l.services || []).join(', '), href: '/admin/leads', when: ms((l as any).createdAt) }))
-
-    referrals.filter((r: any) => (r.status || 'pending') === 'pending' && r.source !== 'client-page' && r.source !== 'estimate-form' && Date.now() - ms(r.createdAt) < 30 * 86400000)
-      .slice(0, 5).forEach((r: any) => list.push({ key: `ref-${r.id}`, icon: UserPlus, tone: 'bg-purple-800 text-white', title: `Referral: ${r.referrerName} referred ${r.referralName}`, detail: r.referralPhone || r.referralEmail, href: '/admin/leads', when: ms(r.createdAt) }))
-
-    const open = ['new', 'quoted', 'accepted', 'reopened']
-    notes.filter(n => n.followUpDate && n.followUpDate <= today() && open.includes(n.status as string))
-      .forEach(n => list.push({ key: `fu-${n.id}`, icon: CalendarClock, tone: 'bg-red-800 text-white', title: `Follow up with ${n.clientName}`, detail: n.projectName, href: `/admin/estimates?open=${n.id}`, open: 'Open estimate' }))
-
-    // After photos: asked for once an invoice has gone out to that client
-    const invoiced = new Set(docs.filter(d => d.type === 'invoice' && d.status !== 'draft' && d.status !== 'void').map(d => (d as any).clientEmailKey).filter(Boolean))
-    projects.filter(p => !(p.afterPhotos || []).length && p.clientEmailKey && invoiced.has(p.clientEmailKey))
-      .forEach(p => list.push({ key: `after-${p.id}`, icon: Images, tone: 'bg-amber-800 text-white', title: `Add the "after" photos for ${p.title}`, detail: `You invoiced ${p.clientName}. Finished photos complete the project.`, href: `/admin/past-projects#p-${p.id}`, open: 'Open project' }))
-
-    list.sort((a, b) => (b.when || Date.now()) - (a.when || Date.now()))
-    setNotices(list)
-    setStats({
-      leads: newLeads.length,
-      estimates: notes.filter(n => open.includes((n.status as string) in { new: 1, quoted: 1, accepted: 1, reopened: 1 } ? (n.status as string) : 'new') && n.status !== 'invoiced' && n.status !== 'declined' && n.status !== 'discarded').length,
-      toSign: docs.filter(d => d.type === 'contract' && d.status === 'sent').length,
-      inContract: docs.filter(d => d.type === 'contract' && d.status === 'signed').length,
-    })
-    setLoading(false)
+  const ago = (t?: number) => {
+    if (!t) return ''
+    const m = Math.round((Date.now() - t) / 60000)
+    return m < 60 ? `${Math.max(m, 1)} min ago` : m < 1440 ? `${Math.round(m / 60)} h ago` : `${Math.round(m / 1440)} d ago`
   }
-  useEffect(() => { load() }, [])
 
   const clearAll = async () => {
-    const ids = notices.map(n => n.messageId).filter(Boolean) as string[]
-    if (!ids.length) return
-    await markMessagesRead(ids).catch(() => {})
+    if (!notices.some(n => n.messageId)) return
+    await markAllRead()
     toast('Notifications marked as read')
-    load()
   }
 
   const stat = (label: string, value: number, href: string, Icon: any, tone: string) => (
@@ -127,9 +76,9 @@ export default function AdminDashboard() {
           : notices.length === 0 ? <p className="text-white flex items-center gap-2 py-2"><CheckCircle className="w-5 h-5 text-green-300" /> You are all caught up.</p>
           : (
             <div className="space-y-2">
-              {notices.map(n => (
+              {notices.map(n => { const Icon = noticeIcon(n.icon); return (
                 <div key={n.key} className="flex items-start gap-3 rounded-xl bg-slate-900/60 border border-white/25 p-3">
-                  <div className={`w-9 h-9 rounded-lg ${n.tone} flex items-center justify-center flex-shrink-0`}><n.icon className="w-5 h-5" /></div>
+                  <div className={`w-9 h-9 rounded-lg ${n.tone} flex items-center justify-center flex-shrink-0`}><Icon className="w-5 h-5" /></div>
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-white">{n.title}</p>
                     {n.detail && <p className="text-sm text-white line-clamp-2">{n.detail}</p>}
@@ -140,7 +89,7 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-              ))}
+              )})}
             </div>
           )}
       </div>

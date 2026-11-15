@@ -19,6 +19,8 @@ export function toastAfterNavigation(text: string) {
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<ToastItem[]>([])
   const show = useCallback((text: string, kind: ToastKind = 'success') => {
+    // any completed action refreshes the notification count/banner
+    try { window.dispatchEvent(new Event('crhp-admin-action')) } catch { /* ignore */ }
     const id = Date.now() + Math.random()
     setItems(prev => [...prev.slice(-2), { id, text, kind }])
     setTimeout(() => setItems(prev => prev.filter(t => t.id !== id)), kind === 'error' ? 9000 : 5500)

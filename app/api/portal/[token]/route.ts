@@ -104,8 +104,8 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       await addMessage({ clientEmail: client.email, clientName: client.name, from: 'client', kind: docType === 'contract' ? 'question' : 'note', docType, docId, docLabel, text })
       await sendMail({
         to: OFFICE_EMAIL, subject: `${client.name || client.email} sent a ${docType === 'contract' ? 'question' : 'note'}: ${docLabel}`,
-        text: `${client.name || client.email} wrote about ${docLabel}:\n\n${text}\n\nAnswer in the admin portal: ${SITE_URL}/admin/messages`,
-        html: emailShell(`<p><strong>${esc(client.name || client.email)}</strong> wrote about <strong>${esc(docLabel)}</strong>:</p><p style="background:#f1f5f9;padding:14px;border-radius:8px;white-space:pre-wrap">${esc(text)}</p>`, { label: 'Answer in the admin portal', url: `${SITE_URL}/admin/messages` }),
+        text: `${client.name || client.email} wrote about ${docLabel}:\n\n${text}\n\nOpen the ${docType}: ${SITE_URL}${docType === 'contract' ? `/admin/contracts?id=${docId}` : `/admin/estimates?open=${docId}`}\nAnswer: ${SITE_URL}/admin/messages`,
+        html: emailShell(`<p><strong>${esc(client.name || client.email)}</strong> wrote about <strong>${esc(docLabel)}</strong>:</p><p style="background:#f1f5f9;padding:14px;border-radius:8px;white-space:pre-wrap">${esc(text)}</p>`, [{ label: docType === 'contract' ? 'Open contract' : 'Open estimate', url: `${SITE_URL}${docType === 'contract' ? `/admin/contracts?id=${docId}` : `/admin/estimates?open=${docId}`}` }, { label: 'Answer', url: `${SITE_URL}/admin/messages`, secondary: true }], { office: true }),
       }).catch(e => console.error('Notify email failed:', e?.message))
       return NextResponse.json({ success: true })
     }
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       await sendMail({
         to: OFFICE_EMAIL, subject: `New referral from ${client.name || client.email}: ${name}`,
         text: `${client.name || client.email} referred ${name}.\nPhone: ${phone || '-'}\nEmail: ${email || '-'}\n${details}\n\n${SITE_URL}/admin/leads`,
-        html: emailShell(`<p><strong>${esc(client.name || client.email)}</strong> referred a friend:</p><p><strong>${esc(name)}</strong><br>Phone: ${esc(phone || '-')}<br>Email: ${esc(email || '-')}</p>${details ? `<p style="white-space:pre-wrap">${esc(details)}</p>` : ''}`, { label: 'Open the admin portal', url: `${SITE_URL}/admin` }),
+        html: emailShell(`<p><strong>${esc(client.name || client.email)}</strong> referred a friend:</p><p><strong>${esc(name)}</strong><br>Phone: ${esc(phone || '-')}<br>Email: ${esc(email || '-')}</p>${details ? `<p style="white-space:pre-wrap">${esc(details)}</p>` : ''}`, { label: 'Open referrals', url: `${SITE_URL}/admin/leads` }, { office: true }),
       }).catch(e => console.error('Notify email failed:', e?.message))
       return NextResponse.json({ success: true })
     }
@@ -163,7 +163,7 @@ export async function POST(req: NextRequest, { params }: { params: { token: stri
       await sendMail({
         to: OFFICE_EMAIL, subject: `${client.name || client.email} approved the estimate: ${result.projectName || ''}`,
         text: `${name} approved and signed the estimate. Create the contract: ${SITE_URL}/admin/estimates?open=${docId}`,
-        html: emailShell(`<p><strong>${esc(name)}</strong> approved and signed the estimate for <strong>${esc(result.projectName || 'the job')}</strong>${result.estimatedCost ? ` (${esc(result.estimatedCost)})` : ''}.</p><p>The next step is the contract.</p>`, { label: 'Open the estimate', url: `${SITE_URL}/admin/estimates?open=${docId}` }),
+        html: emailShell(`<p><strong>${esc(name)}</strong> approved and signed the estimate for <strong>${esc(result.projectName || 'the job')}</strong>${result.estimatedCost ? ` (${esc(result.estimatedCost)})` : ''}.</p><p>The next step is the contract.</p>`, { label: 'Open the estimate', url: `${SITE_URL}/admin/estimates?open=${docId}` }, { office: true }),
       }).catch(e => console.error('Notify email failed:', e?.message))
       return NextResponse.json({ success: true, signedAt })
     }

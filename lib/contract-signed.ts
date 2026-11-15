@@ -94,11 +94,17 @@ export async function afterContractSigned(db: Firestore, contract: any, signerNa
   }).catch(() => {})
 
   if (how === 'online') {
+    // Carlos gets his own actionable email, straight to the invoice to approve
+    await sendMail({
+      to: OFFICE_EMAIL, subject: `${signerName} signed contract ${contract.number || ''} — invoice ${out.invoiceNumber || ''} ready`,
+      text: `${signerName} signed contract ${contract.number || ''} online.\nInvoice ${out.invoiceNumber || ''} is ready to approve and send: ${SITE_URL}/admin/invoices?id=${out.invoiceId || ''}`,
+      html: emailShell(`<p><strong>${esc(signerName)}</strong> signed contract <strong>${esc(contract.number || '')}</strong> online.</p><p>Invoice <strong>${esc(out.invoiceNumber || '')}</strong> was created and is ready for you to approve and send.</p>`, { label: 'Open the invoice', url: `${SITE_URL}/admin/invoices?id=${out.invoiceId || ''}` }, { office: true }),
+    }).catch(e => console.error('Office sign email failed:', e?.message))
     try {
       const client = await getOrCreateClient(contract.clientEmail, contract.clientName, contract.clientPhone)
       const pdf = Buffer.from(await buildDocumentPdf('contract', pdfDataFromRecord(contract)))
       await sendMail({
-        to: client.email, copyOffice: true,
+        to: client.email,
         attachments: [{ filename: `contract-${String(contract.number || 'signed').replace(/[^\w.-]/g, '_')}-signed.pdf`, content: pdf }],
         subject: `Signed: contract ${contract.number || ''} with CR Home Pros`,
         text: `Thank you, ${signerName}. Your signed contract ${contract.number || ''} is attached.\n\nYour invoice will follow shortly.\n\nYour page: ${portalUrl(client.token)}`,
@@ -109,7 +115,7 @@ export async function afterContractSigned(db: Firestore, contract: any, signerNa
     await sendMail({
       to: OFFICE_EMAIL, subject: `Contract ${contract.number || ''} marked as signed on paper`,
       text: `Invoice ${out.invoiceNumber || ''} is ready to approve and send: ${SITE_URL}/admin/invoices?id=${out.invoiceId || ''}`,
-      html: emailShell(`<p>Contract <strong>${esc(contract.number || '')}</strong> for ${esc(contract.clientName || '')} was marked as signed on paper.</p><p>Invoice <strong>${esc(out.invoiceNumber || '')}</strong> is ready for you to approve and send.</p>`, { label: 'Open the invoice', url: `${SITE_URL}/admin/invoices?id=${out.invoiceId || ''}` }),
+      html: emailShell(`<p>Contract <strong>${esc(contract.number || '')}</strong> for ${esc(contract.clientName || '')} was marked as signed on paper.</p><p>Invoice <strong>${esc(out.invoiceNumber || '')}</strong> is ready for you to approve and send.</p>`, { label: 'Open the invoice', url: `${SITE_URL}/admin/invoices?id=${out.invoiceId || ''}` }, { office: true }),
     }).catch(() => {})
   }
   return out

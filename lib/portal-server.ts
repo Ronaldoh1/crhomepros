@@ -69,7 +69,17 @@ export async function addMessage(m: {
 }
 
 // ── Email ─────────────────────────────────────
-export function emailShell(bodyHtml: string, button?: { label: string; url: string }) {
+type MailButton = { label: string; url: string; secondary?: boolean }
+/**
+ * Branded email wrapper. `button` is the main call to action; pass an array for
+ * several buttons. `opts.office` drops the "private link" caption for emails
+ * that go to Carlos rather than to a client.
+ */
+export function emailShell(bodyHtml: string, button?: MailButton | MailButton[], opts: { office?: boolean } = {}) {
+  const buttons = (button ? (Array.isArray(button) ? button : [button]) : [])
+  const btnHtml = buttons.map(b => `<a href="${b.url}" style="${b.secondary
+    ? 'background:#ffffff;color:#0b1b33;border:2px solid #0b1b33;'
+    : 'background:#0b1b33;color:#ffffff;border:2px solid #0b1b33;'}text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:8px;display:inline-block;margin:0 8px 8px 0">${esc(b.label)}</a>`).join('')
   return `<div style="background:#f1f5f9;padding:24px 12px;font-family:Arial,Helvetica,sans-serif">
   <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;border:1px solid #cbd5e1">
     <div style="background:#0b1b33;padding:22px 28px;border-bottom:4px solid #fd9b14">
@@ -77,8 +87,8 @@ export function emailShell(bodyHtml: string, button?: { label: string; url: stri
     </div>
     <div style="padding:28px;font-size:15px;line-height:1.65;color:#0f172a">
       ${bodyHtml}
-      ${button ? `<p style="margin:26px 0 8px"><a href="${button.url}" style="background:#0b1b33;color:#ffffff;text-decoration:none;font-weight:bold;padding:14px 26px;border-radius:8px;display:inline-block">${esc(button.label)}</a></p>
-      <p style="font-size:12px;color:#334155">This is your private link. Please do not share it.</p>` : ''}
+      ${buttons.length ? `<p style="margin:26px 0 8px">${btnHtml}</p>
+      ${opts.office ? '' : '<p style="font-size:12px;color:#334155">This is your private link. Please do not share it.</p>'}` : ''}
     </div>
     <div style="background:#0b1b33;color:#ffffff;padding:16px 28px;font-size:12px;line-height:1.6">
       CR Home Pros &middot; C&amp;R General Services Inc. &middot; (571) 237-7164 &middot; crhomepros.com<br>Licensed, insured and bonded &middot; MHIC #05-132359
