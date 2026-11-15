@@ -75,6 +75,12 @@ export default function ContractsPage() {
   const [linkedInvoice, setLinkedInvoice] = useState<{ id: string; number: string } | null>(null)
   const [confirmPaper, setConfirmPaper] = useState(false)
   const [markingPaper, setMarkingPaper] = useState(false)
+  // cancelling: Carlos only, final
+  const [cancelled, setCancelled] = useState<{ at?: string; reason?: string } | null>(null)
+  const [cancelOpen, setCancelOpen] = useState(false)
+  const [cancelReason, setCancelReason] = useState('')
+  const [tellClient, setTellClient] = useState(true)
+  const [cancelling, setCancelling] = useState(false)
   const router = useRouter()
   const [savedSigUrl, setSavedSigUrl] = useState<string | null>(null)
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -121,6 +127,7 @@ export default function ContractsPage() {
       setSavedId(id)
       const alreadySent = !!d.status && d.status !== 'draft'
       if (d.status === 'signed') setSignedBy(d.clientSignature || {})
+      if (d.status === 'cancelled') { setCancelled({ at: d.cancelledAt, reason: d.cancelReason }); if (d.clientSignature?.signedAt) setSignedBy(d.clientSignature) }
       setLinkedInvoice(d.invoiceId ? { id: d.invoiceId, number: d.invoiceNumber || '' } : null)
       if (d.estimateId) setEstimateId(d.estimateId)
       setWasSent(alreadySent)
@@ -213,6 +220,7 @@ export default function ContractsPage() {
     notes: ct.notes,
     signatureData: ct.signatureData,
     ...(signedBy ? { clientSignature: signedBy } : {}),
+    ...(cancelled ? { stamp: 'CANCELLED' } : {}),
   })
 
   const handleGeneratePdf = async () => {
@@ -263,6 +271,18 @@ export default function ContractsPage() {
     setSending(false)
   }
 
+  const cancelContract = async () => {
+    if (cancelReason.trim().length < 3) { toast('Write the reason for cancelling.', 'error'); return }
+    setCancelling(true)
+    try {
+      const res = await adminFetch('/api/admin/cancel-contract', { contractId: savedId, reason: cancelReason.trim(), tellClient })
+      const data = await res.json()
+      toast(`Contract ${ct.number} cancelled${data.invoiceVoided ? `. Invoice ${data.invoiceVoided} is void` : ''}${data.estimateReleased ? '. The estimate is open for a new contract' : ''}.`)
+      router.push('/admin/contracts/sent')
+    } catch (err) { toast(err instanceof Error ? err.message : 'Not cancelled', 'error') }
+    setCancelling(false)
+  }
+
   // The client signed a printed copy: same result as signing online
   const markPaperSigned = async () => {
     setConfirmPaper(false); setMarkingPaper(true)
@@ -296,7 +316,17 @@ export default function ContractsPage() {
         </div>
       </div>
 
-      {signedBy ? (
+      {cancelled ? (
+        <div className="mb-6 rounded-xl border border-red-300 bg-red-800 p-4 text-sm text-white">
+          <p className="font-bold text-base">This contract was cancelled{cancelled.at ? ` on ${new Date(cancelled.at).toLocaleDateString('en-US', { dateStyle: 'long' })}` : ''}.</p>
+          {cancelled.reason && <p className="mt-1">Reason: {cancelled.reason}</p>}
+          <p className="mt-1">It is kept for your records and cannot be changed or sent. Its invoice is void. To go ahead with the job, draft a new contract{estimateId ? ' from the estimate' : ''}.</p>
+          <div className="flex flex-wrap gap-2 mt-3">
+            {estimateId && <Link href={`/admin/estimates?open=${estimateId}`} className="px-4 py-2.5 rounded-xl bg-white text-red-900 font-bold">Open the estimate</Link>}
+            {linkedInvoice && <Link href={`/admin/invoices?id=${linkedInvoice.id}`} className="px-4 py-2.5 rounded-xl bg-red-950 text-white font-semibold border border-white/40">See the void invoice {linkedInvoice.number}</Link>}
+          </div>
+        </div>
+      ) : signedBy ? (
         <div className="mb-6 rounded-xl border border-green-300 bg-green-800 p-4 text-sm text-white">
           <p className="font-semibold text-white">In contract: signed by {signedBy.name || 'the client'}{signedBy.signedAt ? ` on ${new Date(signedBy.signedAt).toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}` : ''}.</p>
           <p className="mt-1">A signed contract cannot be changed or sent again. You can still open the PDF, which shows both signatures. If the job changes, make a new contract.</p>
@@ -403,8 +433,9 @@ export default function ContractsPage() {
             {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
             <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
-            {!signedBy && <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>}
-            {!signedBy && wasSent && savedId && <button onClick={() => setConfirmPaper(true)} disabled={markingPaper} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50">{markingPaper ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Client signed on paper</button>}
+            {!signedBy && !cancelled && <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>}
+            {!cancelled && wasSent && savedId && <button onClick={() => { setCancelReason(''); setTellClient(true); setCancelOpen(true) }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-700 text-white font-medium hover:bg-red-800">Cancel contract</button>}
+            {!signedBy && !cancelled && wasSent && savedId && <button onClick={() => setConfirmPaper(true)} disabled={markingPaper} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50">{markingPaper ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Client signed on paper</button>}
           </div>
         </div>
       ) : (
@@ -486,6 +517,30 @@ export default function ContractsPage() {
         <p>The contract becomes <strong>In contract</strong> and is locked, and the invoice is created for you to approve and send. This cannot be undone.</p>
         <p>Keep the signed paper: upload a photo of it under Signed Documents.</p>
       </ConfirmDialog>
+      {cancelOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm" role="alertdialog" aria-modal="true" aria-label="Cancel contract">
+          <div className="bg-slate-900 border-2 border-red-400 rounded-2xl p-6 max-w-lg w-full shadow-2xl max-h-[92vh] overflow-y-auto">
+            <h3 className="text-xl font-bold text-white">Cancel contract {ct.number}?</h3>
+            <p className="text-white mt-2">This is final. Here is what happens:</p>
+            <ul className="mt-2 list-disc pl-5 text-white space-y-1 text-sm">
+              <li>The contract is marked <strong>Cancelled</strong> and kept for your records. It cannot be signed, changed or sent.</li>
+              <li>{linkedInvoice ? <>Invoice <strong>{linkedInvoice.number}</strong> becomes <strong>Void</strong>. Payments already marked as received stay on record; any refund is between you and the client.</> : 'No invoice exists for it yet, so there is nothing to void.'}</li>
+              <li>{estimateId ? 'The estimate stays, and is opened up again so you can draft a new contract from it.' : 'This contract was not made from an estimate.'}</li>
+              <li>If there are changes to the job, draft a <strong>new contract</strong>. A cancelled one cannot be brought back.</li>
+            </ul>
+            <label className="block text-sm font-semibold text-white mt-4 mb-1.5">Reason (kept in your records, not shown to the client)</label>
+            <textarea value={cancelReason} onChange={e => setCancelReason(e.target.value)} rows={2} placeholder="Example: client changed the scope; new contract to follow." className={ic} />
+            <label className="flex items-start gap-3 mt-3 cursor-pointer text-white">
+              <input type="checkbox" checked={tellClient} onChange={e => setTellClient(e.target.checked)} className="mt-1 w-5 h-5 flex-shrink-0" />
+              <span className="text-sm">Email {ct.clientName || 'the client'} that the contract is cancelled{linkedInvoice ? ' and the invoice is void' : ''}.</span>
+            </label>
+            <div className="grid grid-cols-2 gap-3 mt-5">
+              <button onClick={() => setCancelOpen(false)} disabled={cancelling} className="px-4 py-3.5 rounded-xl bg-slate-700 text-white font-semibold hover:bg-slate-600">Keep the contract</button>
+              <button onClick={cancelContract} disabled={cancelling} className="px-4 py-3.5 rounded-xl bg-red-600 text-white font-bold hover:bg-red-700 flex items-center justify-center gap-2 disabled:opacity-70">{cancelling && <Loader2 className="w-5 h-5 animate-spin" />} Yes, cancel it</button>
+            </div>
+          </div>
+        </div>
+      )}
       <PdfDialog pdf={pdf} onClose={() => setPdf(null)} />
     </div>
   )

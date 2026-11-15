@@ -45,12 +45,12 @@ export async function GET(_req: NextRequest, { params }: { params: { token: stri
       subtotal: d.subtotal || d.total || 0, taxRate: d.taxRate || 0, tax: d.tax || 0,
       payments: (d.payments || []).map((p: any) => ({ label: p.label, amount: p.amount })),
       total: d.total || 0, terms: d.contractTerms || '', notes: d.notes || '',
-      status: d.status === 'signed' ? 'signed' : 'to-sign',
+      status: d.status === 'cancelled' ? 'cancelled' : d.status === 'signed' ? 'signed' : 'to-sign',
       signedAt: d.clientSignature?.signedAt || null, signedName: d.clientSignature?.name || null,
     }))
     const invoices = docs.filter(d => d.type === 'invoice').map(d => ({
       id: d.id, number: d.number, date: d.date, dueDate: d.dueDate || '', projectName: d.projectName || '',
-      total: d.total || 0, status: d.status === 'paid' ? 'paid' : 'sent',
+      total: d.total || 0, status: d.status === 'void' ? 'void' : d.status === 'paid' ? 'paid' : 'sent',
       payments: (d.payments || []).map((p: any) => ({ label: p.label, amount: p.amount, received: !!p.received, receivedAt: p.receivedAt || '' })),
       paid: paidSoFar(d.payments || []), balance: balanceDue(d.total || 0, d.payments || []),
     }))

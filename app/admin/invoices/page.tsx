@@ -65,6 +65,7 @@ export default function InvoicePage() {
   }, [])
 
   const isDraft = doc?.status === 'draft'
+  const isVoid = doc?.status === 'void'
   const total = doc?.total || 0
   const paid = paidSoFar(payments)
   const balance = balanceDue(total, payments)
@@ -78,6 +79,7 @@ export default function InvoicePage() {
     clientPhone: doc!.clientPhone, clientAddress: doc!.clientAddress, projectName: doc!.projectName,
     items: doc!.items, taxRate: doc!.taxRate || 0, notes: [unticked && correctionNote.trim() ? `Correction: ${correctionNote.trim()}` : '', notes].filter(Boolean).join('\n\n'),
     signatureData: signature, payments, contractNumber: doc!.contractNumber || '', isCorrection: unticked,
+    ...(isVoid ? { stamp: 'VOID' } : {}),
   })
 
   const tick = (i: number) => {
@@ -187,7 +189,7 @@ export default function InvoicePage() {
   )
 
   // ── The invoice ──
-  const stateChip = isDraft ? ['bg-orange-600', 'Waiting for your approval'] : balance <= 0 ? ['bg-green-700', 'Paid in full'] : ['bg-blue-700', `Sent · ${payments.filter(p => p.received).length} of ${payments.length} payments received`]
+  const stateChip = isVoid ? ['bg-red-700', 'Void'] : isDraft ? ['bg-orange-600', 'Waiting for your approval'] : balance <= 0 ? ['bg-green-700', 'Paid in full'] : ['bg-blue-700', `Sent · ${payments.filter(p => p.received).length} of ${payments.length} payments received`]
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto pb-32">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
@@ -198,6 +200,12 @@ export default function InvoicePage() {
         <span className={`px-3 py-1.5 rounded-full text-white text-sm font-bold ${stateChip[0]}`}>{stateChip[1]}</span>
       </div>
 
+      {isVoid && (
+        <div className="mb-5 rounded-xl border border-red-300 bg-red-800 p-4 text-white">
+          <p className="font-bold">This invoice is void because contract {doc.contractNumber} was cancelled.</p>
+          <p className="mt-1 text-sm">Nothing more is due on it and it cannot be sent or changed. {paid > 0 ? `${usd(paid)} was marked as received before the cancellation. Any refund is between you and the client.` : 'No payment was marked as received.'}</p>
+        </div>
+      )}
       {isDraft && (
         <div className="mb-5 rounded-xl border border-orange-300 bg-orange-800 p-4 text-white">
           <p className="font-bold flex items-center gap-2"><FileSignature className="w-5 h-5" /> The contract is signed. This invoice is ready for you to approve.</p>
@@ -237,7 +245,7 @@ export default function InvoicePage() {
             {payments.map((p, i) => {
               const wasSent = !!sentPayments[i]?.received
               return (
-                <button key={i} type="button" role="checkbox" aria-checked={!!p.received} disabled={isDraft} onClick={() => tick(i)}
+                <button key={i} type="button" role="checkbox" aria-checked={!!p.received} disabled={isDraft || isVoid} onClick={() => tick(i)}
                   className={`w-full text-left rounded-xl border-2 p-4 flex items-center gap-4 transition-colors disabled:cursor-not-allowed ${p.received ? 'bg-green-700 border-white' : 'bg-slate-800 border-white/30 hover:border-white'}`}>
                   {p.received ? <CheckCircle className="w-8 h-8 text-white flex-shrink-0" /> : <Circle className="w-8 h-8 text-white flex-shrink-0" />}
                   <span className="flex-1 min-w-0 text-white">
@@ -280,7 +288,9 @@ export default function InvoicePage() {
       <div className="fixed bottom-0 inset-x-0 lg:left-64 z-30 bg-slate-950/95 backdrop-blur border-t border-white/25 p-3">
         <div className="max-w-3xl mx-auto flex gap-3">
           <button onClick={openPdf} disabled={busy === 'pdf'} className="px-4 py-3.5 rounded-xl bg-slate-700 text-white font-semibold hover:bg-slate-600 flex items-center gap-2">{busy === 'pdf' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} <span className="hidden sm:inline">Open</span> PDF</button>
-          {isDraft ? (
+          {isVoid ? (
+            <span className="flex-1 px-4 py-3.5 rounded-xl bg-red-800 text-white text-base font-bold text-center">Void: cannot be sent</span>
+          ) : isDraft ? (
             <button onClick={openSummary} className="flex-1 px-4 py-3.5 rounded-xl bg-green-600 text-white text-base font-bold hover:bg-green-700 flex items-center justify-center gap-2"><Send className="w-5 h-5" /> Approve and send</button>
           ) : changed ? (
             <button onClick={openSummary} className={`flex-1 px-4 py-3.5 rounded-xl text-white text-base font-bold flex items-center justify-center gap-2 ${unticked ? 'bg-amber-600 hover:bg-amber-700' : 'bg-green-600 hover:bg-green-700'}`}><Send className="w-5 h-5" /> {unticked ? 'Send corrected invoice' : 'Send updated invoice'}</button>

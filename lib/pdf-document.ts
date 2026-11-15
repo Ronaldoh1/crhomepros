@@ -32,6 +32,8 @@ export interface PdfDocData {
   payments?: Payment[]
   /** Invoice: the contract it belongs to, e.g. CTR-2026-0004 */
   contractNumber?: string
+  /** Printed in red across the title: "CANCELLED" for a contract, "VOID" for its invoice */
+  stamp?: string
   /** Sent again because something in the earlier one was wrong */
   isCorrection?: boolean
   /** The client's electronic signature (contracts signed on their page) */
@@ -77,7 +79,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   const baseLabel = { invoice: 'INVOICE', 'change-order': 'CHANGE ORDER', contract: 'CONTRACT' }[type] || 'DOCUMENT'
   // A document sent again after a fix carries a number ending in -CORRECTED
   const corrected = !!d.isCorrection || /-CORRECTED$/i.test(String(d.number || ''))
-  const label = corrected ? `CORRECTED ${baseLabel}` : baseLabel
+  const label = d.stamp ? `${d.stamp} ${baseLabel}` : corrected ? `CORRECTED ${baseLabel}` : baseLabel
   pdf.setTitle(`${label} ${clean(d.number)}`)
   pdf.setAuthor('CR Home Pros')
 
@@ -151,7 +153,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
   } catch {
     text('CR HOME PROS', M, H - 62, 22, bold, WHITE)
   }
-  right(label, W - M, H - 50, corrected ? 15 : 22, bold, GOLD)
+  right(label, W - M, H - 50, d.stamp || corrected ? 15 : 22, bold, d.stamp ? hex('#f87171') : GOLD)
   right(`No. ${d.number || ''}`, W - M, H - 68, 10, bold, WHITE)
   right('Licensed  |  Insured  |  Bonded', W - M, H - 86, 7.5, font, WHITE)
   right('MHIC #05-132359  |  #109350', W - M, H - 97, 7.5, font, WHITE)
@@ -251,7 +253,8 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
     }
     const pays = (d.payments || []).filter(p => p && p.label)
     if (!pays.length) {
-      totalBox(type === 'invoice' ? 'TOTAL DUE' : 'TOTAL', money(total))
+      if (d.stamp && type === 'invoice') totalBox('VOID: NOTHING DUE', money(0), hex('#b91c1c'))
+      else totalBox(type === 'invoice' ? 'TOTAL DUE' : 'TOTAL', money(total))
     } else {
       // Invoice for a contract: the total, each payment, what was received, what is left
       right(`Invoice total:  ${money(total)}`, W - M, y, 11, bold, DARK)
@@ -270,7 +273,7 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
           paid += Math.round(p.amount * 100)
           right(`RECEIVED${p.receivedAt ? ` ${p.receivedAt}` : ''}`, W - M - 10, y, 8.5, bold, hex('#15803d'))
         } else {
-          right('DUE', W - M - 10, y, 8.5, bold, GOLD_DARK)
+          right(d.stamp ? 'NOT DUE' : 'DUE', W - M - 10, y, 8.5, bold, GOLD_DARK)
         }
         y -= rowH
       })
@@ -279,10 +282,12 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
       right(`Payments received:  - ${money(paid / 100)}`, W - M, y, 10, font, GRAY)
       y -= 30
       const balance = Math.round(total * 100 - paid) / 100
-      if (balance <= 0) totalBox('PAID IN FULL', money(0), hex('#15803d'))
+      // a void invoice asks for nothing, whatever was or was not paid
+      if (d.stamp) totalBox('VOID: NOTHING DUE', money(0), hex('#b91c1c'))
+      else if (balance <= 0) totalBox('PAID IN FULL', money(0), hex('#15803d'))
       else totalBox('BALANCE DUE', money(balance))
       const next = pays.find(p => !p.received)
-      if (next && balance > 0) { right(`Next payment due: ${money(next.amount)}`, W - M, y + 6, 9.5, bold, DARK); y -= 14 }
+      if (next && balance > 0 && !d.stamp) { right(`Next payment due: ${money(next.amount)}`, W - M, y + 6, 9.5, bold, DARK); y -= 14 }
     }
   } else if (items.length) {
     heading('SCOPE OF WORK')

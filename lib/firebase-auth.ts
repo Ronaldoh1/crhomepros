@@ -214,7 +214,12 @@ export interface DocumentRecord {
   paymentStructure?: string
   contractTerms?: string
   signatureData: string | null
-  status: 'draft' | 'sent' | 'signed' | 'paid'
+  /** 'cancelled' = contract cancelled by Carlos; 'void' = invoice of a cancelled contract */
+  status: 'draft' | 'sent' | 'signed' | 'paid' | 'cancelled' | 'void'
+  cancelledAt?: string
+  cancelReason?: string
+  voidedAt?: string
+  voidReason?: string
   /** Field estimate this invoice was made from (one invoice per estimate) */
   estimateId?: string
   /** The client first declined the estimate and later came back */
@@ -512,6 +517,10 @@ export interface FieldNoteRecord {
   sharedAt?: string
   /** Contract made from this estimate */
   contractId?: string
+  /** Number of a contract for this estimate that was cancelled */
+  lastContractCancelled?: string
+  /** Day the estimate was changed after the client had approved it */
+  revisedAt?: string
   createdAt?: any
   updatedAt?: any
 }

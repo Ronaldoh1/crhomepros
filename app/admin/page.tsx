@@ -71,7 +71,7 @@ export default function AdminDashboard() {
       .forEach(n => list.push({ key: `fu-${n.id}`, icon: CalendarClock, tone: 'bg-red-800 text-white', title: `Follow up with ${n.clientName}`, detail: n.projectName, href: `/admin/estimates?open=${n.id}`, open: 'Open estimate' }))
 
     // After photos: asked for once an invoice has gone out to that client
-    const invoiced = new Set(docs.filter(d => d.type === 'invoice' && d.status !== 'draft').map(d => (d as any).clientEmailKey).filter(Boolean))
+    const invoiced = new Set(docs.filter(d => d.type === 'invoice' && d.status !== 'draft' && d.status !== 'void').map(d => (d as any).clientEmailKey).filter(Boolean))
     projects.filter(p => !(p.afterPhotos || []).length && p.clientEmailKey && invoiced.has(p.clientEmailKey))
       .forEach(p => list.push({ key: `after-${p.id}`, icon: Images, tone: 'bg-amber-800 text-white', title: `Add the "after" photos for ${p.title}`, detail: `You invoiced ${p.clientName}. Finished photos complete the project.`, href: `/admin/past-projects#p-${p.id}`, open: 'Open project' }))
 

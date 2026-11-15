@@ -12,6 +12,8 @@ const STATUS_STYLES: Record<string, string> = {
   draft: 'bg-amber-800 text-white',
   sent: 'bg-blue-800 text-white',
   signed: 'bg-green-800 text-white',
+  cancelled: 'bg-red-800 text-white',
+  void: 'bg-red-800 text-white',
   paid: 'bg-emerald-800 text-white',
 }
 
@@ -151,7 +153,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                       <h3 className="font-semibold text-white truncate">{doc.number}</h3>
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[doc.status] || STATUS_STYLES.draft}`}>
                         <StatusIcon className="w-3 h-3" />
-                        {doc.type === 'contract' && doc.status === 'signed' ? 'In contract' : doc.type === 'contract' && doc.status === 'sent' ? 'Waiting for signature'
+                        {doc.status === 'cancelled' ? 'Cancelled' : doc.status === 'void' ? 'Void' : doc.type === 'contract' && doc.status === 'signed' ? 'In contract' : doc.type === 'contract' && doc.status === 'sent' ? 'Waiting for signature'
                           : doc.type === 'invoice' && doc.status === 'draft' ? 'To approve' : doc.type === 'invoice' && doc.status === 'paid' ? 'Paid in full'
                           : doc.type === 'invoice' && doc.payments?.length ? `${doc.payments.filter(p => p.received).length} of ${doc.payments.length} payments received` : doc.status}
                       </span>
@@ -164,7 +166,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
 
                   <div className="text-right flex-shrink-0">
                     <p className="text-lg font-bold text-white">{formatCurrency(doc.total)}</p>
-                    {doc.type === 'invoice' && !!doc.payments?.length && doc.status !== 'draft' && <p className="text-sm text-white">Balance {formatCurrency(balanceDue(doc.total, doc.payments))}</p>}
+                    {doc.type === 'invoice' && !!doc.payments?.length && doc.status !== 'draft' && doc.status !== 'void' && <p className="text-sm text-white">Balance {formatCurrency(balanceDue(doc.total, doc.payments))}</p>}
                     {doc.signedFileUrl && (
                       <a
                         href={doc.signedFileUrl}
@@ -194,7 +196,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                       href={`${createHref}?id=${doc.id}`}
                       className="text-xs px-3 py-1.5 rounded-lg bg-blue-800 text-white hover:bg-blue-700 flex items-center gap-1.5"
                     >
-                      <Eye className="w-3 h-3" /> {type === 'invoice' ? (view === 'drafts' ? 'Review and approve' : 'Open / mark payment') : view === 'drafts' ? 'Continue editing' : 'Open / correct'}
+                      <Eye className="w-3 h-3" /> {doc.status === 'cancelled' || doc.status === 'void' ? 'Open' : type === 'invoice' ? (view === 'drafts' ? 'Review and approve' : 'Open / mark payment') : view === 'drafts' ? 'Continue editing' : 'Open / correct'}
                     </Link>
                   )}
                   <button

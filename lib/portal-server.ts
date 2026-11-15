@@ -112,6 +112,7 @@ export function pdfDataFromRecord(doc: any): PdfDocData {
     number: doc.number, date: doc.date, clientName: doc.clientName, clientEmail: doc.clientEmail,
     clientPhone: doc.clientPhone, clientAddress: doc.clientAddress, signatureData: doc.signatureData || null,
     clientSignature: doc.clientSignature || null, notes: doc.notes || '',
+    ...(doc.status === 'cancelled' ? { stamp: 'CANCELLED' } : doc.status === 'void' ? { stamp: 'VOID' } : {}),
   }
   if (doc.type === 'contract') {
     return {

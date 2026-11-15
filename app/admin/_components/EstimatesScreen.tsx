@@ -186,6 +186,9 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
       setPhotos(saved) // if a later step fails, a second try does not upload again
       // 2. the estimate itself
       setProgress('Saving the estimate…')
+      // The client approved a specific price. If it changes, that approval no longer stands:
+      // the estimate becomes a revised estimate and must be sent and approved again.
+      const revised = !!existing?.clientApproval?.signedAt && !existing.contractId && amountOf(existing) !== form.estimatedAmount
       const note: FieldNoteRecord = {
         ...form, id,
         projectName: form.projectName.trim() || 'Estimate',
@@ -193,16 +196,18 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
         photos: saved.map(p => p.url!).filter(Boolean),
         photoPaths: saved.map(p => p.path || ''),
         // a new estimate starts as "New"; editing never changes the status
-        status: existing ? statusOf(existing) : 'new',
+        status: revised ? 'quoted' : existing ? statusOf(existing) : 'new',
+        ...(revised ? { revisedAt: today(), statusChangedAt: today() } : {}),
         ...(existing ? {} : { statusChangedAt: today() }),
       }
       // Firestore rejects "undefined": drop empty optional fields
       Object.keys(note).forEach(k => (note as any)[k] === undefined && delete (note as any)[k])
       await saveFieldNote(note, isNew)
+      if (revised) await updateFieldNote(id, { clientApproval: null })
       markSaved()
       for (const path of removedPaths) await deleteFieldPhoto(path)
       setRemovedPaths([])
-      toast(isNew ? `Estimate for ${note.clientName} saved as New` : `Estimate for ${note.clientName} saved`)
+      toast(revised ? `Revised estimate saved. The price changed, so ${note.clientName} needs to approve it again: press Send again.` : isNew ? `Estimate for ${note.clientName} saved as New` : `Estimate for ${note.clientName} saved`)
       setEditing(null)
       loadNotes()
     } catch (err) {
@@ -409,6 +414,8 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
                 {n.clientApproval?.signedAt && <span className="px-2.5 py-0.5 rounded-full bg-green-600 text-white font-semibold flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Approved and signed by {n.clientApproval.name} {shortDay(n.clientApproval.signedAt.slice(0, 10))}</span>}
                 {n.sharedWithClient && <span className="px-2.5 py-0.5 rounded-full bg-blue-800 text-white">Client can see it{n.sharedAt ? ` since ${shortDay(n.sharedAt)}` : ''}</span>}
                 {referredBy(n.clientEmail, n.clientPhone) && <span className="px-2.5 py-0.5 rounded-full bg-purple-800 text-white">Referred by {referredBy(n.clientEmail, n.clientPhone).referrerName || 'a client'}</span>}
+                {n.revisedAt && !n.clientApproval?.signedAt && <span className="px-2.5 py-0.5 rounded-full bg-amber-800 text-white font-semibold">Revised {shortDay(n.revisedAt)}: needs approval again</span>}
+                {n.lastContractCancelled && !n.contractId && <span className="px-2.5 py-0.5 rounded-full bg-red-800 text-white">Contract {n.lastContractCancelled} was cancelled</span>}
                 {n.wasReopened && st !== 'reopened' && <span className="px-2.5 py-0.5 rounded-full bg-amber-800 text-white">Came back after declining</span>}
                 {n.followUpDate && OPEN.includes(st) && (
                   <span className={`px-2.5 py-0.5 rounded-full flex items-center gap-1.5 ${isDue(n) ? 'bg-red-600 text-white font-semibold' : 'bg-slate-700 text-white'}`}><CalendarClock className="w-3.5 h-3.5" />{isDue(n) ? `Follow up now (${shortDay(n.followUpDate)})` : `Follow up ${shortDay(n.followUpDate)}`}</span>

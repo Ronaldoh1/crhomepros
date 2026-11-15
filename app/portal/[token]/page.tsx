@@ -23,6 +23,7 @@ const EN = {
   signBtn: 'Sign contract', signing: 'Signing…', signedBy: 'Signed by', on: 'on', signedOk: 'Thank you. Your contract is signed, and a copy is on its way to your email.',
   needName: 'Type your full name.', needSig: 'Add your signature.', needAgree: 'Tick the box to agree.',
   estOpen: 'Waiting for your approval', estAccepted: 'Approved', estInvoiced: 'In contract', estDeclined: 'Declined', price: 'Estimated price, before tax',
+  cancelled: 'Cancelled', cancelledText: 'This contract was cancelled. Nothing is due on it.', voided: 'Void', voidText: 'This invoice is void because its contract was cancelled. Nothing more is due on it.',
   taxNote: TAX_NOTE, approveTitle: 'Approve this estimate', approveBtn: 'Approve and sign', approving: 'Approving…',
   approveAgree: 'I approve this estimate and would like CR Home Pros to prepare the contract. I understand this is not the contract, and that the final price with taxes is stated in the contract.',
   approvedOk: 'Thank you. Carlos will prepare your contract and send it to you.', approvedBy: 'Approved and signed by',
@@ -50,6 +51,7 @@ const ES: typeof EN = {
   signBtn: 'Firmar contrato', signing: 'Firmando…', signedBy: 'Firmado por', on: 'el', signedOk: 'Gracias. Su contrato está firmado y le llegará una copia por correo.',
   needName: 'Escriba su nombre completo.', needSig: 'Agregue su firma.', needAgree: 'Marque la casilla para aceptar.',
   estOpen: 'Esperando su aprobación', estAccepted: 'Aprobado', estInvoiced: 'En contrato', estDeclined: 'Rechazado', price: 'Precio estimado, antes de impuestos',
+  cancelled: 'Cancelado', cancelledText: 'Este contrato fue cancelado. No se debe nada por él.', voided: 'Anulada', voidText: 'Esta factura fue anulada porque su contrato fue cancelado. No se debe nada más por ella.',
   taxNote: TAX_NOTE_ES, approveTitle: 'Apruebe este presupuesto', approveBtn: 'Aprobar y firmar', approving: 'Aprobando…',
   approveAgree: 'Apruebo este presupuesto y deseo que CR Home Pros prepare el contrato. Entiendo que esto no es el contrato y que el precio final con impuestos se indica en el contrato.',
   approvedOk: 'Gracias. Carlos preparará su contrato y se lo enviará.', approvedBy: 'Aprobado y firmado por',
@@ -198,11 +200,12 @@ export default function ClientPage({ params }: { params: { token: string } }) {
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div><p className="text-lg font-bold text-slate-900">{i.number}</p><p className="text-sm text-slate-800">{i.projectName}{i.dueDate ? ` · ${t.due} ${day(i.dueDate)}` : ''}</p></div>
                     <div className="flex items-center gap-2">
-                      <Chip tone={i.balance <= 0 ? 'green' : 'blue'}>{i.balance <= 0 ? t.paidFull : `${t.balance}: ${money(i.balance)}`}</Chip>
+                      <Chip tone={i.status === 'void' ? 'slate' : i.balance <= 0 ? 'green' : 'blue'}>{i.status === 'void' ? t.voided : i.balance <= 0 ? t.paidFull : `${t.balance}: ${money(i.balance)}`}</Chip>
                       <a href={`${api}/pdf?doc=${i.id}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-slate-200 text-slate-900 text-sm font-semibold hover:bg-slate-300"><Download className="w-4 h-4" /> PDF</a>
                     </div>
                   </div>
-                  <div className="mt-4 rounded-xl border border-slate-300 overflow-hidden text-slate-900">
+                  {i.status === 'void' && <p className="mt-3 rounded-xl bg-slate-200 border border-slate-400 text-slate-900 px-4 py-3 font-semibold">{t.voidText}</p>}
+                  <div className={`mt-4 rounded-xl border border-slate-300 overflow-hidden text-slate-900 ${i.status === 'void' ? 'opacity-60' : ''}`}>
                     <div className="flex justify-between gap-4 px-4 py-2.5 bg-slate-50"><span>{t.invoiceTotal}</span><span className="font-bold">{money(i.total)}</span></div>
                     {(i.payments || []).map((p: any, k: number) => (
                       <div key={k} className={`flex items-start justify-between gap-4 px-4 py-2.5 border-t border-slate-200 ${p.received ? 'bg-green-50' : ''}`}>
@@ -270,7 +273,8 @@ function Contract({ c, t, token, post, reload, messages, defaultName, day, dayTi
   messages: Msg[]; defaultName: string; day: (s?: string | null) => string; dayTime: (s?: string | null) => string; cardCls: string
 }) {
   const signed = c.status === 'signed'
-  const [open, setOpen] = useState(!signed)
+  const cancelled = c.status === 'cancelled'
+  const [open, setOpen] = useState(c.status === 'to-sign')
   const [name, setName] = useState(defaultName || '')
   const [sig, setSig] = useState<string | null>(null)
   const [agree, setAgree] = useState(false)
@@ -293,9 +297,10 @@ function Contract({ c, t, token, post, reload, messages, defaultName, day, dayTi
     <div id={`c-${c.id}`} className={cardCls + ' scroll-mt-4'}>
       <div className="flex items-start justify-between gap-3">
         <div><h3 className="text-lg font-bold text-slate-900">{c.projectName || c.number}</h3><p className="text-sm text-slate-800">{c.number} · {day(c.date)}</p></div>
-        <Chip tone={signed ? 'green' : 'amber'}>{signed ? t.inContract : t.toSign}</Chip>
+        <Chip tone={cancelled ? 'slate' : signed ? 'green' : 'amber'}>{cancelled ? t.cancelled : signed ? t.inContract : t.toSign}</Chip>
       </div>
       <p className="mt-3 text-2xl font-bold text-[#0b1b33]">{money(c.total)}</p>
+      {cancelled && <p className="mt-3 rounded-xl bg-slate-200 border border-slate-400 text-slate-900 px-4 py-3 font-semibold">{t.cancelledText}</p>}
       {signed && <p className="mt-2 text-slate-900 flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-700" /> {t.signedBy} {c.signedName} {t.on} {dayTime(c.signedAt)}</p>}
       {done && <p className="mt-3 rounded-xl bg-green-100 border border-green-500 text-green-900 px-4 py-3 font-semibold">{t.signedOk}</p>}
 
@@ -327,7 +332,7 @@ function Contract({ c, t, token, post, reload, messages, defaultName, day, dayTi
       <Thread t={t} title={t.questions} button={t.ask} placeholder={t.askPh} messages={messages} dayTime={dayTime}
         onSend={async text => { await post({ action: 'message', docType: 'contract', docId: c.id, text }); await reload() }} />
 
-      {!signed && (
+      {!signed && !cancelled && (
         <div className="mt-5 pt-5 border-t-2 border-[#fd9b14]">
           <h4 className="text-lg font-bold text-[#0b1b33] mb-3">{t.signTitle}</h4>
           <label className="block text-sm font-semibold text-slate-900 mb-1.5">{t.fullName}</label>
