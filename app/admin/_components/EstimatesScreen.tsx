@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   Camera, ImagePlus, MapPin, Save, ArrowLeft, Plus, X, CheckCircle, Loader2, Trash2,
-  Pencil, FolderOpen, AlertTriangle, ClipboardList, Phone, RefreshCw, Search, Receipt, MessageSquare, Navigation, CalendarClock, Lock, Send, FileSignature,
+  Pencil, FolderOpen, AlertTriangle, ClipboardList, Phone, RefreshCw, Search, Receipt, MessageSquare, Navigation, CalendarClock, Lock, Send, FileSignature, Printer, Store,
 } from 'lucide-react'
 import { SERVICES } from '@/lib/constants'
 import {
@@ -17,11 +17,13 @@ import { useToast } from './Toast'
 import { SendSummary, MoneyInput } from './SendSummary'
 import { usd, TAX_NOTE } from '@/lib/payment-plan'
 import { ConfirmDialog, useUnsavedWarning } from './DocumentGuards'
+import { PdfDialog, type ReadyPdf } from './PdfDialog'
 
 const emptyForm = {
   projectName: '', clientName: '', clientPhone: '', clientEmail: '', address: '', serviceType: '',
   notes: '', measurements: '', materialsNeeded: '', nextSteps: '', followUpDate: '',
   estimatedAmount: 0, // dollars, before tax
+  walkin: false, // walk-in / in-person: printed and signed on paper, not emailed
 }
 type Form = typeof emptyForm
 /** older estimates stored the price as text */
@@ -85,6 +87,8 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
   const [retrying, setRetrying] = useState(false)
   const [toDelete, setToDelete] = useState<FieldNoteRecord | null>(null)
   const [toDiscard, setToDiscard] = useState<FieldNoteRecord | null>(null)
+  const [pdf, setPdf] = useState<ReadyPdf | null>(null)
+  const [printing, setPrinting] = useState('')
   const [filter, setFilter] = useState<'open' | 'all' | EstimateStatus>('open')
   const [search, setSearch] = useState('')
   const view = initialView
@@ -116,7 +120,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
     }).catch(err => { setLoadError(err instanceof Error ? err.message : String(err)); setLoading(false) })
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const set = (field: keyof Form, value: string | number) => setForm(prev => ({ ...prev, [field]: value }))
+  const set = (field: keyof Form, value: string | number | boolean) => setForm(prev => ({ ...prev, [field]: value }))
 
   const startNew = () => { markSaved(); setForm(emptyForm); setPhotos([]); setRemovedPaths([]); setEditing('new') }
   const startEdit = (n: FieldNoteRecord) => {
@@ -126,6 +130,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
       clientEmail: n.clientEmail || '', address: n.address || '', serviceType: n.serviceType || '',
       notes: n.notes || '', measurements: n.measurements || '', materialsNeeded: n.materialsNeeded || '',
       estimatedAmount: amountOf(n), nextSteps: n.nextSteps || '', followUpDate: n.followUpDate || '',
+      walkin: !!n.walkin,
     })
     setPhotos((n.photos || []).map((url, i) => ({ key: `saved-${i}`, preview: url, url, path: n.photoPaths?.[i] })))
     setRemovedPaths([]); setEditing(n)
@@ -156,6 +161,30 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
       await loadNotes()
     } catch (err) { toast(err instanceof Error ? err.message : 'The estimate was not sent.', 'error') }
     setSharing('')
+  }
+
+  /** Walk-in estimate: build a PDF to print and hand to the client (no email). */
+  const printEstimate = async (n: FieldNoteRecord) => {
+    setPrinting(n.id!)
+    try {
+      const amount = amountOf(n)
+      const data = {
+        number: n.invoiceNumber || `EST-${(n.id || '').slice(0, 6).toUpperCase()}`,
+        date: new Date().toISOString().split('T')[0],
+        clientName: n.clientName || '', clientPhone: n.clientPhone || '', clientEmail: n.clientEmail || '',
+        clientAddress: n.address || '', propertyAddress: n.address || '',
+        projectName: n.projectName || 'Estimate',
+        items: [{ description: `${n.projectName || 'Work'}, as discussed`, quantity: 1, unitPrice: amount }],
+        freeformDescription: n.nextSteps ? `Next steps: ${n.nextSteps}` : '',
+        notes: `${TAX_NOTE}${n.notes ? `\n\n${n.notes}` : ''}`,
+        signatureData: null,
+      }
+      const res = await adminFetch('/api/admin/generate-pdf', { type: 'contract', data })
+      const blob = await res.blob()
+      if (blob.type !== 'application/pdf' || blob.size < 500) throw new Error('The server did not return a PDF.')
+      setPdf({ blob, filename: `estimate-${String(data.number).replace(/[^\w.-]/g, '_')}.pdf` })
+    } catch (err) { toast(err instanceof Error ? err.message : 'The estimate could not be printed.', 'error') }
+    setPrinting('')
   }
 
   /** Was this person referred by someone? Matched by email or phone. */
@@ -191,6 +220,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
       const revised = !!existing?.clientApproval?.signedAt && !existing.contractId && amountOf(existing) !== form.estimatedAmount
       const note: FieldNoteRecord = {
         ...form, id,
+        walkin: form.walkin,
         projectName: form.projectName.trim() || 'Estimate',
         estimatedCost: form.estimatedAmount ? usd(form.estimatedAmount) : '',
         photos: saved.map(p => p.url!).filter(Boolean),
@@ -316,6 +346,13 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
           <h2 className="text-lg font-semibold text-white mb-4">Estimate</h2>
           <div className="space-y-4">
             <div><label className={lc}>Estimated price, before tax</label><MoneyInput value={form.estimatedAmount} onChange={n => set('estimatedAmount', n)} className={ic} ariaLabel="Estimated price before tax" /><p className="text-sm text-white mt-1.5">Numbers only: 2000 means $2,000.00, 2050.5 means $2,050.50.</p><p className="mt-2 rounded-lg border border-amber-300 bg-amber-800 px-3 py-2 text-sm text-white">The client sees this note: "{TAX_NOTE}"</p></div>
+            <label className={`flex items-start gap-3 rounded-xl border-2 p-4 cursor-pointer ${form.walkin ? 'border-teal-300 bg-teal-800' : 'border-white/30 bg-slate-800'}`}>
+              <input type="checkbox" checked={form.walkin} onChange={e => set('walkin', e.target.checked)} className="mt-1 w-5 h-5 flex-shrink-0 accent-teal-500" />
+              <span className="text-white text-sm">
+                <span className="flex items-center gap-2 font-semibold text-base"><Store className="w-4 h-4" /> Non-tech / walk-in (print, don't email)</span>
+                <span className="block mt-1">For an in-person client with no email. The estimate, contract and invoice work exactly the same, but you print each one to hand over instead of emailing it. You can change this before you print.</span>
+              </span>
+            </label>
             <div><label className={lc}>Next steps</label><textarea value={form.nextSteps} onChange={e => set('nextSteps', e.target.value)} rows={2} className={ic} /></div>
             <div><label className={lc}>Follow up with the client on</label><input type="date" value={form.followUpDate} onChange={e => set('followUpDate', e.target.value)} className={ic} /><p className="text-sm text-white mt-1.5">Optional. The list reminds you when this day arrives.</p></div>
           </div>
@@ -410,6 +447,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
                 <span className={`flex-shrink-0 px-3 py-1 rounded-full border text-sm font-semibold flex items-center gap-1.5 ${STATUS[st].chip}`}>{locked && <Lock className="w-3.5 h-3.5" />}{STATUS[st].label}</span>
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
+                {n.walkin && <span className="px-2.5 py-0.5 rounded-full bg-teal-700 text-white font-semibold flex items-center gap-1"><Store className="w-3.5 h-3.5" /> Walk-in</span>}
                 {amountOf(n) > 0 && <span className="px-2.5 py-0.5 rounded-full bg-green-800 text-white font-semibold">{usd(amountOf(n))} + tax</span>}
                 {n.clientApproval?.signedAt && <span className="px-2.5 py-0.5 rounded-full bg-green-600 text-white font-semibold flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Approved and signed by {n.clientApproval.name} {shortDay(n.clientApproval.signedAt.slice(0, 10))}</span>}
                 {n.sharedWithClient && <span className="px-2.5 py-0.5 rounded-full bg-blue-800 text-white">Client can see it{n.sharedAt ? ` since ${shortDay(n.sharedAt)}` : ''}</span>}
@@ -465,15 +503,20 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
                 ) : st === 'declined' ? (
                   <p className="self-end text-sm text-white">To make a contract, change the status to Reopened first.</p>
                 ) : null}
-                {canContract && !n.contractId && !n.clientApproval?.signedAt && <p className="sm:col-span-2 text-sm text-white">The client has not approved this estimate on their page yet. You can still create the contract.</p>}
+                {canContract && !n.contractId && !n.clientApproval?.signedAt && !n.walkin && <p className="sm:col-span-2 text-sm text-white">The client has not approved this estimate on their page yet. You can still create the contract.</p>}
+                {canContract && !n.contractId && n.walkin && <p className="sm:col-span-2 text-sm text-white">Walk-in: print the estimate to hand over, then create the contract. The contract is also printed and signed on paper.</p>}
               </div>
 
               <div className="flex flex-wrap items-center gap-2 mt-3">
-                {!locked && (
+                {!locked && (n.walkin ? (
+                  <button onClick={() => printEstimate(n)} disabled={printing === n.id} className="text-sm px-3 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-700 flex items-center gap-1.5">
+                    {printing === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />} Preview &amp; print
+                  </button>
+                ) : (
                   <button onClick={() => (n.clientEmail ? setToShare(n) : toast('Add the client\'s email to the estimate first (Open / edit).', 'error'))} disabled={sharing === n.id} className="text-sm px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 flex items-center gap-1.5">
                     {sharing === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {n.sharedWithClient ? 'Send again' : 'Send to client'}
                   </button>
-                )}
+                ))}
                 {!locked && <button onClick={() => startEdit(n)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Open / edit</button>}
                 <button onClick={() => setToDelete(n)} className="text-sm px-3 py-2 rounded-lg bg-red-800 text-white hover:bg-red-700 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
               </div>
@@ -517,6 +560,8 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
         <p>The notes and photos will be removed from the portal for good.</p>
         {toDelete?.contractId && <p>The contract made from it is <strong>not</strong> deleted.</p>}
       </ConfirmDialog>
+
+      <PdfDialog pdf={pdf} onClose={() => setPdf(null)} />
     </div>
   )
 }

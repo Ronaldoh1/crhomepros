@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Receipt, Loader2, Send, Download, CheckCircle, FileSignature, AlertTriangle, Briefcase, Circle } from 'lucide-react'
+import { Receipt, Loader2, Send, Download, CheckCircle, FileSignature, AlertTriangle, Briefcase, Circle, Printer, Store } from 'lucide-react'
 import { getDocument, saveDocument, getDocumentsByType, getSavedSignatureUrl, type DocumentRecord } from '@/lib/firebase-auth'
 import { adminFetch } from '@/lib/admin-api'
 import { balanceDue, buildPayments, paidSoFar, nextPayment, usd, type Payment } from '@/lib/payment-plan'
@@ -66,6 +66,7 @@ export default function InvoicePage() {
 
   const isDraft = doc?.status === 'draft'
   const isVoid = doc?.status === 'void'
+  const isWalkin = !!doc?.walkin
   const total = doc?.total || 0
   const paid = paidSoFar(payments)
   const balance = balanceDue(total, payments)
@@ -142,6 +143,24 @@ export default function InvoicePage() {
     setSending(false)
   }
 
+  // Walk-in invoice: no email. Save the status and payments, then open the PDF to print.
+  const recordWalkin = async () => {
+    if (!doc) return
+    setSending(true)
+    try {
+      const status: DocumentRecord['status'] = balance <= 0 ? 'paid' : 'sent'
+      const updated: DocumentRecord = {
+        ...doc, status, payments, dueDate, notes, signatureData: signature,
+      } as DocumentRecord
+      await saveDocument(updated)
+      setSentPayments(payments)
+      setDoc(updated)
+      await openPdf()
+      toast(isDraft ? `Invoice ${doc.number} approved. Print it and hand it over.` : balance <= 0 ? `Invoice ${doc.number} marked paid in full.` : `Payment recorded on invoice ${doc.number}. Print the updated copy.`)
+    } catch (e) { toast(e instanceof Error ? e.message : 'The invoice was not saved.', 'error') }
+    setSending(false)
+  }
+
   const createFor = async (c: DocumentRecord) => {
     setBusy(c.id!)
     try {
@@ -194,7 +213,7 @@ export default function InvoicePage() {
     <div className="p-4 sm:p-6 max-w-3xl mx-auto pb-32">
       <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Receipt className="w-6 h-6 text-orange-300" /> Invoice {doc.number}</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Receipt className="w-6 h-6 text-orange-300" /> Invoice {doc.number}{isWalkin && <span className="px-2.5 py-1 rounded-full bg-teal-700 text-white text-xs font-semibold flex items-center gap-1"><Store className="w-3.5 h-3.5" /> Walk-in</span>}</h1>
           <p className="text-white mt-1">{doc.clientName} · {doc.projectName}</p>
         </div>
         <span className={`px-3 py-1.5 rounded-full text-white text-sm font-bold ${stateChip[0]}`}>{stateChip[1]}</span>
@@ -207,9 +226,9 @@ export default function InvoicePage() {
         </div>
       )}
       {isDraft && (
-        <div className="mb-5 rounded-xl border border-orange-300 bg-orange-800 p-4 text-white">
-          <p className="font-bold flex items-center gap-2"><FileSignature className="w-5 h-5" /> The contract is signed. This invoice is ready for you to approve.</p>
-          <p className="mt-1 text-sm">Check the amounts, then press <strong>Approve and send</strong>. Nothing reaches the client until you do.</p>
+        <div className={`mb-5 rounded-xl border p-4 text-white ${isWalkin ? 'border-teal-300 bg-teal-800' : 'border-orange-300 bg-orange-800'}`}>
+          <p className="font-bold flex items-center gap-2">{isWalkin ? <Store className="w-5 h-5" /> : <FileSignature className="w-5 h-5" />} The contract is signed. This invoice is ready for you to approve.</p>
+          <p className="mt-1 text-sm">{isWalkin ? <>Walk-in: check the amounts, then press <strong>Approve &amp; print</strong>. The invoice is printed to hand over — nothing is emailed. Record each payment here as it comes in.</> : <>Check the amounts, then press <strong>Approve and send</strong>. Nothing reaches the client until you do.</>}</p>
         </div>
       )}
 
@@ -240,7 +259,7 @@ export default function InvoicePage() {
 
         <div className={card}>
           <h2 className="text-lg font-semibold text-white">Payments</h2>
-          <p className="text-sm text-white mb-3">{isDraft ? 'After you send the invoice, come back here each time the client pays.' : 'When a payment comes in, tick it and send the updated invoice.'}</p>
+          <p className="text-sm text-white mb-3">{isDraft ? `After you ${isWalkin ? 'print' : 'send'} the invoice, come back here each time the client pays.` : isWalkin ? 'When a payment comes in, tick it and print the updated invoice.' : 'When a payment comes in, tick it and send the updated invoice.'}</p>
           <div className="space-y-2">
             {payments.map((p, i) => {
               const wasSent = !!sentPayments[i]?.received
@@ -290,6 +309,8 @@ export default function InvoicePage() {
           <button onClick={openPdf} disabled={busy === 'pdf'} className="px-4 py-3.5 rounded-xl bg-slate-700 text-white font-semibold hover:bg-slate-600 flex items-center gap-2">{busy === 'pdf' ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />} <span className="hidden sm:inline">Open</span> PDF</button>
           {isVoid ? (
             <span className="flex-1 px-4 py-3.5 rounded-xl bg-red-800 text-white text-base font-bold text-center">Void: cannot be sent</span>
+          ) : isWalkin ? (
+            <button onClick={recordWalkin} disabled={sending || (!isDraft && !changed)} className="flex-1 px-4 py-3.5 rounded-xl bg-teal-600 text-white text-base font-bold hover:bg-teal-700 flex items-center justify-center gap-2 disabled:opacity-50">{sending ? <Loader2 className="w-5 h-5 animate-spin" /> : <Printer className="w-5 h-5" />} {isDraft ? 'Approve & print' : changed ? 'Record payment & print' : 'Print invoice'}</button>
           ) : isDraft ? (
             <button onClick={openSummary} className="flex-1 px-4 py-3.5 rounded-xl bg-green-600 text-white text-base font-bold hover:bg-green-700 flex items-center justify-center gap-2"><Send className="w-5 h-5" /> Approve and send</button>
           ) : changed ? (

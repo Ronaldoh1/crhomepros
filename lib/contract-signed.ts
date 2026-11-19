@@ -45,6 +45,7 @@ export async function afterContractSigned(db: Firestore, contract: any, signerNa
         .map((p: any) => ({ label: p.label, amount: Number(p.amount) || 0, received: false }))
       await invRef.set({
         id: invRef.id, type: 'invoice', number, status: 'draft',
+        ...(contract.walkin ? { walkin: true } : {}),
         contractId: contract.id, contractNumber: contract.number || '', estimateId: contract.estimateId || '',
         clientName: contract.clientName || '', clientEmail: contract.clientEmail || '', clientPhone: contract.clientPhone || '',
         clientAddress: contract.clientAddress || contract.propertyAddress || '',

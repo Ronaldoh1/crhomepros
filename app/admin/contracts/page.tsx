@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import {
   Plus, Trash2, Send, Download, Eye, Loader2, CheckCircle,
-  Briefcase, User, Calendar, FileText, Pencil, AlertTriangle, Mail
+  Briefcase, User, Calendar, FileText, Pencil, AlertTriangle, Mail, Printer, Store
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
 import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
@@ -33,6 +33,8 @@ interface ContractData {
   paymentStructure: string
   contractTerms: string; notes: string
   signatureData: string | null; isCorrection: boolean
+  /** walk-in / in-person: printed and signed on paper, not emailed */
+  walkin: boolean
 }
 
 const DEFAULT_TERMS = `Any alteration or deviation from written agreement involving extra work will be executed only upon written agreement and will be charged over the above estimate accordingly.
@@ -57,7 +59,7 @@ const INITIAL: ContractData = {
   paymentStructure: '',
   contractTerms: DEFAULT_TERMS,
   notes: 'All dumping fees, materials and labor are included in this price.',
-  signatureData: null, isCorrection: false,
+  signatureData: null, isCorrection: false, walkin: false,
 }
 
 export default function ContractsPage() {
@@ -113,6 +115,7 @@ export default function ContractsPage() {
           clientAddress: note.address || '', propertyAddress: note.address || '',
           projectName: note.projectName || '', projectTitle: note.projectName || '',
           totalAmount: note.estimatedAmount || (prices.length === 1 ? Math.round(Number(prices[0].replace(/,/g, '')) * 100) / 100 : prev.totalAmount),
+          walkin: !!note.walkin,
         }))
       }).catch(err => alert(`Could not open the field estimate.\n\n${err instanceof Error ? err.message : String(err)}`))
       return
@@ -145,6 +148,7 @@ export default function ContractsPage() {
           ...('taxRate' in prev && d.taxRate != null ? { taxRate: d.taxRate } : {}),
         }),
         signatureData: d.signatureData ?? null,
+        walkin: d.formData?.walkin ?? !!d.walkin,
         ...(alreadySent ? { isCorrection: true } : {}),
       }))
     }).catch(err => alert(`Could not open this document.\n\n${err instanceof Error ? err.message : String(err)}`))
@@ -189,6 +193,7 @@ export default function ContractsPage() {
         paymentPlan: ct.paymentPlan, payments,
         signatureData: ct.signatureData, status,
         ...(estimateId ? { estimateId } : {}),
+        ...(ct.walkin ? { walkin: true } : {}),
         formData: { ...ct, number: num, signatureData: null },
       }
       const id = await saveDocument(docData)
@@ -283,6 +288,14 @@ export default function ContractsPage() {
     setCancelling(false)
   }
 
+  // Walk-in: no email. Saving as "sent" means "printed and handed to the client",
+  // which unlocks "Client signed on paper" and the cancel action, same as a sent contract.
+  const markPrinted = async () => {
+    try { await handleSave('sent') } catch { return }
+    await handleGeneratePdf()
+    toast(`Contract ${ct.number} marked as given to the client. Print it, then press "Client signed on paper" once they sign.`)
+  }
+
   // The client signed a printed copy: same result as signing online
   const markPaperSigned = async () => {
     setConfirmPaper(false); setMarkingPaper(true)
@@ -304,7 +317,7 @@ export default function ContractsPage() {
     <div className="p-4 sm:p-6 max-w-6xl mx-auto">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Briefcase className="w-6 h-6 text-blue-300" /> {ct.isCorrection ? 'Corrected Contract' : 'Create Contract'}</h1>
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3"><Briefcase className="w-6 h-6 text-blue-300" /> {ct.isCorrection ? 'Corrected Contract' : 'Create Contract'}{ct.walkin && <span className="px-2.5 py-1 rounded-full bg-teal-700 text-white text-xs font-semibold flex items-center gap-1"><Store className="w-3.5 h-3.5" /> Walk-in</span>}</h1>
           <p className="text-white text-sm mt-1">Professional scope of work and agreement</p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -316,6 +329,12 @@ export default function ContractsPage() {
         </div>
       </div>
 
+      {ct.walkin && !signedBy && !cancelled && (
+        <div className="mb-6 rounded-xl border border-teal-300 bg-teal-800 p-4 text-sm text-white">
+          <p className="font-bold text-base flex items-center gap-2"><Store className="w-4 h-4" /> Walk-in contract — printed, not emailed</p>
+          <p className="mt-1">Fill it in and press <strong>Print &amp; mark as given</strong>. Hand the printed contract to the client to sign. When they do, press <strong>Client signed on paper</strong>: the invoice is created for you, exactly like an online signing.</p>
+        </div>
+      )}
       {cancelled ? (
         <div className="mb-6 rounded-xl border border-red-300 bg-red-800 p-4 text-sm text-white">
           <p className="font-bold text-base">This contract was cancelled{cancelled.at ? ` on ${new Date(cancelled.at).toLocaleDateString('en-US', { dateStyle: 'long' })}` : ''}.</p>
@@ -433,7 +452,11 @@ export default function ContractsPage() {
             {!wasSent && <button onClick={() => handleSave('draft')} disabled={saving} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-700 text-white font-medium hover:bg-slate-600 text-sm">{saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />} Save Draft</button>}
             <button onClick={() => setTab('preview')} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-800 text-white font-medium hover:bg-blue-700 text-sm"><Eye className="w-4 h-4" /> Preview</button>
             <button onClick={handleGeneratePdf} disabled={generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 text-sm">{generating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Generate PDF</button>
-            {!signedBy && !cancelled && <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>}
+            {!signedBy && !cancelled && (ct.walkin ? (
+              <button onClick={markPrinted} disabled={saving || generating} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-teal-600 text-white font-medium hover:bg-teal-700 text-sm disabled:opacity-50">{(saving || generating) ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />} {wasSent ? 'Print again' : 'Print & mark as given'}</button>
+            ) : (
+              <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
+            ))}
             {!cancelled && wasSent && savedId && <button onClick={() => { setCancelReason(''); setTellClient(true); setCancelOpen(true) }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-700 text-white font-medium hover:bg-red-800">Cancel contract</button>}
             {!signedBy && !cancelled && wasSent && savedId && <button onClick={() => setConfirmPaper(true)} disabled={markingPaper} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50">{markingPaper ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Client signed on paper</button>}
           </div>

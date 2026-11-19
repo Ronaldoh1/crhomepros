@@ -220,14 +220,10 @@ export interface DocumentRecord {
   cancelReason?: string
   voidedAt?: string
   voidReason?: string
-  /** Walk-in / in-person transaction: recorded by hand, printed not emailed, kept separate */
+  /** Walk-in / in-person job: same lifecycle as any other, but documents are
+   *  printed and signed on paper instead of emailed. Set on the estimate and
+   *  carried onto the contract and invoice made from it. */
   walkin?: boolean
-  /** Which walk-in document this is (estimate, contract or invoice) */
-  walkinKind?: 'estimate' | 'contract' | 'invoice'
-  /** Walk-in paper lifecycle, independent of the digital statuses above */
-  walkinStatus?: 'recorded' | 'given' | 'signed-paper' | 'paid'
-  /** Walk-in: Carlos's own note on how it was handled on paper */
-  walkinNote?: string
   /** Field estimate this invoice was made from (one invoice per estimate) */
   estimateId?: string
   /** The client first declined the estimate and later came back */
@@ -332,7 +328,7 @@ export async function saveDocumentPatch(id: string, patch: Partial<DocumentRecor
   await setDoc(doc(requireDb(), DOCS_COLLECTION, id), { ...patch, updatedAt: serverTimestamp() }, { merge: true })
 }
 
-export async function getDocumentsByType(type: DocumentRecord['type'], scope: 'digital' | 'walkin' | 'all' = 'digital'): Promise<DocumentRecord[]> {
+export async function getDocumentsByType(type: DocumentRecord['type']): Promise<DocumentRecord[]> {
   const db = requireDb()
   const q = query(
     collection(db, DOCS_COLLECTION),
@@ -340,10 +336,7 @@ export async function getDocumentsByType(type: DocumentRecord['type'], scope: 'd
     orderBy('createdAt', 'desc')
   )
   const snap = await getDocs(q)
-  const all = snap.docs.map(d => ({ ...d.data(), id: d.id } as DocumentRecord))
-  if (scope === 'all') return all
-  // Walk-in and digital documents are kept in separate parts of the portal
-  return all.filter(d => (scope === 'walkin' ? !!d.walkin : !d.walkin))
+  return snap.docs.map(d => ({ ...d.data(), id: d.id } as DocumentRecord))
 }
 
 export async function getAllDocuments(): Promise<DocumentRecord[]> {
@@ -351,12 +344,6 @@ export async function getAllDocuments(): Promise<DocumentRecord[]> {
   const q = query(collection(db, DOCS_COLLECTION), orderBy('createdAt', 'desc'))
   const snap = await getDocs(q)
   return snap.docs.map(d => ({ ...d.data(), id: d.id } as DocumentRecord))
-}
-
-/** Walk-in / in-person documents only (recorded by hand, printed not emailed). */
-export async function getWalkinDocuments(): Promise<DocumentRecord[]> {
-  const all = await getAllDocuments()
-  return all.filter(d => !!d.walkin)
 }
 
 export async function deleteDocument(id: string): Promise<void> {
@@ -538,6 +525,9 @@ export interface FieldNoteRecord {
   lastContractCancelled?: string
   /** Day the estimate was changed after the client had approved it */
   revisedAt?: string
+  /** Walk-in / in-person job: printed and signed on paper, not emailed. Carried
+   *  onto the contract and invoice made from this estimate. */
+  walkin?: boolean
   createdAt?: any
   updatedAt?: any
 }

@@ -7,7 +7,7 @@ import { useState } from 'react'
 import {
   LayoutDashboard, FileText, FilePlus, FileSignature,
   FolderOpen, LogOut, Menu, X, ChevronDown, ChevronRight,
-  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera, MessageSquare, Images, Store
+  Receipt, ClipboardList, Briefcase, Home, Loader2, HelpCircle, Camera, MessageSquare, Images
 } from 'lucide-react'
 import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
 import { ToastProvider } from './_components/Toast'
@@ -19,7 +19,6 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     estimates: true,
     invoices: true,
-    changeOrders: true,
     contracts: true,
   })
 
@@ -34,7 +33,6 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
     sky: { head: 'bg-sky-600', rail: 'border-sky-400', dot: 'bg-sky-400' },
     violet: { head: 'bg-violet-600', rail: 'border-violet-400', dot: 'bg-violet-400' },
     orange: { head: 'bg-orange-600', rail: 'border-orange-400', dot: 'bg-orange-400' },
-    teal: { head: 'bg-teal-600', rail: 'border-teal-400', dot: 'bg-teal-400' },
   } as const
   type Tone = keyof typeof TONES
 
@@ -73,7 +71,7 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
   )
 
   return (
-    <div className={`${mobile ? 'w-full' : 'w-64 min-h-screen'} bg-slate-900 border-r border-white/25 flex flex-col`}>
+    <div className={`${mobile ? 'w-full' : 'w-64'} h-full bg-slate-900 border-r border-white/25 flex flex-col`}>
       {/* Logo / Brand */}
       <div className="px-5 py-5 border-b border-white/25">
         <div className="flex items-center justify-between">
@@ -112,14 +110,6 @@ function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => v
         {section('invoices', 'orange', 3, <Receipt className="w-4 h-4" />, 'Invoices', [
           ['/admin/invoices/drafts', 'Invoices to Approve'],
           ['/admin/invoices/sent', 'Sent Invoices'],
-        ])}
-
-        {/* In-person transactions, kept separate from the digital flow */}
-        <div className="pt-3 border-t border-white/25 mt-3" />
-        {section('walkin', 'teal', 0, <Store className="w-4 h-4" />, 'Walk-in / In-Person', [
-          ['/admin/walkin/estimates', 'Walk-in Estimates'],
-          ['/admin/walkin/contracts', 'Walk-in Contracts'],
-          ['/admin/walkin/invoices', 'Walk-in Invoices'],
         ])}
 
         <div className="pt-3 border-t border-white/25 mt-3">
