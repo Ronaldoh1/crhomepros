@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { SignaturePad } from '@/app/admin/_components/SignaturePad'
 import { TAX_NOTE, TAX_NOTE_ES } from '@/lib/payment-plan'
+import { PortalAddToHomeScreen } from './AddToHomeScreen'
 
 // ── Words (English / Spanish) ────────────────
 const EN = {
@@ -138,6 +139,8 @@ export default function ClientPage({ params }: { params: { token: string } }) {
           <h1 className="text-2xl sm:text-3xl font-bold text-[#0b1b33]">{t.hello}{first ? `, ${first}` : ''}</h1>
           <p className="text-slate-800 mt-1">{t.intro}</p>
         </div>
+
+        <PortalAddToHomeScreen es={es} />
 
         {/* To do */}
         <section className={card + ' border-l-4 border-l-[#fd9b14]'}>

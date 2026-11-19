@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { loginWithGoogle, isFirebaseConfigured } from '@/lib/firebase-auth'
 import { Loader2, Shield, AlertTriangle } from 'lucide-react'
+import { AddToHomeScreen } from '../_components/AddToHomeScreen'
 
 export default function AdminLoginPage() {
   const [error, setError] = useState('')
@@ -88,6 +89,8 @@ export default function AdminLoginPage() {
               </svg>
               Sign in with Google
             </button>
+
+            <AddToHomeScreen />
           </div>
 
           {/* Footer */}

@@ -12,6 +12,7 @@ import {
 import { AdminTour, TOUR_EVENT } from './_components/AdminTour'
 import { ToastProvider } from './_components/Toast'
 import { NotificationsProvider, NotificationBanner } from './_components/Notifications'
+import { AdminManifestLink } from './_components/AddToHomeScreen'
 
 function AdminSidebar({ mobile, onClose }: { mobile?: boolean; onClose?: () => void }) {
   const pathname = usePathname()
@@ -156,9 +157,10 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const pathname = usePathname()
 
-  // Login page doesn't need the shell
+  // Login page doesn't need the shell, but still gets the admin manifest so the
+  // Home Screen icon opens into /admin
   if (pathname === '/admin/login') {
-    return <>{children}</>
+    return <><AdminManifestLink />{children}</>
   }
 
   if (loading) {
@@ -175,6 +177,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-slate-950 flex">
+      <AdminManifestLink />
       <AdminTour />
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
