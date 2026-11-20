@@ -445,7 +445,7 @@ export default function ContractsPage() {
           <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6"><label className={lc}>Additional Notes</label><textarea value={ct.notes} onChange={e => updateField('notes', e.target.value)} rows={2} className={ic} /></div>
 
           <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
-            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CRGS Inc." />
+            <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CR Home Pros Inc." />
           </div>
 
           <div className="flex flex-wrap gap-3 pt-2">
@@ -488,7 +488,7 @@ export default function ContractsPage() {
             )}
             {ct.notes && <p className="text-sm text-slate-600 mb-4">{ct.notes}</p>}
             <div className="grid sm:grid-cols-2 gap-8 border-t pt-8 mb-8">
-              <div><p className="text-sm font-semibold mb-4">Provided and Guaranteed by:</p><div className="h-16 border-b border-slate-300 mb-1">{ct.signatureData && <img src={ct.signatureData} alt="Sig" className="h-full object-contain" />}</div><p className="text-sm font-semibold">Carlos Hernandez</p><p className="text-xs text-slate-500">President, CRGS, Inc.</p></div>
+              <div><p className="text-sm font-semibold mb-4">Provided and Guaranteed by:</p><div className="h-16 border-b border-slate-300 mb-1">{ct.signatureData && <img src={ct.signatureData} alt="Sig" className="h-full object-contain" />}</div><p className="text-sm font-semibold">Carlos Hernandez</p><p className="text-xs text-slate-500">President, CR Home Pros Inc.</p></div>
               <div><p className="text-sm font-semibold mb-4">Accepted and Agreed:</p><div className="h-16 border-b border-slate-300 mb-1" /><p className="text-sm font-semibold">{ct.clientName || '________________'}</p><p className="text-xs text-slate-500">Owner of Above House • Date: ________</p></div>
             </div>
             {ct.contractTerms && (
