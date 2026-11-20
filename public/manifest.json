@@ -9,7 +9,7 @@
   "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "/images/logo.png",
+      "src": "https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Flogo.png?alt=media",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

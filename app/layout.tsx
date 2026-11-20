@@ -35,6 +35,19 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, 'max-video-preview': -1, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: 'CR Home Pros',
+    statusBarStyle: 'black-translucent',
+  },
+  icons: {
+    apple: 'https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Flogo.png?alt=media',
+  },
+}
+
+export const viewport = {
+  themeColor: '#060828',
 }
 
 // Expanded JSON-LD schema with services, reviews, and bilingual support
@@ -133,12 +146,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <head>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-        <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#060828" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="CR Home Pros" />
-        <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/crhomepros.firebasestorage.app/o/site%2Flogo.png?alt=media" />
       </head>
       <body className="font-sans antialiased">
         <Suspense fallback={null}>

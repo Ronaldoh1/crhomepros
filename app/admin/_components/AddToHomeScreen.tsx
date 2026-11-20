@@ -1,49 +1,16 @@
 'use client'
 
-// Makes the admin portal installable as its own Home Screen "app" on iPhone.
-//  1. Points the admin pages at a dedicated manifest (start_url = /admin) so a
-//     pinned icon opens straight into the portal, full-screen, with its own name.
-//  2. Shows a one-time hint on iOS Safari telling Carlos how to pin it.
-// Nothing here changes how the portal works; it only adds the install affordance.
+// A one-time hint on the admin login page (iOS Safari only) telling Carlos how
+// to pin the portal to his Home Screen. The admin manifest itself is served from
+// the admin layout's metadata (server-side), so the pinned icon opens into
+// /admin full-screen — this component only shows the how-to.
 
 import { useEffect, useState } from 'react'
 import { Share, X, Plus } from 'lucide-react'
 
 const DISMISS_KEY = 'crhp_a2hs_dismissed'
 
-/** Swap the site manifest for the admin one while any admin page is open. */
-function useAdminManifest() {
-  useEffect(() => {
-    const existing = document.querySelector('link[rel="manifest"]') as HTMLLinkElement | null
-    const previousHref = existing?.getAttribute('href') || null
-    const link = existing || document.createElement('link')
-    link.setAttribute('rel', 'manifest')
-    link.setAttribute('href', '/admin-app.webmanifest')
-    if (!existing) document.head.appendChild(link)
-
-    // Give the pinned icon the admin name
-    let titleMeta = document.querySelector('meta[name="apple-mobile-web-app-title"]') as HTMLMetaElement | null
-    const previousTitle = titleMeta?.getAttribute('content') || null
-    if (!titleMeta) { titleMeta = document.createElement('meta'); titleMeta.setAttribute('name', 'apple-mobile-web-app-title'); document.head.appendChild(titleMeta) }
-    titleMeta.setAttribute('content', 'CR Admin')
-
-    return () => {
-      // Restore the public manifest/title when leaving the admin area
-      if (previousHref) link.setAttribute('href', previousHref)
-      if (previousTitle && titleMeta) titleMeta.setAttribute('content', previousTitle)
-    }
-  }, [])
-}
-
-/** Mount once on every admin page: points the portal at the admin manifest so a
- *  Home Screen icon opens into /admin. Renders nothing. */
-export function AdminManifestLink() {
-  useAdminManifest()
-  return null
-}
-
 export function AddToHomeScreen() {
-  // The admin layout owns the manifest swap (AdminManifestLink); this only shows the hint.
   const [show, setShow] = useState(false)
 
   useEffect(() => {
