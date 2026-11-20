@@ -10,6 +10,7 @@ import { balanceDue, buildPayments, paidSoFar, nextPayment, usd, type Payment } 
 import { SignaturePad } from '../_components/SignaturePad'
 import { ConfirmDialog } from '../_components/DocumentGuards'
 import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
+import { TextToClientButton } from '../_components/TextToClientButton'
 import { SendSummary } from '../_components/SendSummary'
 import { useToast } from '../_components/Toast'
 
@@ -318,6 +319,7 @@ export default function InvoicePage() {
           ) : (
             <button onClick={openSummary} className="flex-1 px-4 py-3.5 rounded-xl bg-slate-700 text-white text-base font-semibold hover:bg-slate-600 flex items-center justify-center gap-2"><Send className="w-5 h-5" /> Send again</button>
           )}
+          {!isVoid && !isWalkin && <TextToClientButton email={doc.clientEmail} phone={doc.clientPhone} name={doc.clientName} docType="invoice" docNumber={doc.number} className="px-4 py-3.5 rounded-xl bg-sky-600 text-white font-semibold hover:bg-sky-700 flex items-center gap-2" />}
         </div>
       </div>
 

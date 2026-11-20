@@ -20,6 +20,8 @@ const EN = {
   noteTitle: 'Notes about this estimate', noteBtn: 'Send a note', notePh: 'Write a note for Carlos here', sendBtn: 'Send',
   you: 'You', carlos: 'Carlos', sent: 'Sent. Carlos will see it.',
   signTitle: 'Sign this contract', fullName: 'Your full legal name', signature: 'Your signature',
+  cancelNoticeTitle: 'Your right to cancel',
+  cancelNotice: 'You may cancel this contract without penalty before midnight of the fifth (5th) business day after signing — the seventh (7th) business day if you are 65 or older. If you cancel after that period, a cancellation charge of ten percent (10%) of the total contract price will apply.',
   agree: 'I have read this contract and I agree to it. I agree to sign it electronically, and I understand my electronic signature has the same effect as signing on paper.',
   signBtn: 'Sign contract', signing: 'Signing…', signedBy: 'Signed by', on: 'on', signedOk: 'Thank you. Your contract is signed, and a copy is on its way to your email.',
   needName: 'Type your full name.', needSig: 'Add your signature.', needAgree: 'Tick the box to agree.',
@@ -48,6 +50,8 @@ const ES: typeof EN = {
   noteTitle: 'Notas sobre este presupuesto', noteBtn: 'Enviar una nota', notePh: 'Escriba aquí una nota para Carlos', sendBtn: 'Enviar',
   you: 'Usted', carlos: 'Carlos', sent: 'Enviado. Carlos lo verá.',
   signTitle: 'Firme este contrato', fullName: 'Su nombre legal completo', signature: 'Su firma',
+  cancelNoticeTitle: 'Su derecho a cancelar',
+  cancelNotice: 'Puede cancelar este contrato sin penalidad antes de la medianoche del quinto (5.º) día hábil después de firmar — el séptimo (7.º) día hábil si tiene 65 años o más. Si cancela después de ese período, se aplicará un cargo por cancelación del diez por ciento (10%) del precio total del contrato.',
   agree: 'He leído este contrato y estoy de acuerdo. Acepto firmarlo electrónicamente y entiendo que mi firma electrónica tiene el mismo efecto que una firma en papel.',
   signBtn: 'Firmar contrato', signing: 'Firmando…', signedBy: 'Firmado por', on: 'el', signedOk: 'Gracias. Su contrato está firmado y le llegará una copia por correo.',
   needName: 'Escriba su nombre completo.', needSig: 'Agregue su firma.', needAgree: 'Marque la casilla para aceptar.',
@@ -338,6 +342,10 @@ function Contract({ c, t, token, post, reload, messages, defaultName, day, dayTi
       {!signed && !cancelled && (
         <div className="mt-5 pt-5 border-t-2 border-[#fd9b14]">
           <h4 className="text-lg font-bold text-[#0b1b33] mb-3">{t.signTitle}</h4>
+          <div className="mb-4 rounded-xl border-2 border-[#fd9b14] bg-amber-50 p-4">
+            <p className="text-sm font-bold text-[#0b1b33] uppercase tracking-wide">{t.cancelNoticeTitle}</p>
+            <p className="mt-1.5 text-sm font-semibold text-slate-900 leading-relaxed">{t.cancelNotice}</p>
+          </div>
           <label className="block text-sm font-semibold text-slate-900 mb-1.5">{t.fullName}</label>
           <input value={name} onChange={e => setName(e.target.value)} autoComplete="name" className="w-full rounded-xl border border-slate-400 bg-white px-4 py-3 text-base text-slate-900 outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 mb-4" />
           <SignaturePad mode="client" label={t.signature} onSignatureChange={setSig} text={{ draw: t.draw, type: t.type, begin: t.begin, clear: t.clear, typePlaceholder: t.typePlaceholder, hintDraw: t.hintDraw, hintType: t.hintType, change: t.change }} />

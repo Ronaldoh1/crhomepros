@@ -6,6 +6,7 @@ import {
   Briefcase, User, Calendar, FileText, Pencil, AlertTriangle, Mail, Printer, Store
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
+import { TextToClientButton } from '../_components/TextToClientButton'
 import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
@@ -42,6 +43,8 @@ const DEFAULT_TERMS = `Any alteration or deviation from written agreement involv
 All work guaranteed for one (1) year from completion date. Warranty covers workmanship defects only, not normal wear and tear.
 
 Client agrees to provide reasonable access to the property during scheduled work hours. Any delays caused by client will extend the project timeline accordingly.
+
+CANCELLATION. The Client may cancel this contract without penalty or obligation before midnight of the fifth (5th) business day after the date of signing — the seventh (7th) business day if the Client is 65 years of age or older — by notifying CR Home Pros in writing. If the Client cancels after that period, a cancellation charge equal to ten percent (10%) of the total contract price will apply to cover scheduling, materials ordered and work already committed. This does not limit the Client's rights under Maryland law.
 
 CR Home Pros carries full liability insurance and workers' compensation coverage. MHIC License #05-132359.`
 
@@ -444,6 +447,12 @@ export default function ContractsPage() {
 
           <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6"><label className={lc}>Additional Notes</label><textarea value={ct.notes} onChange={e => updateField('notes', e.target.value)} rows={2} className={ic} /></div>
 
+          <div className="rounded-2xl border-2 border-amber-400 bg-amber-900/40 p-5">
+            <p className="text-sm font-bold text-white uppercase tracking-wide">Notice to client — right to cancel</p>
+            <p className="mt-2 text-sm text-white font-semibold leading-relaxed">YOU MAY CANCEL THIS CONTRACT WITHOUT PENALTY BEFORE MIDNIGHT OF THE FIFTH (5TH) BUSINESS DAY AFTER SIGNING — THE SEVENTH (7TH) BUSINESS DAY IF YOU ARE 65 OR OLDER. IF YOU CANCEL AFTER THAT PERIOD, A CANCELLATION CHARGE OF TEN PERCENT (10%) OF THE TOTAL CONTRACT PRICE WILL APPLY.</p>
+            <p className="mt-2 text-xs text-amber-100">This notice appears in the full terms above and on the signed PDF, next to the signature, as Maryland law requires.</p>
+          </div>
+
           <div className="bg-slate-800/50 border border-white/25 rounded-2xl p-6">
             <SignaturePad onSignatureChange={sig => updateField('signatureData', sig)} savedSignatureUrl={savedSigUrl} onDefaultSaved={url => { setSavedSigUrl(url); toast('Default signature saved') }} label="Carlos Hernandez — President, CR Home Pros Inc." />
           </div>
@@ -457,6 +466,7 @@ export default function ContractsPage() {
             ) : (
               <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
             ))}
+            {!signedBy && !cancelled && !ct.walkin && <TextToClientButton email={ct.clientEmail} phone={ct.clientPhone} name={ct.clientName} docType="contract" docNumber={ct.number} />}
             {!cancelled && wasSent && savedId && <button onClick={() => { setCancelReason(''); setTellClient(true); setCancelOpen(true) }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-700 text-white font-medium hover:bg-red-800">Cancel contract</button>}
             {!signedBy && !cancelled && wasSent && savedId && <button onClick={() => setConfirmPaper(true)} disabled={markingPaper} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50">{markingPaper ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Client signed on paper</button>}
           </div>
@@ -465,7 +475,7 @@ export default function ContractsPage() {
         <div>
           <div className="bg-white rounded-2xl shadow-2xl p-8 sm:p-12 max-w-[800px] mx-auto text-slate-900">
             <div className="flex items-start justify-between border-b-4 border-blue-900 pb-6 mb-8">
-              <div><h2 className="text-3xl font-bold text-blue-900">CR Home Pros</h2><p className="text-sm text-slate-600">General Services Inc.</p><p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p></div>
+              <div><h2 className="text-3xl font-bold text-blue-900">CR Home Pros</h2><p className="text-sm text-slate-600">CR Home Pros Inc.</p><p className="text-xs text-amber-600 mt-1">Licensed | Insured | Bonded</p></div>
               <div className="text-right"><h1 className="text-xl font-bold text-amber-600">{ct.isCorrection ? 'CORRECTED CONTRACT' : 'CONTRACT'}</h1><p className="text-sm text-slate-500 mt-1">#{ct.number} • {ct.date}</p></div>
             </div>
             <div className="grid sm:grid-cols-2 gap-8 mb-6">

@@ -323,6 +323,20 @@ export async function buildDocumentPdf(type: PdfDocType, raw: PdfDocData): Promi
       return null // unreadable signature image: leave the line blank
     }
   }
+  // Right-to-cancel notice, boldface next to the signature, as Maryland law requires.
+  if (type === 'contract') {
+    const notice = 'RIGHT TO CANCEL: You may cancel this contract without penalty before midnight of the fifth (5th) business day after signing — the seventh (7th) business day if you are 65 or older. If you cancel after that period, a cancellation charge of ten percent (10%) of the total contract price will apply.'
+    const noticeLines = wrap(notice, W - 2 * M - 24, 8.5, bold)
+    const boxH = noticeLines.length * 12 + 20
+    need(boxH + 20)
+    y -= 6
+    page.drawRectangle({ x: M, y: y - boxH, width: W - 2 * M, height: boxH, color: hex('#fff7ed'), borderColor: GOLD, borderWidth: 1 })
+    page.drawRectangle({ x: M, y: y - boxH, width: 4, height: boxH, color: GOLD })
+    let ny = y - 14
+    for (const line of noticeLines) { text(line, M + 14, ny, 8.5, bold, DARK); ny -= 12 }
+    y -= boxH + 8
+  }
+
   const cs = d.clientSignature || null
   need(cs ? 175 : 150)
   y -= 20

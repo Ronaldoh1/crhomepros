@@ -18,6 +18,7 @@ import { SendSummary, MoneyInput } from './SendSummary'
 import { usd, TAX_NOTE } from '@/lib/payment-plan'
 import { ConfirmDialog, useUnsavedWarning } from './DocumentGuards'
 import { PdfDialog, type ReadyPdf } from './PdfDialog'
+import { TextToClientButton } from './TextToClientButton'
 
 const emptyForm = {
   projectName: '', clientName: '', clientPhone: '', clientEmail: '', address: '', serviceType: '',
@@ -517,6 +518,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
                     {sharing === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {n.sharedWithClient ? 'Send again' : 'Send to client'}
                   </button>
                 ))}
+                {!locked && !n.walkin && <TextToClientButton email={n.clientEmail} phone={n.clientPhone} name={n.clientName} docType="estimate" docNumber={n.invoiceNumber} className="text-sm px-3 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-1.5" />}
                 {!locked && <button onClick={() => startEdit(n)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Open / edit</button>}
                 <button onClick={() => setToDelete(n)} className="text-sm px-3 py-2 rounded-lg bg-red-800 text-white hover:bg-red-700 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
               </div>
