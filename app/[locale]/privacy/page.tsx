@@ -1,14 +1,17 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import { COMPANY } from '@/lib/constants'
 
 export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   if (params?.locale === 'es') {
     return {
+      ...seoAlternates('privacy', params.locale),
       title: 'Política de Privacidad',
       description: 'Política de privacidad de CR Home Pros. Cómo recopilamos, usamos y protegemos su información personal.',
     }
   }
   return {
+      ...seoAlternates('privacy', params.locale),
     title: 'Privacy Policy',
     description: 'CR Home Pros privacy policy. How we collect, use, and protect your personal information.',
   }

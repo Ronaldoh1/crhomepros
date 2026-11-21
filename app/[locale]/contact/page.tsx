@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Phone, Mail, MapPin, Clock, ArrowRight, Facebook, Instagram } from 'lucide-react'
@@ -8,11 +9,13 @@ import { formatPhoneLink, formatWhatsAppLink } from '@/lib/utils'
 export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   if (params.locale === 'es') {
     return {
+      ...seoAlternates('contact', params.locale),
       title: 'Contáctenos',
       description: 'Comuníquese con CR Home Pros para solicitar un estimado gratuito. Servimos a Washington DC, Maryland y Virginia.',
     }
   }
   return {
+      ...seoAlternates('contact', params.locale),
     title: 'Contact Us',
     description: 'Get in touch with CR Home Pros for a free estimate. Serving Washington DC, Maryland and Virginia.',
   }

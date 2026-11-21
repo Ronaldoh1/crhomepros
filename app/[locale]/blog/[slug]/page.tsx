@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   const post = getPostBySlug(params.slug)
   if (!post) return { title: params.locale === 'es' ? 'Artículo No Encontrado' : 'Post Not Found' }
   const localized = getLocalizedPost(post, params.locale || 'en')
-  return { title: localized.title + ' | CR Home Pros', description: localized.excerpt }
+  return { title: localized.title + ' | CR Home Pros', description: localized.excerpt, ...seoAlternates(`blog/${params.slug}`, params.locale) }
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {

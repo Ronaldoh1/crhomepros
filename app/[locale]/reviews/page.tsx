@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Star, Quote, MapPin, ArrowRight, CheckCircle, FileText } from 'lucide-react'
@@ -8,11 +9,13 @@ import { cn, getInitials } from '@/lib/utils'
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
   if (params.locale === 'es') {
     return {
+      ...seoAlternates('reviews', params.locale),
       title: 'Reseñas de Clientes',
       description: `Lea lo que nuestros clientes dicen de CR Home Pros. ${COMPANY.projectsCompleted} clientes satisfechos en DC, Maryland y Virginia.`,
     }
   }
   return {
+      ...seoAlternates('reviews', params.locale),
     title: 'Customer Reviews',
     description: `Read what our customers say about CR Home Pros. ${COMPANY.projectsCompleted} satisfied customers across DC, Maryland & Virginia.`,
   }

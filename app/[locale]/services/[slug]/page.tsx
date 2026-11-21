@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { SERVICE_IMAGES } from '@/lib/site-images'
 import { Metadata } from 'next'
 import Link from 'next/link'
@@ -164,8 +165,9 @@ export async function generateMetadata({ params }: { params: { slug: string; loc
   const es = params.locale === 'es'
   const service = SERVICES.find((s) => s.id === params.slug)
   if (!service) return { title: es ? 'Servicio No Encontrado' : 'Service Not Found' }
-  if (es) return { title: service.nameEs, description: service.shortDescriptionEs }
-  return { title: service.name, description: service.shortDescription }
+  const alt = seoAlternates(`services/${params.slug}`, params.locale)
+  if (es) return { title: service.nameEs, description: service.shortDescriptionEs, ...alt }
+  return { title: service.name, description: service.shortDescription, ...alt }
 }
 
 export default function ServicePage({ params }: { params: { slug: string; locale: string } }) {

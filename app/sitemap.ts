@@ -19,6 +19,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/estimate-cost',
     '/pricing',
     '/blog',
+    '/green',
+    '/project-library',
   ]
 
   // Generate entries for both locales

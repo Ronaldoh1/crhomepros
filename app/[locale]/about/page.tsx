@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -6,15 +7,18 @@ import { COMPANY, SERVICE_AREAS } from '@/lib/constants'
 import { resolveImageUrl } from '@/lib/resolve-images'
 
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
+  const alt = seoAlternates('about', params.locale)
   if (params.locale === 'es') {
     return {
       title: 'Sobre Nosotros',
       description: `Conozca CR Home Pros: más de ${COMPANY.yearsInBusiness} años de trabajo confiable al servicio del área DMV. Conozca a nuestro equipo y nuestro compromiso con la calidad.`,
+      ...alt,
     }
   }
   return {
     title: 'About Us',
     description: `Learn about CR Home Pros - ${COMPANY.yearsInBusiness}+ years of trusted craftsmanship serving the DMV area. Meet our team and discover our commitment to quality.`,
+    ...alt,
   }
 }
 

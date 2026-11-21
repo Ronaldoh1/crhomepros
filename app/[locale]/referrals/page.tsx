@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { Gift, DollarSign, Users, ArrowRight, CheckCircle, Zap, Heart, Star, Phone } from 'lucide-react'
@@ -8,11 +9,13 @@ import { ReferralForm } from '@/components/forms/ReferralForm'
 export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   if (params?.locale === 'es') {
     return {
+      ...seoAlternates('referrals', params.locale),
       title: 'Programa de Referidos',
       description: 'Gane recompensas por recomendar a amigos y familiares a CR Home Pros. Reciba de $75 a $750+ por cada referido exitoso. Comparta la calidad, comparta las recompensas.',
     }
   }
   return {
+      ...seoAlternates('referrals', params.locale),
     title: 'Referral Program',
     description: 'Earn rewards for referring friends and family to CR Home Pros. Get $75-$750+ for every successful referral. Share the quality, share the rewards.',
   }

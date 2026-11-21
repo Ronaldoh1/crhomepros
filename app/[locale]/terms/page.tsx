@@ -1,14 +1,17 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import { COMPANY } from '@/lib/constants'
 
 export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   if (params?.locale === 'es') {
     return {
+      ...seoAlternates('terms', params.locale),
       title: 'Términos de Servicio',
       description: 'Términos de servicio de CR Home Pros. Términos y condiciones para el uso de nuestro sitio web y nuestros servicios.',
     }
   }
   return {
+      ...seoAlternates('terms', params.locale),
     title: 'Terms of Service',
     description: 'CR Home Pros terms of service. Terms and conditions for using our website and services.',
   }

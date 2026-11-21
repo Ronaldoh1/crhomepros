@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import { Suspense } from 'react'
 import { Shield, Clock, Phone, CheckCircle } from 'lucide-react'
@@ -7,11 +8,13 @@ import { IntakeForm } from '@/components/forms/IntakeForm'
 export function generateMetadata({ params }: { params: { locale: string } }): Metadata {
   if (params.locale === 'es') {
     return {
+      ...seoAlternates('get-started', params.locale),
       title: 'Comenzar - Estimado Gratuito',
       description: 'Solicite un estimado gratuito para mejorar su hogar con CR Home Pros. Llene nuestro sencillo formulario y reciba una consulta en menos de 24 horas.',
     }
   }
   return {
+      ...seoAlternates('get-started', params.locale),
     title: 'Get Started - Free Estimate',
     description: 'Request a free home improvement estimate from CR Home Pros. Fill out our simple form and get a consultation within 24 hours.',
   }

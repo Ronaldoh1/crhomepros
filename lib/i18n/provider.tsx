@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext } from 'react'
+import { createContext, useContext, useEffect } from 'react'
 import type { Locale } from './config'
 import type { Dictionary } from './en'
 import { getDictionarySync } from './dictionaries'
@@ -23,6 +23,11 @@ export function LocaleProvider({
   children: React.ReactNode
 }) {
   const t = getDictionarySync(locale)
+  // The root <html lang> is static "en"; reflect the active locale so screen
+  // readers and crawlers see the right language on Spanish pages.
+  useEffect(() => {
+    if (typeof document !== 'undefined') document.documentElement.lang = locale
+  }, [locale])
   return (
     <LocaleContext.Provider value={{ locale, t }}>
       {children}

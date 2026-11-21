@@ -1,3 +1,4 @@
+import { seoAlternates } from '@/lib/seo'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowRight, ChefHat, Bath, Home, Warehouse, Hammer, Grid3X3, Paintbrush, Wrench, TreeDeciduous, Shield, Building, FileText, Phone } from 'lucide-react'
@@ -8,11 +9,13 @@ import { EcoBanner } from '@/components/ui/EcoBadge'
 export async function generateMetadata({ params }: { params: { locale: string } }): Promise<Metadata> {
   if (params.locale === 'es') {
     return {
+      ...seoAlternates('services', params.locale),
       title: 'Nuestros Servicios',
       description: 'Servicios completos de mejoras para el hogar en DC, Maryland y Virginia. Remodelación de cocinas, renovación de baños, techos, concreto, pintura y más. Con licencia y seguro.',
     }
   }
   return {
+      ...seoAlternates('services', params.locale),
     title: 'Our Services',
     description: 'Complete home improvement services in DC, Maryland & Virginia. Kitchen remodeling, bathroom renovation, roofing, concrete, painting & more. Licensed & insured.',
   }
