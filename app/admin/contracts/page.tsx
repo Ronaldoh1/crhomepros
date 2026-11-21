@@ -109,6 +109,13 @@ export default function ContractsPage() {
       // Contract started from a field estimate: client and job are filled in
       getFieldNote(fromEstimate).then(async note => {
         if (!note) { alert('That field estimate was not found.'); return }
+        // A revised estimate must be re-approved and signed by the client before it
+        // can become a contract. (Walk-ins are approved on paper, so they're exempt.)
+        if (note.revisedAt && !note.clientApproval?.signedAt && !note.walkin) {
+          alert('This estimate was changed after the client approved it. Send the revised estimate and have the client approve and sign it before creating the contract.')
+          window.location.href = '/admin/estimates/sent'
+          return
+        }
         const prices = (note.estimatedCost || '').match(/\d[\d,]*(\.\d+)?/g) || []
         const number = await nextDocumentNumber('contract').catch(() => '')
         setEstimateId(fromEstimate)

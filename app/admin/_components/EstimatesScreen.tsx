@@ -216,9 +216,18 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
       setPhotos(saved) // if a later step fails, a second try does not upload again
       // 2. the estimate itself
       setProgress('Saving the estimate…')
-      // The client approved a specific price. If it changes, that approval no longer stands:
-      // the estimate becomes a revised estimate and must be sent and approved again.
-      const revised = !!existing?.clientApproval?.signedAt && !existing.contractId && amountOf(existing) !== form.estimatedAmount
+      // The client approved a specific price and scope. If any of that changes, the
+      // approval no longer stands: the estimate becomes a revised estimate and must be
+      // sent and approved again. We compare the fields the client actually sees and
+      // signs off on — price, project name and the next steps/scope — ignoring only
+      // whitespace so a trivial reformat doesn't reset the approval.
+      const norm = (s?: string) => (s || '').replace(/\s+/g, ' ').trim()
+      const materiallyChanged = !!existing && (
+        amountOf(existing) !== form.estimatedAmount ||
+        norm(existing.projectName) !== norm(form.projectName) ||
+        norm(existing.nextSteps) !== norm(form.nextSteps)
+      )
+      const revised = !!existing?.clientApproval?.signedAt && !existing.contractId && materiallyChanged
       const note: FieldNoteRecord = {
         ...form, id,
         walkin: form.walkin,
@@ -238,7 +247,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
       markSaved()
       for (const path of removedPaths) await deleteFieldPhoto(path)
       setRemovedPaths([])
-      toast(revised ? `Revised estimate saved. The price changed, so ${note.clientName} needs to approve it again: press Send again.` : isNew ? `Estimate for ${note.clientName} saved as New` : `Estimate for ${note.clientName} saved`)
+      toast(revised ? `Revised estimate saved. ${note.clientName} needs to approve and sign the new version before you can create the contract — press Send again (or text the link).` : isNew ? `Estimate for ${note.clientName} saved as New` : `Estimate for ${note.clientName} saved`)
       setEditing(null)
       loadNotes()
     } catch (err) {
@@ -436,7 +445,12 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
           {shown.map(n => {
             const st = statusOf(n)
             const locked = st === 'discarded'
-            const canContract = OPEN.includes(st)
+            // A revised estimate (edited after the client had approved it) is waiting
+            // for the client to approve and sign the NEW version. Until they do,
+            // Carlos cannot turn it into a contract — except walk-ins, which are
+            // approved on paper rather than on the client's page.
+            const awaitingReapproval = !!n.revisedAt && !n.clientApproval?.signedAt && !n.walkin
+            const canContract = OPEN.includes(st) && !awaitingReapproval
             const inContract = st === 'contracted' || st === 'invoiced'
             return (
             <div key={n.id} className={card + (locked ? ' opacity-80' : '')}>
@@ -500,12 +514,20 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
                 )}
                 {n.contractId ? (
                   <a href={`/admin/contracts?id=${n.contractId}`} className="self-end px-3 py-2.5 rounded-lg bg-violet-600 text-white font-medium hover:bg-violet-700 flex items-center justify-center gap-2"><FileSignature className="w-4 h-4" /> Open contract</a>
+                ) : awaitingReapproval ? (
+                  <span className="self-end px-3 py-2.5 rounded-lg bg-slate-700 text-white/70 font-medium flex items-center justify-center gap-2 cursor-not-allowed" title="The client must approve and sign the revised estimate first"><Lock className="w-4 h-4" /> Create contract</span>
                 ) : canContract ? (
                   <a href={`/admin/contracts?fromEstimate=${n.id}`} className="self-end px-3 py-2.5 rounded-lg bg-violet-600 text-white font-medium hover:bg-violet-700 flex items-center justify-center gap-2"><FileSignature className="w-4 h-4" /> Create contract</a>
                 ) : st === 'declined' ? (
                   <p className="self-end text-sm text-white">To make a contract, change the status to Reopened first.</p>
                 ) : null}
-                {canContract && !n.contractId && !n.clientApproval?.signedAt && !n.walkin && <p className="sm:col-span-2 text-sm text-white">The client has not approved this estimate on their page yet. You can still create the contract.</p>}
+                {awaitingReapproval && !n.contractId && (
+                  <div className="sm:col-span-2 rounded-lg border border-amber-300 bg-amber-800 px-3 py-2.5 text-sm text-white">
+                    <p className="font-semibold flex items-center gap-1.5"><AlertTriangle className="w-4 h-4" /> Changes made — waiting on the client</p>
+                    <p className="mt-0.5">You revised this estimate after it was approved, so the old approval no longer counts. Send it again and have the client approve and sign the new version before you create the contract.{n.clientEmail ? '' : ' Add their email first so they can approve it online, or text them the link.'}</p>
+                  </div>
+                )}
+                {canContract && !n.contractId && !n.clientApproval?.signedAt && !n.revisedAt && !n.walkin && <p className="sm:col-span-2 text-sm text-white">The client has not approved this estimate on their page yet. You can still create the contract.</p>}
                 {canContract && !n.contractId && n.walkin && <p className="sm:col-span-2 text-sm text-white">Walk-in: print the estimate to hand over, then create the contract. The contract is also printed and signed on paper.</p>}
               </div>
 
