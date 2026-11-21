@@ -319,7 +319,7 @@ export default function InvoicePage() {
           ) : (
             <button onClick={openSummary} className="flex-1 px-4 py-3.5 rounded-xl bg-slate-700 text-white text-base font-semibold hover:bg-slate-600 flex items-center justify-center gap-2"><Send className="w-5 h-5" /> Send again</button>
           )}
-          {!isVoid && !isWalkin && <TextToClientButton email={doc.clientEmail} phone={doc.clientPhone} name={doc.clientName} docType="invoice" docNumber={doc.number} className="px-4 py-3.5 rounded-xl bg-sky-600 text-white font-semibold hover:bg-sky-700 flex items-center gap-2" />}
+          {!isVoid && <TextToClientButton email={doc.clientEmail} phone={doc.clientPhone} name={doc.clientName} docType="invoice" docNumber={doc.number} label={isWalkin ? 'Text link' : 'Text to client'} className="px-4 py-3.5 rounded-xl bg-sky-600 text-white font-semibold hover:bg-sky-700 flex items-center gap-2" onSent={async () => { if (doc.id) await saveDocument({ ...doc, textedAt: new Date().toISOString() } as DocumentRecord).catch(() => {}) }} />}
         </div>
       </div>
 

@@ -449,6 +449,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
               </div>
               <div className="flex flex-wrap items-center gap-2 mt-2 text-sm">
                 {n.walkin && <span className="px-2.5 py-0.5 rounded-full bg-teal-700 text-white font-semibold flex items-center gap-1"><Store className="w-3.5 h-3.5" /> Walk-in</span>}
+                {n.textedAt && <span className="px-2.5 py-0.5 rounded-full bg-sky-700 text-white font-semibold flex items-center gap-1"><MessageSquare className="w-3.5 h-3.5" /> Texted</span>}
                 {amountOf(n) > 0 && <span className="px-2.5 py-0.5 rounded-full bg-green-800 text-white font-semibold">{usd(amountOf(n))} + tax</span>}
                 {n.clientApproval?.signedAt && <span className="px-2.5 py-0.5 rounded-full bg-green-600 text-white font-semibold flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Approved and signed by {n.clientApproval.name} {shortDay(n.clientApproval.signedAt.slice(0, 10))}</span>}
                 {n.sharedWithClient && <span className="px-2.5 py-0.5 rounded-full bg-blue-800 text-white">Client can see it{n.sharedAt ? ` since ${shortDay(n.sharedAt)}` : ''}</span>}
@@ -518,7 +519,7 @@ export function EstimatesScreen({ initialView = 'all', startWithNew = false }: {
                     {sharing === n.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />} {n.sharedWithClient ? 'Send again' : 'Send to client'}
                   </button>
                 ))}
-                {!locked && !n.walkin && <TextToClientButton email={n.clientEmail} phone={n.clientPhone} name={n.clientName} docType="estimate" docNumber={n.invoiceNumber} className="text-sm px-3 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-1.5" />}
+                {!locked && <TextToClientButton email={n.clientEmail} phone={n.clientPhone} name={n.clientName} docType="estimate" docNumber={n.invoiceNumber} label={n.walkin ? 'Text link' : 'Text to client'} className="text-sm px-3 py-2 rounded-lg bg-sky-600 text-white hover:bg-sky-700 flex items-center gap-1.5" onSent={async () => { await updateFieldNote(n.id!, { textedAt: new Date().toISOString(), sharedWithClient: true, sharedAt: n.sharedAt || new Date().toISOString() }).catch(() => {}); loadNotes() }} />}
                 {!locked && <button onClick={() => startEdit(n)} className="text-sm px-3 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 flex items-center gap-1.5"><Pencil className="w-4 h-4" /> Open / edit</button>}
                 <button onClick={() => setToDelete(n)} className="text-sm px-3 py-2 rounded-lg bg-red-800 text-white hover:bg-red-700 flex items-center gap-1.5 ml-auto"><Trash2 className="w-4 h-4" /> Delete</button>
               </div>

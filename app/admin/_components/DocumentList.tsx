@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getDocumentsByType, deleteDocument, updateFieldNote, saveDocumentPatch, type DocumentRecord } from '@/lib/firebase-auth'
-import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, DollarSign, Upload, Store } from 'lucide-react'
+import { FileText, Trash2, Download, Eye, Send, Loader2, CheckCircle, Clock, DollarSign, Upload, Store, MessageSquare } from 'lucide-react'
 import Link from 'next/link'
 import { ConfirmDialog } from './DocumentGuards'
 import { useToast } from './Toast'
@@ -152,6 +152,7 @@ export function DocumentList({ type, title, createHref, createLabel, view = 'sen
                     <div className="flex items-center gap-3 mb-1.5 flex-wrap">
                       <h3 className="font-semibold text-white truncate">{doc.number}</h3>
                       {doc.walkin && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-700 text-white"><Store className="w-3 h-3" /> Walk-in</span>}
+                      {doc.textedAt && <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-sky-700 text-white"><MessageSquare className="w-3 h-3" /> Texted</span>}
                       <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_STYLES[doc.status] || STATUS_STYLES.draft}`}>
                         <StatusIcon className="w-3 h-3" />
                         {doc.status === 'cancelled' ? 'Cancelled' : doc.status === 'void' ? 'Void' : doc.type === 'contract' && doc.status === 'signed' ? 'In contract' : doc.type === 'contract' && doc.status === 'sent' ? 'Waiting for signature'

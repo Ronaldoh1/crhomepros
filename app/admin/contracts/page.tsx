@@ -7,13 +7,14 @@ import {
 } from 'lucide-react'
 import { SignaturePad } from '../_components/SignaturePad'
 import { TextToClientButton } from '../_components/TextToClientButton'
-import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote } from '@/lib/firebase-auth'
+import { saveDocument, getDocument, type DocumentRecord, getSavedSignatureUrl, nextDocumentNumber, confirmDocumentNumber, getFieldNote, updateFieldNote, saveDocumentPatch } from '@/lib/firebase-auth'
 
 import { adminFetch } from '@/lib/admin-api'
 import { ConfirmDialog, SentNotice, SendChecks, useUnsavedWarning } from '../_components/DocumentGuards'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useToast } from '../_components/Toast'
+import { pingNotifications } from '../_components/Notifications'
 import { PdfDialog, type ReadyPdf } from '../_components/PdfDialog'
 import { SendSummary, PercentInput, MoneyInput } from '../_components/SendSummary'
 import { PAYMENT_PLANS, buildPayments, paymentLines, taxOn, usd, type PaymentPlan } from '@/lib/payment-plan'
@@ -205,13 +206,14 @@ export default function ContractsPage() {
       markSaved()
       if (status === 'draft') toast(`Draft ${num} saved. Find it under Drafts.`)
       if (status !== 'draft') { setWasSent(true); setCt(prev => ({ ...prev, isCorrection: true })) }
+      setSaving(false)
+      return id
     } catch (err) {
       console.error('Save failed:', err)
       alert(`This could not be saved. Please tell Ron.\n\n${err instanceof Error ? err.message : String(err)}`)
       setSaving(false)
       throw err
     }
-    setSaving(false)
   }
 
   // Everything the PDF needs, built from the form
@@ -299,6 +301,18 @@ export default function ContractsPage() {
     toast(`Contract ${ct.number} marked as given to the client. Print it, then press "Client signed on paper" once they sign.`)
   }
 
+  // Texted the contract link to the client. Make sure it's saved as "sent" so the
+  // link is live and signable, and record that a text went out.
+  const markTexted = async () => {
+    try {
+      let id = savedId
+      if (!wasSent && !signedBy) { id = await handleSave('sent') }
+      if (id) await saveDocumentPatch(id, { textedAt: new Date().toISOString() })
+      toast(`Link texted. ${ct.clientName || 'The client'} can open it and sign from their phone.`)
+      pingNotifications()
+    } catch { /* the Messages app already opened; a failed marker is non-fatal */ }
+  }
+
   // The client signed a printed copy: same result as signing online
   const markPaperSigned = async () => {
     setConfirmPaper(false); setMarkingPaper(true)
@@ -334,8 +348,9 @@ export default function ContractsPage() {
 
       {ct.walkin && !signedBy && !cancelled && (
         <div className="mb-6 rounded-xl border border-teal-300 bg-teal-800 p-4 text-sm text-white">
-          <p className="font-bold text-base flex items-center gap-2"><Store className="w-4 h-4" /> Walk-in contract — printed, not emailed</p>
-          <p className="mt-1">Fill it in and press <strong>Print &amp; mark as given</strong>. Hand the printed contract to the client to sign. When they do, press <strong>Client signed on paper</strong>: the invoice is created for you, exactly like an online signing.</p>
+          <p className="font-bold text-base flex items-center gap-2"><Store className="w-4 h-4" /> Walk-in contract — not emailed</p>
+          <p className="mt-1"><strong>On paper:</strong> press <strong>Print &amp; mark as given</strong>, have the client sign the printout, then press <strong>Client signed on paper</strong>.</p>
+          <p className="mt-1"><strong>By phone:</strong> if the client has a mobile number, press <strong>Text link to sign</strong> — they open the link and sign on their phone, no email needed. Either way the invoice is created for you, exactly like an online signing.</p>
         </div>
       )}
       {cancelled ? (
@@ -466,7 +481,7 @@ export default function ContractsPage() {
             ) : (
               <button onClick={() => (wasSent ? setConfirmCorrection(true) : prepareEmail())} disabled={!ct.clientEmail} className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-600 text-white font-medium hover:bg-green-700 text-sm disabled:opacity-40">{sent ? <CheckCircle className="w-4 h-4" /> : <Send className="w-4 h-4" />} {sent ? 'Sent!' : wasSent ? 'Send Correction' : 'Send to Client'}</button>
             ))}
-            {!signedBy && !cancelled && !ct.walkin && <TextToClientButton email={ct.clientEmail} phone={ct.clientPhone} name={ct.clientName} docType="contract" docNumber={ct.number} />}
+            {!signedBy && !cancelled && <TextToClientButton email={ct.clientEmail} phone={ct.clientPhone} name={ct.clientName} docType="contract" docNumber={ct.number} label={ct.walkin ? 'Text link to sign' : 'Text to client'} onSent={markTexted} />}
             {!cancelled && wasSent && savedId && <button onClick={() => { setCancelReason(''); setTellClient(true); setCancelOpen(true) }} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-700 text-white font-medium hover:bg-red-800">Cancel contract</button>}
             {!signedBy && !cancelled && wasSent && savedId && <button onClick={() => setConfirmPaper(true)} disabled={markingPaper} className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 disabled:opacity-50">{markingPaper ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />} Client signed on paper</button>}
           </div>

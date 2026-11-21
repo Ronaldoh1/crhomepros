@@ -5,7 +5,7 @@
 //  3. A past project is started, with the estimate photos as "before"
 //  4. Carlos is notified, and both sides get the signed PDF
 import type { Firestore } from 'firebase-admin/firestore'
-import { emailKey, phoneKey } from './client-keys'
+import { emailKey, phoneKey, isWalkinEmail } from './client-keys'
 import { buildPayments, type PaymentPlan } from './payment-plan'
 import { buildDocumentPdf } from './pdf-document'
 import { addMessage, sendMail, emailShell, esc, portalUrl, pdfDataFromRecord, getOrCreateClient, SITE_URL, OFFICE_EMAIL } from './portal-server'
@@ -102,6 +102,8 @@ export async function afterContractSigned(db: Firestore, contract: any, signerNa
       html: emailShell(`<p><strong>${esc(signerName)}</strong> signed contract <strong>${esc(contract.number || '')}</strong> online.</p><p>Invoice <strong>${esc(out.invoiceNumber || '')}</strong> was created and is ready for you to approve and send.</p>`, { label: 'Open the invoice', url: `${SITE_URL}/admin/invoices?id=${out.invoiceId || ''}` }, { office: true }),
     }).catch(e => console.error('Office sign email failed:', e?.message))
     try {
+      // Walk-ins signed by texted link have a placeholder address — never email it.
+      if (isWalkinEmail(contract.clientEmail)) throw new Error('WALKIN_NO_EMAIL')
       const client = await getOrCreateClient(contract.clientEmail, contract.clientName, contract.clientPhone)
       const pdf = Buffer.from(await buildDocumentPdf('contract', pdfDataFromRecord(contract)))
       await sendMail({

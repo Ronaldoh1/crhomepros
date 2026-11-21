@@ -33,7 +33,7 @@ import {
   type Timestamp,
   type Firestore,
 } from 'firebase/firestore'
-import { emailKey, phoneKey } from './client-keys'
+import { emailKey, phoneKey, walkinEmailFromPhone } from './client-keys'
 import type { Payment, PaymentPlan } from './payment-plan'
 import {
   getStorage,
@@ -224,6 +224,9 @@ export interface DocumentRecord {
    *  printed and signed on paper instead of emailed. Set on the estimate and
    *  carried onto the contract and invoice made from it. */
   walkin?: boolean
+  /** When Carlos texted this document's link to the client (via the Messages app).
+   *  A record that the link went out, independent of email. */
+  textedAt?: string
   /** Field estimate this invoice was made from (one invoice per estimate) */
   estimateId?: string
   /** The client first declined the estimate and later came back */
@@ -257,11 +260,16 @@ export async function saveDocument(docData: DocumentRecord): Promise<string> {
     ? doc(db, DOCS_COLLECTION, docData.id)
     : doc(collection(db, DOCS_COLLECTION))
 
+  // A walk-in with a phone but no email still gets a stable key (from the phone),
+  // so a texted portal link resolves to the same client and the signing check passes.
+  const effectiveEmail = docData.clientEmail || (docData.walkin ? walkinEmailFromPhone(docData.clientPhone) : '')
+
   const payload = {
     ...docData,
     id: docRef.id,
+    ...(effectiveEmail && !docData.clientEmail ? { clientEmail: effectiveEmail } : {}),
     // how the client page finds this client's documents
-    clientEmailKey: emailKey(docData.clientEmail),
+    clientEmailKey: emailKey(effectiveEmail),
     clientPhoneKey: phoneKey(docData.clientPhone),
     updatedAt: serverTimestamp(),
     ...(docData.id ? {} : { createdAt: serverTimestamp() }),
@@ -519,6 +527,8 @@ export interface FieldNoteRecord {
   /** Shown on the client's page (set by "Send to client") */
   sharedWithClient?: boolean
   sharedAt?: string
+  /** When Carlos texted this estimate's link to the client via the Messages app */
+  textedAt?: string
   /** Contract made from this estimate */
   contractId?: string
   /** Number of a contract for this estimate that was cancelled */
