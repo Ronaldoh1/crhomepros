@@ -164,7 +164,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-slate-950 flex items-center justify-center">
         <Loader2 className="w-8 h-8 text-blue-300 animate-spin" />
       </div>
     )
@@ -175,7 +175,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-[100dvh] bg-slate-950 flex">
       <AdminTour />
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
@@ -195,7 +195,7 @@ function AdminShell({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-64 min-h-screen">
+      <div className="flex-1 lg:ml-64 min-h-[100dvh]">
         {/* Mobile Header */}
         <header className="lg:hidden sticky top-0 z-20 bg-slate-900/80 backdrop-blur-xl border-b border-white/25 px-4 py-3 flex items-center justify-between">
           <button onClick={() => setMobileMenuOpen(true)} className="text-white hover:text-white">

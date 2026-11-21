@@ -360,3 +360,35 @@
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ===== Installed Home Screen app (standalone PWA) ===== */
+/* Prevent the rubber-band / overscroll bounce that makes the admin page drift
+   around when opened from the iPhone Home Screen icon. Applies everywhere; it
+   only stops the bounce, not normal scrolling. */
+html {
+  overscroll-behavior-y: none;
+}
+
+/* When launched from the Home Screen icon (not in a browser tab), pin the app to
+   the real window size so it can't shift, and let content scroll inside instead
+   of the whole page sliding. 100dvh tracks the live viewport on iOS. */
+@media all and (display-mode: standalone) {
+  html, body {
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;           /* the body itself never scrolls */
+    overscroll-behavior: none;
+    position: fixed;            /* lock it in place — no drift */
+    inset: 0;
+    width: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Make the app's first wrapper the scroller (not the body). Only the first
+     div so toast/modal portals mounted later as body children aren't affected. */
+  body > div:first-of-type {
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
