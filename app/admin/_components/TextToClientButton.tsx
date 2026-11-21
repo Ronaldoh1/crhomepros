@@ -68,12 +68,27 @@ export function TextToClientButton({
       if (!res.ok || !data.url) throw new Error(data.error || 'No link')
       const greeting = name ? `Hi ${name.split(' ')[0]}, ` : ''
       const tpl = docNumber ? MESSAGE[docType].withNum.replace('{n}', docNumber) : MESSAGE[docType].noNum
-      const body = `${greeting}${tpl}\n${data.url}`
-      // sms:NUMBER&body=... opens Messages on iPhone and Mac, pre-filled.
-      const isApple = /iPhone|iPad|iPod|Mac/i.test(navigator.userAgent || navigator.platform || '')
-      const href = `sms:${num}${isApple ? '&' : '?'}body=${encodeURIComponent(body)}`
-      window.location.href = href
+      const body = `${greeting}${tpl} ${data.url}`
+
+      // Copy the message first, as a safety net: iOS sometimes drops the sms:
+      // body (older versions, and when launched from the Home Screen app), so if
+      // Messages opens empty, Carlos can just paste.
+      try { await navigator.clipboard?.writeText(body) } catch { /* not critical */ }
+
+      // iOS wants the FIRST sms: parameter joined with "?", not "&"
+      // (sms:NUMBER?body=...). The "&" form is what was dropping the body.
+      // Android/other also accept "?". Trigger it with a real anchor click so the
+      // body survives inside the installed PWA, where window.location can strip it.
+      const href = `sms:${num}?body=${encodeURIComponent(body)}`
+      const a = document.createElement('a')
+      a.href = href
+      a.style.display = 'none'
+      document.body.appendChild(a)
+      a.click()
+      setTimeout(() => a.remove(), 0)
+
       if (onSent) await onSent()
+      toast('Messages is opening. If the text is empty, paste — the message is on your clipboard.')
     } catch (e) {
       toast(e instanceof Error && e.message !== 'No link' ? e.message : 'The link could not be built.', 'error')
     }
